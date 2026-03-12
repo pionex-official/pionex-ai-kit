@@ -1,0 +1,33 @@
+{
+  "name": "pionex-mcp-server",
+  "version": "0.1.4",
+  "description": "MCP server that exposes Pionex REST APIs as tools.",
+  "type": "module",
+  "bin": {
+    "pionex-mcp-server": "cli.mjs"
+  },
+  "scripts": {
+    "start": "node cli.mjs",
+    "setup": "node cli.mjs setup",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "pionex",
+    "exchange",
+    "tools"
+  ],
+  "author": "Pionex",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.3.1",
+    "vitest": "^4.0.0"
+  }
+}
+
