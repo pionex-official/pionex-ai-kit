@@ -1,25 +1,24 @@
-# pionex-mcp-server 快速入门指南
+# Pionex AI Kit — 快速入门
 
-pionex-mcp-server 是一个 MCP（Model Context Protocol）服务器，将 [Pionex](https://www.pionex.com) 的 REST API 暴露给任何兼容 MCP 的客户端（Cursor、OpenClaw、Claude Desktop 等）。
+将 [Pionex](https://www.pionex.com) REST API 通过 MCP（Model Context Protocol）暴露给 Cursor、OpenClaw、Claude Desktop、Windsurf、VS Code 等客户端。凭证统一存放在 **~/.pionex/config.toml**；客户端配置里只保存如何启动 MCP 服务（不写密钥）。
 
-## 功能特性
+## 功能概览
 
-- **行情数据（公开）**：无需 API Key 即可获取盘口深度、最近成交等。
-- **账户与订单（需认证）**：设置 `PIONEX_API_KEY` 和 `PIONEX_API_SECRET` 后，可查询余额、下单、查单、撤单。
-- **一键配置向导**：通过 `npx pionex-mcp-server setup` 自动写入 Cursor / OpenClaw 的 MCP 配置。
+- **行情数据（公开）**：盘口深度、最近成交、交易对信息等，无需 API Key。
+- **账户与订单（需认证）**：在 `~/.pionex/config.toml` 中配置后，可查询余额、下单、查单、撤单。
+- **双包流程**：**pionex-ai-kit** 负责配置向导；**pionex-trade-mcp** 提供 MCP 服务并支持一键写入各客户端配置。
 
 ---
 
 ## 前置条件
 
-- **Node.js 18+**  
-  用下面命令确认：
+- **Node.js 18+**
 
-```bash
-node --version
-```
+  ```bash
+  node --version
+  ```
 
-- 一个 **Pionex 账户**（仅私有/交易工具需要，公开行情无需账户）。
+- **Pionex 账户**（仅私有/交易类工具需要；公开行情可不配置密钥）。
 
 ---
 
@@ -27,136 +26,149 @@ node --version
 
 1. 登录 [pionex.com](https://www.pionex.com)
 2. 进入 **API 管理** 页面
-3. 创建新的 API Key：
-   - 只勾选你真正需要的权限（仅查询余额/订单时，建议只读权限）
-4. 复制 **API Key** 和 **Secret**（Secret 只显示一次）
-5. 如有需要，可以开启 IP 白名单以提高安全性
+3. 创建新 API Key，按需勾选权限（仅查余额/订单时可只开只读）
+4. 复制 **API Key** 和 **Secret**（Secret 仅显示一次）
+5. 可选：开启 IP 白名单提高安全性
 
 ---
 
-## 一键 Setup（推荐）
-
-在终端中执行：
+## 1. 安装
 
 ```bash
-npx pionex-mcp-server setup
+npm install -g pionex-ai-kit pionex-trade-mcp
 ```
-
-向导会依次询问：
-
-- 使用的客户端：**Cursor** / **OpenClaw** / **Both**
-- **PIONEX_API_KEY** 与 **PIONEX_API_SECRET**
-- 可选的 **PIONEX_BASE_URL**（默认 `https://api.pionex.com`）
-
-脚本会自动写入：
-
-- Cursor：`~/.cursor/mcp.json`
-- OpenClaw 主配置：`~/.openclaw/openclaw.json`
-- OpenClaw mcporter 配置：`~/.openclaw/workspace/config/mcporter.json`
-
-保存后，**重启 Cursor 或 OpenClaw** 即可使用 Pionex 的 MCP 工具。
 
 ---
 
-## 手动配置 MCP（可选）
+## 2. 配置凭证
 
-如需手动配置，可以直接运行服务器：
+运行配置向导（会写入 **~/.pionex/config.toml**）：
 
 ```bash
-npx pionex-mcp-server
+pionex-ai-kit config init
 ```
 
-并在你的 MCP 配置中加入类似内容。
+按提示输入：
 
-### Cursor（`~/.cursor/mcp.json`）
+- **Pionex API Key**
+- **Pionex API Secret**
+- **Profile 名称**（默认：`default`）
+
+---
+
+## 3. 在客户端中注册 MCP 服务
+
+让 Cursor / Claude Desktop 等客户端能启动 MCP 服务（密钥不会写入客户端配置）：
+
+```bash
+pionex-trade-mcp setup --client cursor
+```
+
+支持的客户端：
+
+| 选项 | 写入的配置文件 |
+|------|----------------|
+| `--client cursor` | `~/.cursor/mcp.json` |
+| `--client claude-desktop` | Claude Desktop 配置（路径因系统而异） |
+| `--client windsurf` | `~/.codeium/windsurf/mcp_config.json` |
+| `--client vscode` | 当前目录下的 `.mcp.json` |
+
+完成后 **重启 Cursor 或对应客户端**。
+
+---
+
+## 手动配置（不用向导）
+
+若不想用 `pionex-ai-kit config init`，可手动创建 **~/.pionex/config.toml**：
+
+```toml
+default_profile = "default"
+
+[profiles.default]
+api_key = "你的-api-key"
+secret_key = "你的-api-secret"
+base_url = "https://api.pionex.com"
+```
+
+若不想用 `pionex-trade-mcp setup`，可手动在 MCP 配置里添加服务。服务从 `~/.pionex/config.toml` 读凭证，**无需**在客户端配置里写 `env` 密钥。
+
+**Cursor**（`~/.cursor/mcp.json`）：
 
 ```json
 {
   "mcpServers": {
-    "pionex": {
+    "pionex-trade-mcp": {
       "command": "npx",
-      "args": ["pionex-mcp-server"],
-      "env": {
-        "PIONEX_API_KEY": "你的-api-key",
-        "PIONEX_API_SECRET": "你的-api-secret",
-        "PIONEX_BASE_URL": "https://api.pionex.com"
-      }
+      "args": ["-y", "pionex-trade-mcp"]
     }
   }
 }
 ```
 
-### OpenClaw（`~/.openclaw/openclaw.json` + `~/.openclaw/workspace/config/mcporter.json`）
-
-```json
-{
-  "mcpServers": {
-    "pionex": {
-      "command": "npx",
-      "args": ["pionex-mcp-server"],
-      "env": {
-        "PIONEX_API_KEY": "你的-api-key",
-        "PIONEX_API_SECRET": "你的-api-secret",
-        "PIONEX_BASE_URL": "https://api.pionex.com"
-      }
-    }
-  }
-}
-
-同一段 `mcpServers.pionex` 配置可以同时用于：
-
-- `~/.openclaw/openclaw.json`（OpenClaw 主配置）
-- `~/.openclaw/workspace/config/mcporter.json`（让 mcporter 也能发现并管理 Pionex MCP 服务器）
-```
-
 ---
 
-## 常用环境变量
+## 环境变量（可选）
 
-| 变量名              | 是否必填 | 默认值                     | 说明                     |
-|---------------------|----------|----------------------------|--------------------------|
-| `PIONEX_API_KEY`    | 否       | —                          | 访问私有/交易接口的 API Key |
-| `PIONEX_API_SECRET` | 否       | —                          | 对请求签名用的 Secret     |
-| `PIONEX_BASE_URL`   | 否       | `https://api.pionex.com`   | 覆盖默认 API 地址         |
+运行 MCP 服务时可以用环境变量覆盖 TOML 中的配置。环境变量可以来自：
 
-示例：
+- 你的 shell（例如 `export PIONEX_API_KEY=...`）  
+- MCP 客户端的配置文件（如 Cursor 的 `mcp.json`、Claude Desktop 的 `claude_desktop_config.json` 里 `mcpServers.pionex-trade-mcp.env` 字段）
 
-```bash
-export PIONEX_API_KEY="你的-key"
-export PIONEX_API_SECRET="你的-secret"
-export PIONEX_BASE_URL="https://api.pionex.com"
-```
+| 变量 | 必填 | 默认值 | 说明 |
+|------|------|--------|------|
+| `PIONEX_API_KEY` | 否 | — | 私有接口 API Key |
+| `PIONEX_API_SECRET` | 否 | — | 签名用 Secret |
+| `PIONEX_BASE_URL` | 否 | `https://api.pionex.com` | API 基础地址 |
+
+启动顺序下的优先级：
+
+1. **环境变量**（来自 shell 或 MCP 客户端配置）  
+2. **`~/.pionex/config.toml` 中的当前 profile** —— 仅在对应环境变量缺失时才作为兜底
 
 ---
 
 ## 示例提问
 
-当你的 Agent 已经加载了 `pionex` MCP 服务器后，可以尝试：
+MCP 连接成功后可在对话中尝试：
 
-**行情类（无需 API Key）：**
+**行情（无需 API Key）：**
 
-```text
-使用 Pionex 工具，获取 BTC_USDT 的盘口深度，限制 5 档。
-使用 Pionex 工具，获取 ETH_USDT 最近 10 笔成交。
-```
+- 「用 Pionex 工具查一下 BTC_USDT 的盘口深度。」
+- 「用 Pionex 工具获取 ETH_USDT 最近 10 笔成交。」
+- 「获取 BTC_USDT 的 symbol 信息。」
 
-**账户与订单（需要 API Key）：**
+**账户与订单（需 API Key）：**
 
-```text
-使用 Pionex 工具，查询我的现货账户余额。
-使用 Pionex 工具，下一个限价买单：BTC_USDT，买入 0.01 BTC，价格 30000 USDT。
-使用 Pionex 工具，查询 BTC_USDT 某个 orderId 的订单状态。
-使用 Pionex 工具，撤销 BTC_USDT 某个 orderId 的订单。
-```
+- 「用 Pionex 工具列出我的现货余额。」
+- 「用 Pionex 工具下一个限价买单：BTC_USDT，0.01 BTC，价格 30000 USDT。」
+- 「用 Pionex 工具查询 BTC_USDT 订单 &lt;orderId&gt; 的状态。」
+- 「用 Pionex 工具撤销 BTC_USDT 订单 &lt;orderId&gt;。」
+
+---
+
+## 与 mcporter（OpenClaw）一起使用
+
+通过 **mcporter** 调用 Pionex 工具时，请用**顶层参数**传递，与工具 schema 一致：
+
+- ✅ 正确示例：
+
+  ```bash
+  mcporter call pionex pionex.orders.new_order \
+    symbol="ADA_USDT" side="BUY" type="MARKET" amount="5"
+  ```
+
+- ❌ 错误示例（把参数包在 `schema` 里可能导致解析问题）：
+
+  ```bash
+  mcporter call 'pionex.pionex.orders.new_order(schema:{...})'
+  ```
+
+部分工具对 `schema:{...}` 有兼容处理，但新集成建议一律用顶层参数。
 
 ---
 
 ## 安全提示
 
-- 不要在代码中硬编码 API Key，也不要把密钥提交到 git 仓库。
-- 如果只是看行情，可以不配置密钥，或只使用只读密钥。
-- 进行真实交易时，建议：
-  - 使用单独的交易专用 API Key，权限最小化
-  - 视情况开启 IP 白名单
-- 所有写操作（下单、撤单）都会真实作用在你的 Pionex 账户上，务必先在小金额下测试确认无误。
-
+- 不要将 API Key 写进代码或把 `~/.pionex/config.toml` 提交到 git。
+- 仅看行情可不配密钥或使用只读密钥。
+- 实盘交易建议使用单独、权限最小的 API Key，并视情况开启 IP 白名单。

@@ -1,33 +1,20 @@
 {
-  "name": "pionex-mcp-server",
-  "version": "0.1.4",
-  "description": "MCP server that exposes Pionex REST APIs as tools.",
+  "name": "pionex-hub",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "bin": {
-    "pionex-mcp-server": "cli.mjs"
-  },
+  "workspaces": ["packages/*"],
   "scripts": {
-    "start": "node cli.mjs",
-    "setup": "node cli.mjs setup",
-    "test": "vitest run"
+    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=pionex-ai-kit && npm run build --workspace=pionex-trade-mcp",
+    "clean": "npm run clean --workspaces"
   },
-  "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "pionex",
-    "exchange",
-    "tools"
-  ],
-  "author": "Pionex",
-  "license": "MIT",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "node-fetch": "^3.3.2",
-    "zod": "^4.0.0"
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
-    "dotenv": "^17.3.1",
-    "vitest": "^4.0.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
   }
 }
-

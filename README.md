@@ -1,73 +1,163 @@
-## Pionex MCP Server (Node.js)
+# Pionex AI Kit (monorepo)
 
-Node.js MCP server that exposes Pionex REST APIs as tools for Cursor, OpenClaw, and other MCP clients. Layout mirrors `gate-local-mcp`: `src/tools/common`, `src/tools/market`, `src/tools/account`, `src/tools/orders` (and optional `src/tools/websocket` later).
+One Git repo, **two published npm packages** (no need to split repos):
 
-### Features
+| Package | Role |
+|--------|------|
+| **pionex-ai-kit** | CLI: `pionex-ai-kit config init` — interactive wizard that writes **~/.pionex/config.toml** (API key, secret, base URL). |
+| **pionex-trade-mcp** | MCP server: reads credentials from **~/.pionex/config.toml**, exposes Pionex tools; `pionex-trade-mcp setup --client <client>` registers the server in Cursor / Claude Desktop / Windsurf / VS Code. |
 
-- **setup**: One-time wizard to add the server to Cursor or OpenClaw and save your API key locally.
-- **common**: Shared client (signed GET/POST/DELETE), auth, and response helpers.
-- **market** (public, no auth): `pionex.market.get_depth`, `pionex.market.get_trades`.
-- **account** (auth): `pionex.account.get_balance`.
-- **orders** (auth): `pionex.orders.new_order`, `pionex.orders.get_order`, `pionex.orders.get_order_by_client_order_id`, `pionex.orders.get_open_orders`, `pionex.orders.get_all_orders`, `pionex.orders.cancel_order`.
-- **websocket**: Placeholder only; not implemented.
+Internal package (not published): **@pionex-ai/core** — shared config path `~/.pionex/config.toml`, TOML read/write, and setup helpers (bundled into the two published packages).
 
-### Quick start (recommended)
+---
 
-No install. Run the setup wizard, then use the server from your IDE:
+## 1. Install
 
 ```bash
-npx pionex-mcp-server setup
+npm install -g pionex-ai-kit pionex-trade-mcp
 ```
 
-You’ll be prompted for:
+Or install only one:
 
-- **Client**: Cursor, OpenClaw, or both.
-- **Pionex API Key** and **API Secret** (stored only in your local MCP config).
-- **Pionex Base URL** (optional; default `https://api.pionex.com`).
+- **pionex-ai-kit** — if you only want the config wizard (`pionex-ai-kit config init`).
+- **pionex-trade-mcp** — if you only want the MCP server (you can still create `~/.pionex/config.toml` by hand or with `pionex-ai-kit config init` from the other package).
 
-The script writes the Pionex MCP entry (with credentials) into:
+---
 
-- **Cursor**: `~/.cursor/mcp.json`
-- **OpenClaw** main config: `~/.openclaw/openclaw.json`
-- **OpenClaw mcporter** (for workspace tools): `~/.openclaw/workspace/config/mcporter.json`
+## 2. Configure credentials (~/.pionex/config.toml)
 
-Restart Cursor or OpenClaw after setup. The Pionex tools (market, account, orders) will then be available.
-
-### Running the server (without setup)
-
-If you prefer to configure by hand:
+Run the interactive wizard (from **pionex-ai-kit**):
 
 ```bash
-npx pionex-mcp-server
+pionex-ai-kit config init
 ```
 
-Set env vars before running (or in your client’s MCP config):
+You will be prompted for:
 
-- `PIONEX_API_KEY` — required  
-- `PIONEX_API_SECRET` — required  
-- `PIONEX_BASE_URL` — optional (default `https://api.pionex.com`)
+- **Pionex API Key**
+- **Pionex API Secret**
+- **Profile name** (default: `default`)
 
-### Manual MCP configuration
+Config is written to **~/.pionex/config.toml**. You can add multiple profiles and set `default_profile` in that file.
 
-Example config you can add yourself (same shape the setup command writes):
+**Credential priority (when `pionex-trade-mcp` starts):**
+
+- **1. Environment variables** — `PIONEX_API_KEY`, `PIONEX_API_SECRET`, `PIONEX_BASE_URL`  
+  - Can come from your shell (`export ...`) **or** from the MCP client config (`env` field in `mcp.json` / `claude_desktop_config.json` / etc.).
+- **2. `~/.pionex/config.toml` profile** — used as a fallback **only when the corresponding env var is missing**.
+
+The MCP server itself never writes your API keys into client configs; it only reads from env and `~/.pionex/config.toml`.
+
+---
+
+## 3. Register the MCP server with your AI client
+
+After credentials are in place, register the server so your client (Cursor, Claude Desktop, etc.) can start it:
+
+```bash
+pionex-trade-mcp setup --client cursor
+```
+
+Supported clients:
+
+| `--client` | Config file written |
+|------------|---------------------|
+| `cursor` | `~/.cursor/mcp.json` |
+| `claude-desktop` | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows/Linux: see [Claude docs](https://docs.anthropic.com/claude/docs/model-context-protocol) |
+| `windsurf` | `~/.codeium/windsurf/mcp_config.json` |
+| `vscode` | `.mcp.json` in the **current directory** (project-level) |
+
+Example for Cursor:
+
+```bash
+pionex-trade-mcp setup --client cursor
+```
+
+Then **restart Cursor** (or your client). The client config only stores the command to run the server (e.g. `npx -y pionex-trade-mcp`); **no API keys are written there** — they are read from `~/.pionex/config.toml` when the server starts.
+
+---
+
+## 4. Manual MCP configuration (no setup command)
+
+If you prefer not to use `pionex-trade-mcp setup`, add the server entry yourself. Credentials are still read from `~/.pionex/config.toml` by the server, so you **do not** need to put keys in `env`.
+
+**Cursor** (`~/.cursor/mcp.json`):
 
 ```json
 {
   "mcpServers": {
-    "pionex": {
+    "pionex-trade-mcp": {
       "command": "npx",
-      "args": ["pionex-mcp-server"],
-      "env": {
-        "PIONEX_API_KEY": "your-key",
-        "PIONEX_API_SECRET": "your-secret",
-        "PIONEX_BASE_URL": "https://api.pionex.com"
-      }
+      "args": ["-y", "pionex-trade-mcp"]
     }
   }
 }
 ```
 
-- **Cursor**: put this in `~/.cursor/mcp.json` (or merge into existing `mcpServers`).
-- **OpenClaw 主配置**: put/merge into `~/.openclaw/openclaw.json` under `mcpServers`.
-- **OpenClaw mcporter**: put/merge into `~/.openclaw/workspace/config/mcporter.json` under `mcpServers` so mcporter can also discover the `pionex` server.
+**Claude Desktop** (config path depends on OS): same shape — `"command": "npx"`, `"args": ["-y", "pionex-trade-mcp"]`, no `env` for keys.
 
+**VS Code** (project `.mcp.json`): use `"command": "pionex-trade-mcp"` if the binary is on your PATH, or `"command": "npx"` with `"args": ["-y", "pionex-trade-mcp"]`.
+
+---
+
+## 5. MCP tools
+
+| Area | Tools | Auth |
+|------|--------|-----|
+| **Market** | `pionex.market.get_depth`, `pionex.market.get_trades`, `pionex.market.get_symbol_info` | No |
+| **Account** | `pionex.account.get_balance` | Yes |
+| **Orders** | `pionex.orders.new_order`, `pionex.orders.get_order`, `pionex.orders.get_order_by_client_order_id`, `pionex.orders.get_open_orders`, `pionex.orders.get_all_orders`, `pionex.orders.cancel_order` | Yes |
+
+---
+
+## 6. Example prompts (after MCP is connected)
+
+**Market (no API key needed):**
+
+- “Use the Pionex tools to show the order book depth for BTC_USDT.”
+- “Use the Pionex tools to fetch the last 10 trades for ETH_USDT.”
+- “Get symbol info for BTC_USDT and ADA_USDT.”
+
+**Account & orders (API key required):**
+
+- “Use the Pionex tools to list my spot balances.”
+- “Use the Pionex tools to place a limit buy order for 0.01 BTC at 30000 USDT on BTC_USDT.”
+- “Use the Pionex tools to get the status of order &lt;orderId&gt; for BTC_USDT.”
+- “Use the Pionex tools to cancel order &lt;orderId&gt; for BTC_USDT.”
+
+---
+
+## 7. Security
+
+- **Never** commit `~/.pionex/config.toml` or paste API keys in chat.
+- Prefer a **dedicated API key** with minimal permissions for the agent.
+- For trading, test on small size first; consider IP whitelisting in Pionex API settings.
+
+---
+
+## 8. Develop in this repo
+
+```bash
+npm install
+npm run build
+```
+
+- **pionex-ai-kit**: `node packages/cli/dist/index.js help` / `node packages/cli/dist/index.js config init`
+- **pionex-trade-mcp**: `node packages/mcp/dist/index.js --help` / `node packages/mcp/dist/index.js setup --client cursor`
+
+---
+
+## 9. Publish (two packages from one repo)
+
+```bash
+cd packages/cli && npm publish --access public   # publishes pionex-ai-kit
+cd packages/mcp && npm publish --access public  # publishes pionex-trade-mcp
+```
+
+Publish order does not matter; neither package depends on the other. Core is private and bundled into both.
+
+---
+
+## 10. Legacy entrypoints
+
+The old root-level `cli.mjs` / `server.mjs` and `src/` are superseded by `packages/cli` and `packages/mcp`. You can remove them once you no longer need the previous single-package flow.

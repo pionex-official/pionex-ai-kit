@@ -1,182 +1,174 @@
-# pionex-mcp-server Quickstart Guide
+# Pionex AI Kit — Quickstart
 
-An MCP (Model Context Protocol) server that exposes [Pionex](https://www.pionex.com) REST APIs to any MCP-compatible client (Cursor, OpenClaw, Claude Desktop, etc.).
+MCP (Model Context Protocol) server that exposes [Pionex](https://www.pionex.com) REST APIs to Cursor, OpenClaw, Claude Desktop, Windsurf, VS Code, and other MCP clients. Credentials are stored in **~/.pionex/config.toml**; the client config only stores how to run the server (no keys in env).
 
 ## Features
 
-- **Market data (public)** — depth and recent trades for any symbol, no API key required.
-- **Account & orders (auth)** — balances and basic order management when `PIONEX_API_KEY` + `PIONEX_API_SECRET` are set.
-- **Zero-copy setup** — `npx pionex-mcp-server setup` writes MCP config for you.
+- **Market data (public)** — depth, trades, symbol info; no API key required.
+- **Account & orders (auth)** — balances and order management when configured in `~/.pionex/config.toml`.
+- **Two-package flow** — **pionex-ai-kit** for config init; **pionex-trade-mcp** for the MCP server and client registration.
 
 ---
 
 ## Prerequisites
 
-- **Node.js 18+** — verify with:
+- **Node.js 18+**
 
-```bash
-node --version
-```
+  ```bash
+  node --version
+  ```
 
-- A **Pionex account** — only needed for private/trading tools. Public market data works without credentials.
+- A **Pionex account** (only needed for private/trading tools; public market data works without credentials).
 
 ---
 
 ## Getting API Keys
 
-1. Log in to [pionex.com](https://www.pionex.com)
-2. Go to **API Management** (usually under profile / settings)
-3. Create a new API key:
-   - Grant only the permissions you need (read-only is enough for balances and order queries)
-4. Copy the **API Key** and **Secret** (the secret is only shown once)
-5. Optionally restrict to specific IPs for extra security
+1. Log in to [pionex.com](https://www.pionex.com).
+2. Go to **API Management** (profile / settings).
+3. Create a new API key with only the permissions you need (read-only is enough for balances and order queries).
+4. Copy the **API Key** and **Secret** (the secret is shown only once).
+5. Optionally restrict to specific IPs.
 
 ---
 
-## One-line Setup (Cursor / OpenClaw)
-
-From any terminal:
+## 1. Install
 
 ```bash
-npx pionex-mcp-server setup
+npm install -g pionex-ai-kit pionex-trade-mcp
 ```
-
-The wizard will ask for:
-
-- Which client: **Cursor**, **OpenClaw**, or **Both**
-- **PIONEX_API_KEY** and **PIONEX_API_SECRET**
-- Optional **PIONEX_BASE_URL** (defaults to `https://api.pionex.com`)
-
-It writes MCP config to:
-
-- Cursor: `~/.cursor/mcp.json`
-- OpenClaw main config: `~/.openclaw/openclaw.json`
-- OpenClaw mcporter config: `~/.openclaw/workspace/config/mcporter.json`
-
-Restart your client after the setup.
 
 ---
 
-## Manual Agent Setup
+## 2. Configure credentials
 
-If you prefer to configure MCP by hand, use:
+Run the config wizard (writes **~/.pionex/config.toml**):
 
 ```bash
-npx pionex-mcp-server
+pionex-ai-kit config init
 ```
 
-and add this to your MCP config.
+You will be prompted for:
 
-### Cursor (`~/.cursor/mcp.json`)
+- **Pionex API Key**
+- **Pionex API Secret**
+- **Profile name** (default: `default`)
+
+---
+
+## 3. Register the MCP server with your client
+
+Register the server so your IDE/client can start it (no keys are written to the client config):
+
+```bash
+pionex-trade-mcp setup --client cursor
+```
+
+Supported clients:
+
+| Option | Config file |
+|--------|-------------|
+| `--client cursor` | `~/.cursor/mcp.json` |
+| `--client claude-desktop` | Claude Desktop config (path depends on OS) |
+| `--client windsurf` | `~/.codeium/windsurf/mcp_config.json` |
+| `--client vscode` | `.mcp.json` in current directory |
+
+Then **restart your client** (Cursor, Claude Desktop, etc.).
+
+---
+
+## Manual setup (no wizard)
+
+If you prefer not to use `pionex-ai-kit config init`, create **~/.pionex/config.toml** yourself:
+
+```toml
+default_profile = "default"
+
+[profiles.default]
+api_key = "your-api-key"
+secret_key = "your-api-secret"
+base_url = "https://api.pionex.com"
+```
+
+If you prefer not to use `pionex-trade-mcp setup`, add the server to your MCP config by hand. The server reads credentials from `~/.pionex/config.toml`, so **do not** put keys in `env`.
+
+**Cursor** (`~/.cursor/mcp.json`):
 
 ```json
 {
   "mcpServers": {
-    "pionex": {
+    "pionex-trade-mcp": {
       "command": "npx",
-      "args": ["pionex-mcp-server"],
-      "env": {
-        "PIONEX_API_KEY": "your-api-key",
-        "PIONEX_API_SECRET": "your-api-secret",
-        "PIONEX_BASE_URL": "https://api.pionex.com"
-      }
+      "args": ["-y", "pionex-trade-mcp"]
     }
   }
 }
 ```
 
-### OpenClaw (`~/.openclaw/openclaw.json` + `~/.openclaw/workspace/config/mcporter.json`)
+---
 
-```json
-{
-  "mcpServers": {
-    "pionex": {
-      "command": "npx",
-      "args": ["pionex-mcp-server"],
-      "env": {
-        "PIONEX_API_KEY": "your-api-key",
-        "PIONEX_API_SECRET": "your-api-secret",
-        "PIONEX_BASE_URL": "https://api.pionex.com"
-      }
-    }
-  }
-}
+## Environment variables (optional)
 
-You can use the same `mcpServers.pionex` block in both:
+You can override the TOML profile with env vars when the server runs. Env values can come from:
 
-- `~/.openclaw/openclaw.json` (OpenClaw main config)
-- `~/.openclaw/workspace/config/mcporter.json` (so mcporter can also manage the Pionex MCP server)
-```
+- Your shell (e.g. `export PIONEX_API_KEY=...`)  
+- The MCP client config (`env` block inside `mcpServers.pionex-trade-mcp` for Cursor / Claude Desktop / etc.)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `PIONEX_API_KEY` | No | — | API key for private endpoints |
+| `PIONEX_API_SECRET` | No | — | API secret for signing |
+| `PIONEX_BASE_URL` | No | `https://api.pionex.com` | API base URL |
+
+Priority when the server starts:
+
+1. **Env vars** (from shell or MCP client config)  
+2. **`~/.pionex/config.toml`** (selected profile) — used only when a given env var is missing
 
 ---
 
-## Environment Variables
+## Example prompts
 
-| Variable           | Required | Default                   | Description                           |
-|--------------------|----------|---------------------------|---------------------------------------|
-| `PIONEX_API_KEY`   | No       | —                         | API key for authenticated endpoints   |
-| `PIONEX_API_SECRET`| No       | —                         | API secret for authenticated endpoints|
-| `PIONEX_BASE_URL`  | No       | `https://api.pionex.com`  | Override API base URL                 |
+After the MCP server is connected:
 
-You can set these in your shell:
+**Market (no API key):**
 
-```bash
-export PIONEX_API_KEY="your-key"
-export PIONEX_API_SECRET="your-secret"
-export PIONEX_BASE_URL="https://api.pionex.com"
-```
-
----
-
-## Example Prompts
-
-Once connected to your agent, try:
-
-**Market data (no API key):**
-
-```text
-Use the Pionex tools to show me the order book depth for BTC_USDT.
-Use the Pionex tools to fetch the last 10 trades for ETH_USDT.
-```
+- “Use the Pionex tools to show the order book depth for BTC_USDT.”
+- “Use the Pionex tools to fetch the last 10 trades for ETH_USDT.”
+- “Get symbol info for BTC_USDT.”
 
 **Account & orders (API key required):**
 
-```text
-Use the Pionex tools to list my spot balances.
-Use the Pionex tools to place a limit buy order for 0.01 BTC at 30000 USDT.
-Use the Pionex tools to get the status of order 1234567890 for BTC_USDT.
-Use the Pionex tools to cancel order 1234567890 for BTC_USDT.
-```
+- “Use the Pionex tools to list my spot balances.”
+- “Use the Pionex tools to place a limit buy order for 0.01 BTC at 30000 USDT on BTC_USDT.”
+- “Use the Pionex tools to get the status of order &lt;orderId&gt; for BTC_USDT.”
+- “Use the Pionex tools to cancel order &lt;orderId&gt; for BTC_USDT.”
 
 ---
 
-## Using with mcporter (important for agents)
+## Using with mcporter (OpenClaw)
 
-When calling Pionex tools via **mcporter**, make sure that:
+When calling Pionex tools via **mcporter**, pass arguments as **top-level fields** matching the tool schema:
 
-- **Arguments are passed as top-level fields**, matching the tool schema:
-  - ✅ Correct:
-    ```bash
-    mcporter call pionex pionex.orders.new_order \
-      symbol="ADA_USDT" \
-      side="BUY" \
-      type="MARKET" \
-      amount="5"
-    ```
-  - ❌ Incorrect (will wrap everything under `schema` and break parameter parsing):
-    ```bash
-    mcporter call 'pionex.pionex.orders.new_order(schema:{symbol:"ADA_USDT",side:"BUY",type:"MARKET",amount:"5"})'
-    ```
+- ✅ Correct:
 
-The server now also has a compatibility fallback for `pionex.orders.new_order`:  
-if a client mistakenly wraps parameters as `schema:{...}`, it will unwrap that object and still send the correct payload to Pionex. However, **new integrations should always pass arguments as top-level fields** to avoid surprises with other tools.
+  ```bash
+  mcporter call pionex pionex.orders.new_order \
+    symbol="ADA_USDT" side="BUY" type="MARKET" amount="5"
+  ```
+
+- ❌ Incorrect (wrapping under `schema` can break parsing):
+
+  ```bash
+  mcporter call 'pionex.pionex.orders.new_order(schema:{...})'
+  ```
+
+The server has a compatibility fallback for `schema:{...}` for some tools, but new integrations should pass arguments as top-level fields.
 
 ---
 
-## Security Notes
+## Security
 
-- Never hardcode API keys into source code or commit them to git.
-- If you only need market data, you can run without any API key.
-- For trading, create a dedicated key with the minimum required permissions.
-- Consider enabling IP whitelisting in the Pionex API settings when possible.
-
+- Never hardcode API keys or commit `~/.pionex/config.toml` to git.
+- For market data only, you can run without any API key (or use a read-only key).
+- For trading, use a dedicated key with minimum permissions and consider IP whitelisting.

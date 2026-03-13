@@ -1,0 +1,43 @@
+{
+  "name": "pionex-trade-mcp",
+  "version": "0.2.5",
+  "description": "Pionex MCP Server - reads credentials from ~/.pionex/config.toml",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "bin": {
+    "pionex-trade-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "pionex",
+    "mcp",
+    "model-context-protocol",
+    "trading"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@pionex-ai/core": "*",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
