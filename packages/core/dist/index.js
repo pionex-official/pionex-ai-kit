@@ -91,7 +91,7 @@ function getConfigPath(client) {
       return path.join(home, ".openclaw", "workspace", "config", "mcporter.json");
   }
 }
-var NPX_PACKAGE = "pionex-trade-mcp";
+var NPX_PACKAGE = "@pionex/pionex-trade-mcp";
 function buildEntry(client) {
   if (client === "vscode") {
     return { type: "stdio", command: "pionex-trade-mcp" };

@@ -6,7 +6,7 @@
 
 - **行情数据（公开）**：盘口深度、最近成交、交易对信息等，无需 API Key。
 - **账户与订单（需认证）**：在 `~/.pionex/config.toml` 中配置后，可查询余额、下单、查单、撤单。
-- **双包流程**：**pionex-ai-kit** 负责配置向导；**pionex-trade-mcp** 提供 MCP 服务并支持一键写入各客户端配置。
+- **双包流程**：**@pionex/pionex-ai-kit** 负责配置向导；**@pionex/pionex-trade-mcp** 提供 MCP 服务并支持一键写入各客户端配置。
 
 ---
 
@@ -35,7 +35,7 @@
 ## 1. 安装
 
 ```bash
-npm install -g pionex-ai-kit pionex-trade-mcp
+npm install -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
 ```
 
 ---
@@ -45,7 +45,7 @@ npm install -g pionex-ai-kit pionex-trade-mcp
 运行配置向导（会写入 **~/.pionex/config.toml**）：
 
 ```bash
-pionex-ai-kit config init
+pionex-ai-kit onboard
 ```
 
 按提示输入：
@@ -61,7 +61,7 @@ pionex-ai-kit config init
 让 Cursor / Claude Desktop 等客户端能启动 MCP 服务（密钥不会写入客户端配置）：
 
 ```bash
-pionex-trade-mcp setup --client cursor
+pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor
 ```
 
 支持的客户端：
@@ -79,7 +79,7 @@ pionex-trade-mcp setup --client cursor
 
 ## 手动配置（不用向导）
 
-若不想用 `pionex-ai-kit config init`，可手动创建 **~/.pionex/config.toml**：
+若不想用 `pionex-ai-kit onboard`，可手动创建 **~/.pionex/config.toml**：
 
 ```toml
 default_profile = "default"
@@ -90,7 +90,7 @@ secret_key = "你的-api-secret"
 base_url = "https://api.pionex.com"
 ```
 
-若不想用 `pionex-trade-mcp setup`，可手动在 MCP 配置里添加服务。服务从 `~/.pionex/config.toml` 读凭证，**无需**在客户端配置里写 `env` 密钥。
+若不想用 `pionex-ai-kit setup`，可手动在 MCP 配置里添加服务。服务从 `~/.pionex/config.toml` 读凭证，**无需**在客户端配置里写 `env` 密钥。
 
 **Cursor**（`~/.cursor/mcp.json`）：
 

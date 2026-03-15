@@ -5,6 +5,7 @@ import { textContent, errorContent } from "../common/utils.mjs";
 export function registerAccountTools(server) {
   server.tool(
     "pionex.account.get_balance",
+    "Query spot account balances for all currencies. Requires API key and secret in ~/.pionex/config.toml or env.",
     {
       // Accept any input; handler ignores params.
       // This avoids incompatibilities between clients that send {} vs { schema: {} }.

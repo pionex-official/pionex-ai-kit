@@ -73,7 +73,7 @@ export function getConfigPath(client: ClientId): string | null {
   }
 }
 
-const NPX_PACKAGE = "pionex-trade-mcp";
+const NPX_PACKAGE = "@pionex/pionex-trade-mcp";
 
 function buildEntry(client: ClientId): Record<string, unknown> {
   if (client === "vscode") {

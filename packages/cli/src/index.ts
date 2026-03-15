@@ -20,7 +20,7 @@ function ask(rl: ReturnType<typeof createInterface>, question: string, defaultVa
   return new Promise((resolve) => rl.question(prompt, (answer) => resolve((answer ?? "").trim() || defaultValue)));
 }
 
-async function cmdConfigInit(): Promise<void> {
+async function cmdOnboard(): Promise<void> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
 
   process.stdout.write("\n  pionex-ai-kit v0.2.x\n");
@@ -74,7 +74,7 @@ async function cmdConfigInit(): Promise<void> {
 
   process.stdout.write("\n  Config saved to " + configFilePath() + "\n");
   process.stdout.write("  Default profile: " + profileName + "\n");
-  process.stdout.write("  Usage: pionex-ai-kit config init\n");
+  process.stdout.write("  Usage: pionex-ai-kit onboard\n");
   process.stdout.write(
     "  Next: run 'pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor' or " +
       "'pionex-trade-mcp setup --client cursor' to register the MCP server.\n" +
@@ -87,7 +87,7 @@ function printHelp(): void {
 Usage: pionex-ai-kit <command>
 
 Commands:
-  config init    Interactive wizard to create ~/.pionex/config.toml (API key, secret)
+  onboard        Interactive wizard to create ~/.pionex/config.toml (API key, secret)
   help           Show this help
 
 The MCP server (pionex-trade-mcp) reads credentials from ~/.pionex/config.toml.
@@ -144,8 +144,8 @@ function cmdSetup(argv: string[]): void {
 
 function main(): void {
   const cmd = process.argv[2];
-  if (cmd === "config" && process.argv[3] === "init") {
-    cmdConfigInit().catch((e) => {
+  if (cmd === "onboard") {
+    cmdOnboard().catch((e) => {
       process.stderr.write(String(e) + "\n");
       process.exit(1);
     });

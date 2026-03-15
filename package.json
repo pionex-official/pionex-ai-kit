@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=pionex-ai-kit && npm run build --workspace=pionex-trade-mcp",
+    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=@pionex/pionex-ai-kit && npm run build --workspace=@pionex/pionex-trade-mcp",
     "clean": "npm run clean --workspaces"
   },
   "engines": {

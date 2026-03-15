@@ -1,21 +1,22 @@
-# pionex-ai-kit
+# @pionex/pionex-ai-kit
 
 CLI for Pionex MCP: initializes credentials in **~/.pionex/config.toml**.
 
 ## Install
 
 ```bash
-npm install -g pionex-ai-kit
+npm install -g @pionex/pionex-ai-kit
 ```
 
 ## Commands
 
-- **pionex-ai-kit config init** — Interactive wizard: API Key, API Secret, profile name. Writes `~/.pionex/config.toml`.
+- **pionex-ai-kit onboard** — Interactive wizard: API Key, API Secret, profile name. Writes `~/.pionex/config.toml`.
+- **pionex-ai-kit setup** — Register MCP servers for supported clients.
 - **pionex-ai-kit help** — Show help.
 
-The MCP server (**pionex-trade-mcp**) reads from the same file. After init, run:
+The MCP server (**@pionex/pionex-trade-mcp**) reads from the same file. After init, run:
 
 ```bash
-npm install -g pionex-trade-mcp
-pionex-trade-mcp setup --client cursor
+npm install -g @pionex/pionex-trade-mcp
+pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor
 ```

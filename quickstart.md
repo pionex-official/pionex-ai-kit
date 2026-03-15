@@ -6,7 +6,7 @@ MCP (Model Context Protocol) server that exposes [Pionex](https://www.pionex.com
 
 - **Market data (public)** — depth, trades, symbol info; no API key required.
 - **Account & orders (auth)** — balances and order management when configured in `~/.pionex/config.toml`.
-- **Two-package flow** — **pionex-ai-kit** for config init; **pionex-trade-mcp** for the MCP server and client registration.
+- **Two-package flow** — **@pionex/pionex-ai-kit** for onboarding; **@pionex/pionex-trade-mcp** for the MCP server and client registration.
 
 ---
 
@@ -35,17 +35,17 @@ MCP (Model Context Protocol) server that exposes [Pionex](https://www.pionex.com
 ## 1. Install
 
 ```bash
-npm install -g pionex-ai-kit pionex-trade-mcp
+npm install -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
 ```
 
 ---
 
 ## 2. Configure credentials
 
-Run the config wizard (writes **~/.pionex/config.toml**):
+Run the onboarding wizard (writes **~/.pionex/config.toml**):
 
 ```bash
-pionex-ai-kit config init
+pionex-ai-kit onboard
 ```
 
 You will be prompted for:
@@ -61,7 +61,7 @@ You will be prompted for:
 Register the server so your IDE/client can start it (no keys are written to the client config):
 
 ```bash
-pionex-trade-mcp setup --client cursor
+pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor
 ```
 
 Supported clients:
@@ -79,7 +79,7 @@ Then **restart your client** (Cursor, Claude Desktop, etc.).
 
 ## Manual setup (no wizard)
 
-If you prefer not to use `pionex-ai-kit config init`, create **~/.pionex/config.toml** yourself:
+If you prefer not to use `pionex-ai-kit onboard`, create **~/.pionex/config.toml** yourself:
 
 ```toml
 default_profile = "default"
@@ -90,7 +90,7 @@ secret_key = "your-api-secret"
 base_url = "https://api.pionex.com"
 ```
 
-If you prefer not to use `pionex-trade-mcp setup`, add the server to your MCP config by hand. The server reads credentials from `~/.pionex/config.toml`, so **do not** put keys in `env`.
+If you prefer not to use `pionex-ai-kit setup`, add the server to your MCP config by hand. The server reads credentials from `~/.pionex/config.toml`, so **do not** put keys in `env`.
 
 **Cursor** (`~/.cursor/mcp.json`):
 

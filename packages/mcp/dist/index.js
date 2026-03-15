@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 // src/index.ts
-import { parseArgs } from "util";
-import { dirname as dirname3, join as join3 } from "path";
+import { dirname as dirname2, join as join2 } from "path";
 import { fileURLToPath } from "url";
 import { pathToFileURL } from "url";
 
@@ -697,10 +696,6 @@ function parse(toml, { maxDepth = 1e3, integersAsBigInt } = {}) {
 }
 
 // ../core/dist/index.js
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
-import { execFileSync } from "child_process";
 function configFilePath() {
   return join(homedir(), ".pionex", "config.toml");
 }
@@ -720,131 +715,13 @@ var CLIENT_NAMES = {
   cursor: "Cursor",
   windsurf: "Windsurf",
   vscode: "VS Code",
-  "claude-code": "Claude Code CLI"
+  "claude-code": "Claude Code CLI",
+  open_claw: "OpenClaw (mcporter)"
 };
 var SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES);
-function appData() {
-  return process.env.APPDATA ?? path.join(os.homedir(), "AppData", "Roaming");
-}
-var CLAUDE_CONFIG_FILE = "claude_desktop_config.json";
-function findMsStoreClaudePath() {
-  const localAppData = process.env.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local");
-  const packagesDir = path.join(localAppData, "Packages");
-  try {
-    const entries = fs.readdirSync(packagesDir);
-    const claudePkg = entries.find((e) => e.startsWith("Claude_"));
-    if (claudePkg) {
-      const configPath = path.join(
-        packagesDir,
-        claudePkg,
-        "LocalCache",
-        "Roaming",
-        "Claude",
-        CLAUDE_CONFIG_FILE
-      );
-      if (fs.existsSync(configPath) || fs.existsSync(path.dirname(configPath))) {
-        return configPath;
-      }
-    }
-  } catch {
-  }
-  return null;
-}
-function getConfigPath(client) {
-  const home = os.homedir();
-  const platform = process.platform;
-  switch (client) {
-    case "claude-desktop":
-      if (platform === "win32") {
-        return findMsStoreClaudePath() ?? path.join(appData(), "Claude", CLAUDE_CONFIG_FILE);
-      }
-      if (platform === "darwin") {
-        return path.join(home, "Library", "Application Support", "Claude", CLAUDE_CONFIG_FILE);
-      }
-      return path.join(process.env.XDG_CONFIG_HOME ?? path.join(home, ".config"), "Claude", CLAUDE_CONFIG_FILE);
-    case "cursor":
-      return path.join(home, ".cursor", "mcp.json");
-    case "windsurf":
-      return path.join(home, ".codeium", "windsurf", "mcp_config.json");
-    case "vscode":
-      return path.join(process.cwd(), ".mcp.json");
-    case "claude-code":
-      return null;
-  }
-}
-var NPX_PACKAGE = "@pionex/pionex-trade-mcp";
-function buildEntry(client) {
-  if (client === "vscode") {
-    return { type: "stdio", command: "pionex-trade-mcp" };
-  }
-  return { command: "npx", args: ["-y", NPX_PACKAGE] };
-}
-function mergeJsonConfig(configPath, serverName, entry) {
-  const dir = path.dirname(configPath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  let data = {};
-  if (fs.existsSync(configPath)) {
-    const raw = fs.readFileSync(configPath, "utf-8");
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      throw new Error(`Failed to parse existing config at ${configPath}`);
-    }
-  }
-  if (typeof data.mcpServers !== "object" || data.mcpServers === null) {
-    data.mcpServers = {};
-  }
-  data.mcpServers[serverName] = entry;
-  fs.writeFileSync(configPath, JSON.stringify(data, null, 2) + "\n", "utf-8");
-}
-function runSetup(options) {
-  const { client } = options;
-  const name = CLIENT_NAMES[client];
-  const serverName = "pionex-trade-mcp";
-  if (client === "claude-code") {
-    const claudeArgs = [
-      "mcp",
-      "add",
-      "--transport",
-      "stdio",
-      serverName,
-      "--",
-      "pionex-trade-mcp"
-    ];
-    process.stdout.write(`Running: claude ${claudeArgs.join(" ")}
-`);
-    execFileSync("claude", claudeArgs, { stdio: "inherit" });
-    process.stdout.write(`\u2713 Configured ${name}
-`);
-    return;
-  }
-  const configPath = getConfigPath(client);
-  if (!configPath) {
-    throw new Error(`${name} is not supported on this platform`);
-  }
-  const entry = buildEntry(client);
-  mergeJsonConfig(configPath, serverName, entry);
-  process.stdout.write(
-    `\u2713 Configured ${name}
-  ${configPath}
-  Restart ${name} to apply changes.
-`
-  );
-}
-function printSetupUsage() {
-  process.stdout.write(
-    `Usage: pionex-trade-mcp setup --client <client>
-
-Clients:
-` + SUPPORTED_CLIENTS.map((id) => `  ${id.padEnd(16)} ${CLIENT_NAMES[id]}`).join("\n") + `
-
-Credentials are read from ${configFilePath()}. Run "pionex-ai-kit config init" (from @pionex/pionex-ai-kit) first.
-`
-  );
-}
 
 // src/index.ts
-var __dirname = dirname3(fileURLToPath(import.meta.url));
+var __dirname = dirname2(fileURLToPath(import.meta.url));
 function applyProfileToEnv(profile) {
   if (!process.env.PIONEX_API_KEY && profile.api_key) {
     process.env.PIONEX_API_KEY = profile.api_key;
@@ -856,44 +733,23 @@ function applyProfileToEnv(profile) {
     process.env.PIONEX_BASE_URL = profile.base_url;
   }
 }
-function handleSetup() {
-  const { values } = parseArgs({
-    options: {
-      client: { type: "string", short: "c" }
-    },
-    allowPositionals: true
-  });
-  const client = values.client;
-  if (!client || !SUPPORTED_CLIENTS.includes(client)) {
-    printSetupUsage();
-    process.exitCode = 1;
-    return;
-  }
-  if (!getConfigPath(client)) {
-    process.stderr.write(`Unsupported client: ${client}
-`);
-    process.exit(1);
-  }
-  runSetup({ client });
-}
 async function main() {
-  if (process.argv[2] === "setup") {
-    handleSetup();
-    return;
-  }
   if (process.argv[2] === "--help" || process.argv[2] === "-h") {
     process.stdout.write(
-      `Usage: pionex-trade-mcp [setup --client <cursor|claude-desktop|windsurf|vscode>]
+      `Usage: pionex-trade-mcp
 
-Without arguments: start the MCP server. Credentials are read from ~/.pionex/config.toml.
-Run "pionex config init" first to create the config, then "pionex-trade-mcp setup --client cursor".
+Starts the Pionex MCP server (stdio). Credentials are read from ~/.pionex/config.toml
+and/or the environment (PIONEX_API_KEY, PIONEX_API_SECRET, PIONEX_BASE_URL).
+
+To configure IDEs or agents (Cursor, Claude Desktop, Windsurf, VS Code, OpenClaw),
+use the companion CLI: pionex-ai-kit setup --mcp=pionex-trade-mcp --client <client>.
 `
     );
     return;
   }
   const profile = readTomlProfile();
   applyProfileToEnv(profile);
-  const runServerPath = join3(__dirname, "..", "src", "run-server.mjs");
+  const runServerPath = join2(__dirname, "..", "src", "run-server.mjs");
   await import(pathToFileURL(runServerPath).href);
 }
 main().catch((err) => {

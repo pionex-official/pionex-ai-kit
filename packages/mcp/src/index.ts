@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
-import { parseArgs } from "node:util";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pathToFileURL } from "node:url";
-import { readTomlProfile, runSetup, printSetupUsage, getConfigPath, SUPPORTED_CLIENTS } from "@pionex-ai/core";
-import type { ClientId } from "@pionex-ai/core";
+import { readTomlProfile } from "@pionex-ai/core";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -24,40 +22,14 @@ function applyProfileToEnv(profile: ReturnType<typeof readTomlProfile>): void {
   }
 }
 
-function handleSetup(): void {
-  const { values } = parseArgs({
-    options: {
-      client: { type: "string", short: "c" },
-    },
-    allowPositionals: true,
-  });
-
-  const client = values.client;
-  if (!client || !SUPPORTED_CLIENTS.includes(client as ClientId)) {
-    printSetupUsage();
-    process.exitCode = 1;
-    return;
-  }
-
-  if (!getConfigPath(client as ClientId)) {
-    process.stderr.write(`Unsupported client: ${client}\n`);
-    process.exit(1);
-  }
-
-  runSetup({ client: client as ClientId });
-}
-
 async function main(): Promise<void> {
-  if (process.argv[2] === "setup") {
-    handleSetup();
-    return;
-  }
-
   if (process.argv[2] === "--help" || process.argv[2] === "-h") {
     process.stdout.write(
-      `Usage: pionex-trade-mcp [setup --client <cursor|claude-desktop|windsurf|vscode>]\n\n` +
-        `Without arguments: start the MCP server. Credentials are read from ~/.pionex/config.toml.\n` +
-        `Run "pionex config init" first to create the config, then "pionex-trade-mcp setup --client cursor".\n`
+      `Usage: pionex-trade-mcp\n\n` +
+        `Starts the Pionex MCP server (stdio). Credentials are read from ~/.pionex/config.toml\n` +
+        `and/or the environment (PIONEX_API_KEY, PIONEX_API_SECRET, PIONEX_BASE_URL).\n\n` +
+        `To configure IDEs or agents (Cursor, Claude Desktop, Windsurf, VS Code, OpenClaw),\n` +
+        `use the companion CLI: pionex-ai-kit setup --mcp=pionex-trade-mcp --client <client>.\n`
     );
     return;
   }

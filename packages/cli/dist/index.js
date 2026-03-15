@@ -916,7 +916,7 @@ function getConfigPath(client) {
       return path.join(home, ".openclaw", "workspace", "config", "mcporter.json");
   }
 }
-var NPX_PACKAGE = "pionex-trade-mcp";
+var NPX_PACKAGE = "@pionex/pionex-trade-mcp";
 function buildEntry(client) {
   if (client === "vscode") {
     return { type: "stdio", command: "pionex-trade-mcp" };
@@ -983,7 +983,7 @@ function ask(rl, question, defaultValue = "") {
   const prompt = defaultValue ? `${question} [${defaultValue}]: ` : `${question}: `;
   return new Promise((resolve) => rl.question(prompt, (answer) => resolve((answer ?? "").trim() || defaultValue)));
 }
-async function cmdConfigInit() {
+async function cmdOnboard() {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   process.stdout.write("\n  pionex-ai-kit v0.2.x\n");
   process.stdout.write("  \u26A0\uFE0F  Security Tips: NEVER send API keys in agent chat. Create a dedicated API Key for your agent. Please test thoroughly before connecting to large real-money accounts.\n");
@@ -1027,7 +1027,7 @@ async function cmdConfigInit() {
   }
   process.stdout.write("\n  Config saved to " + configFilePath() + "\n");
   process.stdout.write("  Default profile: " + profileName + "\n");
-  process.stdout.write("  Usage: pionex-ai-kit config init\n");
+  process.stdout.write("  Usage: pionex-ai-kit onboard\n");
   process.stdout.write(
     "  Next: run 'pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor' or 'pionex-trade-mcp setup --client cursor' to register the MCP server.\n  You can replace 'cursor' with 'claude-desktop', 'windsurf', 'vscode', 'claude-code', or 'open_claw' depending on which agent you want to configure.\n\n"
   );
@@ -1037,7 +1037,7 @@ function printHelp() {
 Usage: pionex-ai-kit <command>
 
 Commands:
-  config init    Interactive wizard to create ~/.pionex/config.toml (API key, secret)
+  onboard        Interactive wizard to create ~/.pionex/config.toml (API key, secret)
   help           Show this help
 
 The MCP server (pionex-trade-mcp) reads credentials from ~/.pionex/config.toml.
@@ -1091,8 +1091,8 @@ function cmdSetup(argv) {
 }
 function main() {
   const cmd = process.argv[2];
-  if (cmd === "config" && process.argv[3] === "init") {
-    cmdConfigInit().catch((e) => {
+  if (cmd === "onboard") {
+    cmdOnboard().catch((e) => {
       process.stderr.write(String(e) + "\n");
       process.exit(1);
     });

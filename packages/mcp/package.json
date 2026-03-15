@@ -1,6 +1,6 @@
 {
-  "name": "pionex-trade-mcp",
-  "version": "0.2.5",
+  "name": "@pionex/pionex-trade-mcp",
+  "version": "0.2.0",
   "description": "Pionex MCP Server - reads credentials from ~/.pionex/config.toml",
   "type": "module",
   "license": "MIT",
