@@ -2,10 +2,10 @@
 
 [![CI](https://img.shields.io/badge/CI-no%20status-lightgrey)](#)
 [![coverage](https://img.shields.io/badge/codecov-unknown-lightgrey)](#)
+[![npm: kit](https://img.shields.io/npm/v/@pionex/pionex-ai-kit?label=pionex-ai-kit)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
+[![npm downloads: kit](https://img.shields.io/npm/dt/@pionex/pionex-ai-kit?label=kit+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
 [![npm: mcp](https://img.shields.io/npm/v/@pionex/pionex-trade-mcp?label=pionex-trade-mcp)](https://www.npmjs.com/package/@pionex/pionex-trade-mcp)
 [![npm downloads: mcp](https://img.shields.io/npm/dt/@pionex/pionex-trade-mcp?label=mcp+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-trade-mcp)
-[![npm: cli](https://img.shields.io/npm/v/@pionex/pionex-ai-kit?label=pionex-ai-kit)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
-[![npm downloads: cli](https://img.shields.io/npm/dt/@pionex/pionex-ai-kit?label=cli+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [English](README.md) | [中文](README.zh-CN.md)
@@ -64,7 +64,7 @@ MCP servers for trading on Pionex.
 **Prerequisites:** Node.js ≥ 18
 
 ```bash
-# 1. Install the CLI
+# 1. Install the Kit
 npm install -g @pionex/pionex-ai-kit
 
 # 2. Configure Pionex API credentials (interactive wizard)
@@ -121,7 +121,7 @@ The agent will use the Pionex market skill and display the bids and asks.
 npm install -g @pionex/pionex-ai-kit
 ```
 
-This installs the **CLI** used for onboarding and MCP client setup.
+This installs the **Kit** used for onboarding and MCP client setup.
 
 You can either:
 

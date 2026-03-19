@@ -2,10 +2,10 @@
 
 [![CI](https://img.shields.io/badge/CI-no%20status-lightgrey)](#)
 [![coverage](https://img.shields.io/badge/codecov-unknown-lightgrey)](#)
+[![npm: kit](https://img.shields.io/npm/v/@pionex/pionex-ai-kit?label=pionex-ai-kit)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
+[![npm downloads: kit](https://img.shields.io/npm/dt/@pionex/pionex-ai-kit?label=kit+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
 [![npm: mcp](https://img.shields.io/npm/v/@pionex/pionex-trade-mcp?label=pionex-trade-mcp)](https://www.npmjs.com/package/@pionex/pionex-trade-mcp)
 [![npm downloads: mcp](https://img.shields.io/npm/dt/@pionex/pionex-trade-mcp?label=mcp+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-trade-mcp)
-[![npm: cli](https://img.shields.io/npm/v/@pionex/pionex-ai-kit?label=pionex-ai-kit)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
-[![npm downloads: cli](https://img.shields.io/npm/dt/@pionex/pionex-ai-kit?label=cli+total+downloads)](https://www.npmjs.com/package/@pionex/pionex-ai-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [English](README.md) | [中文](README.zh-CN.md)
@@ -64,7 +64,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 **前置要求：** Node.js ≥ 18
 
 ```bash
-# 1. 安装 CLI
+# 1. 安装 Kit
 npm install -g @pionex/pionex-ai-kit
 
 # 2. 配置 Pionex API 凭证（交互式向导）
@@ -121,7 +121,7 @@ Agent 会使用 Pionex market skill 并展示买卖盘口。
 npm install -g @pionex/pionex-ai-kit
 ```
 
-这里只需要安装 **CLI**，用于账号向导和自动写入 MCP 客户端配置。
+这里只需要安装 **Kit**，用于账号向导和自动写入 MCP 客户端配置。
 
 你可以根据自己的偏好选择：
 
