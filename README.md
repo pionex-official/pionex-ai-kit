@@ -33,21 +33,25 @@ Instead of jumping between your AI and the exchange UI, you describe what you wa
 
 ## Features
 
-### `MCP`
+### MCP
 
 MCP servers for trading on Pionex.
 
-| Package                       | Area              | Tools                                                                                                                                                                                                                                                                           | Auth |
-| ----------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| Package                            | Area              | Tools                                                                                                                                                                                                                                                                           | Auth |
+| ---------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | **@pionex/pionex-trade-mcp** | **Market**  | `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines`                                                                                                                       | No   |
-|                               | **Account** | `pionex_account_get_balance`                                                                                                                                                                                                                                                  | Yes  |
-|                               | **Orders**  | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | Yes  |
+|                                    | **Account** | `pionex_account_get_balance`                                                                                                                                                                                                                                                  | Yes  |
+|                                    | **Orders**  | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | Yes  |
 
 ---
 
 ### SKills
 
-(TODO)
+| Skill                                                                                                        | Description                                                 | Auth |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ---- |
+| [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | Public market data: depth, tickers, symbols, klines, trades | No   |
+| [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | Account balance (spot)                                      | Yes  |
+| [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | Spot orders: place, cancel, open orders, fills              | Yes  |
 
 ### CLI
 

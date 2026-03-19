@@ -33,7 +33,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 
 ## 功能概览（Features）
 
-### `MCP`
+### MCP
 
 用于在 Pionex 上交易的 MCP Server。
 
@@ -47,7 +47,11 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 
 ### Skills
 
-(TODO)
+| Skill                                                                                                        | 描述                                   | 鉴权 |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------- | ---- |
+| [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | 公开行情数据：盘口、行情、交易对、K线、成交 | 否   |
+| [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | 账户余额（现货）                         | 是   |
+| [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | 现货订单：下单、撤单、查询挂单、成交记录    | 是   |
 
 ### CLI
 
@@ -60,7 +64,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 **前置要求：** Node.js ≥ 18
 
 ```bash
-# 1. 安装 Kit
+# 1. 安装 CLI
 npm install -g @pionex/pionex-ai-kit
 
 # 2. 配置 Pionex API 凭证（交互式向导）
