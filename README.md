@@ -12,16 +12,16 @@
 
 Pionex AI Kit — an AI-powered trading toolkit with two standalone packages:
 
-| Package | Description |
-|---------|-------------|
-| `@pionex/pionex-ai-kit` | CLI for onboarding and configuring MCP clients; runs `pionex-ai-kit onboard` to write `~/.pionex/config.toml` (API key, secret, base URL). |
+| Package                      | Description                                                                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@pionex/pionex-ai-kit`    | CLI for onboarding and configuring MCP clients; runs `pionex-ai-kit onboard` to write `~/.pionex/config.toml` (API key, secret, base URL).                 |
 | `@pionex/pionex-trade-mcp` | MCP server that reads credentials from `~/.pionex/config.toml` and exposes Pionex trading tools to Cursor, Claude Desktop, and other MCP-compatible clients. |
 
 ---
 
 ## What is this?
 
-Pionex AI Kit connects AI assistants (Cursor, Claude Desktop, etc.) directly to your Pionex account via the [Model Context Protocol](https://modelcontextprotocol.io).
+Pionex AI Kit provides you with a complete set of AI Agent infrastructure for connecting to Pionex, including MCP, Skills, and CLI. It supports mainstream AI Agents such as Cursor, Claude, OpenClaw, Windsurf, and VSCode.
 
 Instead of jumping between your AI and the exchange UI, you describe what you want — the AI calls tools on the local MCP server and executes the right API calls on Pionex.
 
@@ -33,20 +33,29 @@ Instead of jumping between your AI and the exchange UI, you describe what you wa
 
 ## Features
 
-### `@pionex/pionex-trade-mcp`
+### `MCP`
 
-Current MCP server for trading on Pionex.
+MCP servers for trading on Pionex.
 
-| Area | Tools | Auth |
-|------|--------|-----|
-| **Market** | `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines` | No |
-| **Account** | `pionex_account_get_balance` | Yes |
-| **Orders** | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | Yes |
-
+| Package                       | Area              | Tools                                                                                                                                                                                                                                                                           | Auth |
+| ----------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| **@pionex/pionex-trade-mcp** | **Market**  | `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines`                                                                                                                       | No   |
+|                               | **Account** | `pionex_account_get_balance`                                                                                                                                                                                                                                                  | Yes  |
+|                               | **Orders**  | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | Yes  |
 
 ---
 
+### SKills
+
+(TODO)
+
+### CLI
+
+(TODO)
+
 ## Quick Start
+
+### **Install**
 
 **Prerequisites:** Node.js ≥ 18
 
@@ -57,42 +66,52 @@ npm install -g @pionex/pionex-ai-kit
 # 2. Configure Pionex API credentials (interactive wizard)
 pionex-ai-kit onboard
 
-# 3. Register the MCP server with your AI client (examples)
+# 3. Setup the MCP server with your AI client (Choose whatever you're using)
+# This setup will write the appropriate MCP config for your client 
+# so it can start the server using `npx @pionex/pionex-trade-mcp`.
+
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client claude-desktop
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client claude-code
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client windsurf
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client vscode
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client openclaw
+
+# 4. Install skills
+npx skills add pionex-official/pionex-skills
 ```
 
-When you run step 3, `pionex-ai-kit setup` will:
+### Examples
 
-- Write the appropriate MCP config for your client so it can start the server using `npx @pionex/pionex-trade-mcp`.
+#### MCP
 
-**4. Try it in the agent** — In your AI client, ask: *"Use the Pionex tools to show the order book depth for BTC_USDT."* The agent will call the MCP tool and display the bids and asks. Example:
+In your AI client, ask: *"Use the Pionex tools to show the order book depth for BTC_USDT."*
 
-![Order book example: BTC_USDT in the agent](examples/orderbook-btc-usdt.png)
+The agent will call the MCP tool and display the bids and asks.
 
----
-## 5. (Optional) Install Pionex Skills
+**Example:**
 
-If you want the agent to follow **safe, step-by-step trading playbooks** (instead of directly calling tools), you can install `pionex-skills`.
+<img src="examples/orderbook-btc-usdt.png" width="50%" />
 
-1. Install skills from GitHub:
-   ```bash
-   npx skills add pionex-official/pionex-skills
-   ```
-2. After install, the skills will be available under `~/.agents/skills/` (or your agent's configured skills directory).
-3. The skills will reference the `pionex` CLI workflows for guardrails like: market-first checks, balance-aware ordering, and `--dry-run` before writes.
+#### Skills
 
-Effect screenshot:
+In your AI client, ask: *"Use the Pionex skills to show the order book depth 5 for BTC_USDT."*
+
+The agent will use the Pionex market skill and display the bids and asks.
+
+**Example:**
 
 ![Order book skill example: BTC_USDT in the agent](examples/orderbook-btc-usdt-skill.png)
 
 ---
 
-## 1. Install
+#### CLI
+
+(TODO)
+
+## Guides
+
+### 1. Install
 
 ```bash
 npm install -g @pionex/pionex-ai-kit
@@ -107,7 +126,7 @@ You can either:
 
 ---
 
-## 2. Configure credentials (`~/.pionex/config.toml`)
+### 2. Configure credentials (`~/.pionex/config.toml`)
 
 Run the interactive wizard (from **pionex-ai-kit**):
 
@@ -125,7 +144,7 @@ Config is written to `~/.pionex/config.toml`. You can add multiple profiles and 
 
 **Credential priority (when `pionex-trade-mcp` starts):**
 
-1. **Environment variables** — `PIONEX_API_KEY`, `PIONEX_API_SECRET`, `PIONEX_BASE_URL`  
+1. **Environment variables** — `PIONEX_API_KEY`, `PIONEX_API_SECRET`, `PIONEX_BASE_URL`
    - Can come from your shell (`export ...`) or from the MCP client config (`env` field in `mcp.json` / `claude_desktop_config.json` / etc.).
 2. **`~/.pionex/config.toml` profile** — used as a fallback only when the corresponding env var is missing.
 
@@ -133,7 +152,7 @@ The MCP server itself never writes your API keys into client configs; it only re
 
 ---
 
-## 3. Register the MCP server with your AI client
+### 3. Register the MCP server with your AI client
 
 After credentials are in place, register the server so your client (Cursor, Claude Desktop, etc.) can start it:
 
@@ -145,19 +164,19 @@ Then **restart Cursor** (or your client). The client config only stores the comm
 
 Supported clients:
 
-| `--client`       | Config file written |
-|------------------|---------------------|
-| `cursor`         | `~/.cursor/mcp.json` |
-| `openclaw`       | `~/.openclaw/workspace/config/mcporter.json` |
-| `claude-desktop` | macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`; Windows/Linux: see [Claude docs](https://docs.anthropic.com/claude/docs/model-context-protocol) |
-| `claude-code`    | No config file written; runs `claude mcp add --scope user --transport stdio pionex-trade-mcp -- @pionex/pionex-trade-mcp` |
-| `claude` (alias) | Same as `claude-code` |
-| `windsurf`       | `~/.codeium/windsurf/mcp_config.json` |
-| `vscode`         | `.mcp.json` in the **current directory** (project-level) |
+| `--client`       | Config file written                                                                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cursor`         | `~/.cursor/mcp.json`                                                                                                                                                  |
+| `openclaw`       | `~/.openclaw/workspace/config/mcporter.json`                                                                                                                          |
+| `claude-desktop` | macOS:`~/Library/Application Support/Claude/claude_desktop_config.json`; Windows/Linux: see [Claude docs](https://docs.anthropic.com/claude/docs/model-context-protocol) |
+| `claude-code`    | No config file written; runs `claude mcp add --scope user --transport stdio pionex-trade-mcp -- @pionex/pionex-trade-mcp`                                             |
+| `claude` (alias) | Same as `claude-code`                                                                                                                                                 |
+| `windsurf`       | `~/.codeium/windsurf/mcp_config.json`                                                                                                                                 |
+| `vscode`         | `.mcp.json` in the **current directory** (project-level)                                                                                                        |
 
 ---
 
-## 4. Manual MCP configuration (no setup command)
+### 4. Manual MCP configuration (no setup command)
 
 If you prefer not to use `pionex-ai-kit setup`, add the server entry yourself. Credentials are still read from `~/.pionex/config.toml` by the server, so you **do not** need to put keys in `env`.
 
@@ -180,7 +199,7 @@ If you prefer not to use `pionex-ai-kit setup`, add the server entry yourself. C
 
 ---
 
-## 5. Example prompts (after MCP is connected)
+### 5. Example prompts (after MCP is connected)
 
 **Market (no API key needed):**
 
@@ -197,7 +216,7 @@ If you prefer not to use `pionex-ai-kit setup`, add the server entry yourself. C
 
 ---
 
-## 6. Security
+### 6. Security
 
 - **Never** commit `~/.pionex/config.toml` or paste API keys in chat.
 - Prefer a **dedicated API key** with minimal permissions for the agent.
@@ -205,10 +224,9 @@ If you prefer not to use `pionex-ai-kit setup`, add the server entry yourself. C
 
 ---
 
-## 7. Contributing
+### 7. Contributing
 
 Development, build, and publish instructions live in:
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) (English)
 - [`CONTRIBUTING.zh-CN.md`](CONTRIBUTING.zh-CN.md) (中文)
-
