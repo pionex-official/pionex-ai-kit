@@ -1,0 +1,20 @@
+{
+  "name": "pionex-hub",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=@pionex/pionex-ai-kit && npm run build --workspace=@pionex/pionex-trade-mcp",
+    "clean": "npm run clean --workspaces"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
