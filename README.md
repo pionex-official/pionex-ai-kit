@@ -105,7 +105,7 @@ The agent will use the Pionex market skill and display the bids and asks.
 
 **Example:**
 
-![Order book skill example: BTC_USDT in the agent](examples/orderbook-btc-usdt-skill.png)
+<img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
 
 ---
 

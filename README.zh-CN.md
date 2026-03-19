@@ -105,7 +105,7 @@ Agent 会使用 Pionex market skill 并展示买卖盘口。
 
 **示例：**
 
-<img src="examples/orderbook-btc-usdt-skill.png" width="50%" />
+<img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
 
 ---
 
