@@ -55,7 +55,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 
 ### CLI
 
-(TODO)
+**`pionex-trade-cli`** — 直接通过命令行访问 Pionex 行情、账户和订单操作
 
 ## 快速开始（Quick Start）
 
@@ -111,7 +111,18 @@ Agent 会使用 Pionex market skill 并展示买卖盘口。
 
 #### CLI
 
-(TODO)
+**示例：**
+
+```
+# 盘口深度
+pionex-trade-cli market depth BTC_USDT --limit 5
+
+# 最近成交
+pionex-trade-cli market trades BTC_USDT --limit 10
+
+# 下一个市价买单（dry-run 模式）
+pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 100 --dry-run
+```
 
 ## 详细指南（Guides）
 

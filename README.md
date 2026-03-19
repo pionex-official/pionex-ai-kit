@@ -55,7 +55,7 @@ MCP servers for trading on Pionex.
 
 ### CLI
 
-(TODO)
+**`pionex-trade-cli`** — Direct command-line access to Pionex market data, account, and order operations
 
 ## Quick Start
 
@@ -111,7 +111,18 @@ The agent will use the Pionex market skill and display the bids and asks.
 
 #### CLI
 
-(TODO)
+**Example:**
+
+```
+# Order book depth
+pionex-trade-cli market depth BTC_USDT --limit 5
+
+# Recent trades
+pionex-trade-cli market trades BTC_USDT --limit 10
+
+# Place a market buy order (dry-run)
+pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 100 --dry-run
+```
 
 ## Guides
 
