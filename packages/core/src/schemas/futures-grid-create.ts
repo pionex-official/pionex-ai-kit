@@ -133,9 +133,6 @@ function asOptionalNonNegativeNumber(value: unknown, field: string): number {
 /** Strip + reject unknown keys; validate types per OpenAPI. Returns body-ready buOrderData. */
 export function parseAndValidateCreateFuturesGridBuOrderData(raw: Record<string, unknown>): Record<string, unknown> {
   const data = { ...raw };
-  delete data.openPrice;
-  delete data.keyId;
-  delete data.key_id;
 
   for (const k of Object.keys(data)) {
     if (!ORDER_DATA_KEY_SET.has(k)) {

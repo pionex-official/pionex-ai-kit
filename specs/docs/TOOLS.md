@@ -79,7 +79,6 @@ Agents mostly rely on each tool’s **name**, **description**, and **input schem
 - `buOrderData` required keys: `top`, `bottom`, `row`, `grid_type`, `trend`, `leverage`, `quoteInvestment`
 - `buOrderData` optional keys: `extraMargin`, `condition`, `conditionDirection`, `lossStopType`, `lossStop`, `lossStopDelay`, `profitStopType`, `profitStop`, `profitStopDelay`, `lossStopHigh`, `shareRatio`, `investCoin`, `investmentFrom`, `uiInvestCoin`, `lossStopLimitPrice`, `lossStopLimitHighPrice`, `profitStopLimitPrice`, `slippage`, `bonusId`, `uiExtraData`, `movingIndicatorType`, `movingIndicatorInterval`, `movingIndicatorParam`, `movingTrailingUpParam`, `cateType`, `movingTop`, `movingBottom`, `enableFollowClosed`
 - `buOrderData` must only contain those keys (`additionalProperties: false` + runtime check). Unknown keys cause an error.
-- `openPrice` / `keyId` are not part of the create schema; if you include them in `buOrderData`, they are ignored.
 
 **Example prompts**
 - “Create a BTC_USDT futures grid using these parameters (top/bottom/row/etc.).”
@@ -178,7 +177,6 @@ Agent 主要依靠每个工具的 **name**、**description** 和 **inputSchema**
 - `buOrderData` 必填 key：`top`、`bottom`、`row`、`grid_type`、`trend`、`leverage`、`quoteInvestment`
 - `buOrderData` 可选 key：`extraMargin`、`condition`、`conditionDirection`、`lossStopType`、`lossStop`、`lossStopDelay`、`profitStopType`、`profitStop`、`profitStopDelay`、`lossStopHigh`、`shareRatio`、`investCoin`、`investmentFrom`、`uiInvestCoin`、`lossStopLimitPrice`、`lossStopLimitHighPrice`、`profitStopLimitPrice`、`slippage`、`bonusId`、`uiExtraData`、`movingIndicatorType`、`movingIndicatorInterval`、`movingIndicatorParam`、`movingTrailingUpParam`、`cateType`、`movingTop`、`movingBottom`、`enableFollowClosed`
 - `buOrderData` 只允许以上这些 key（`additionalProperties: false` + 运行时校验）。未知 key 会报错。
-- `openPrice` / `keyId` 不属于创建 schema；如果你把它们放进 `buOrderData`，它们会被忽略。
 
 **示例提示词**
 - “用这些参数创建一组 BTC_USDT futures 网格机器人（top/bottom/row 等）。”

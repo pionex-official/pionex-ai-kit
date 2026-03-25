@@ -65,7 +65,6 @@ Implementation (JSON Schema + runtime validation): `@pionex-ai/core` → `schema
 **Optional in `buOrderData` (if present, types must match YAML):**  
 `extraMargin`, `condition`, `conditionDirection`, `lossStopType`, `lossStop`, `lossStopDelay`, `profitStopType`, `profitStop`, `profitStopDelay`, `lossStopHigh`, `shareRatio`, `investCoin`, `investmentFrom`, `uiInvestCoin`, `lossStopLimitPrice`, `lossStopLimitHighPrice`, `profitStopLimitPrice`, `slippage`, `bonusId`, `uiExtraData`, `movingIndicatorType`, `movingIndicatorInterval`, `movingIndicatorParam`, `movingTrailingUpParam`, `cateType`, `movingTop`, `movingBottom`, `enableFollowClosed`
 
-**Not in create schema:** `openPrice`, `keyId` are ignored if provided inside `buOrderData`. Unknown keys are rejected.
 
 **Handler:** `base` is normalized to `*.PERP` when the futures suffix is missing.
 

@@ -1327,9 +1327,6 @@ function asOptionalNonNegativeNumber(value, field) {
 }
 function parseAndValidateCreateFuturesGridBuOrderData(raw) {
   const data = { ...raw };
-  delete data.openPrice;
-  delete data.keyId;
-  delete data.key_id;
   for (const k of Object.keys(data)) {
     if (!ORDER_DATA_KEY_SET.has(k)) {
       throw new Error(`Unknown buOrderData property "${k}". Allowed keys: ${CREATE_FUTURES_GRID_ORDER_DATA_KEYS.join(", ")}.`);
