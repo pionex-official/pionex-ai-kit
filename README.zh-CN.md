@@ -141,6 +141,16 @@ npm install -g @pionex/pionex-ai-kit
 - 手动执行 `npm install -g @pionex/pionex-trade-mcp`（可选），以便固定使用某个全局安装的版本。
 
 ---
+### 1.1 更新
+统一使用以下更新命令：
+
+```bash
+npm update -g @pionex/pionex-ai-kit
+```
+
+变更记录：见 `CHANGELOG.md`。
+
+---
 
 ### 2. 配置凭证（`~/.pionex/config.toml`）
 

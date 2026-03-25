@@ -140,6 +140,15 @@ You can either:
 - Rely on `npx @pionex/pionex-trade-mcp` to fetch the latest version from npm when the MCP server starts, or
 - Install `@pionex/pionex-trade-mcp` globally yourself (optional) if you prefer to pin a specific version.
 
+### 1.1 Update
+Use the unified update command:
+
+```bash
+npm update -g @pionex/pionex-ai-kit
+```
+
+Changelog: see `CHANGELOG.md`.
+
 ---
 
 ### 2. Configure credentials (`~/.pionex/config.toml`)
