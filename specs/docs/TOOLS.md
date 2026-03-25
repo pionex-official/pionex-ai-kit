@@ -65,6 +65,28 @@ Agents mostly rely on each tool’s **name**, **description**, and **input schem
 
 ---
 
+## 4. Bot / Futures Grid (API key required)
+
+| Tool | Description |
+|------|-------------|
+| `pionex_bot_futures_grid_get_order` | Get one futures grid bot order by `buOrderId`. Optional `lang`. |
+| `pionex_bot_futures_grid_create` | Create a futures grid bot order. Requires `base`, `quote`, and `buOrderData`. Strict OpenAPI validation for `buOrderData`: only required/optional keys are accepted; unknown keys rejected. |
+| `pionex_bot_futures_grid_adjust_params` | Adjust futures grid params. Requires `buOrderId`, `type`, and `extraMargin` (plus fields depending on `type`). |
+| `pionex_bot_futures_grid_reduce` | Reduce futures grid position. Requires `buOrderId` and `reduceNum`. Optional: `slippage`, `condition`, `conditionDirection`. |
+| `pionex_bot_futures_grid_cancel` | Cancel and close a futures grid bot order. Requires `buOrderId`. Optional: `closeNote`, `closeSellModel`, `immediate`, `closeSlippage`. |
+
+**`pionex_bot_futures_grid_create` — key rules**
+- `buOrderData` required keys: `top`, `bottom`, `row`, `grid_type`, `trend`, `leverage`, `quoteInvestment`
+- `buOrderData` optional keys: `extraMargin`, `condition`, `conditionDirection`, `lossStopType`, `lossStop`, `lossStopDelay`, `profitStopType`, `profitStop`, `profitStopDelay`, `lossStopHigh`, `shareRatio`, `investCoin`, `investmentFrom`, `uiInvestCoin`, `lossStopLimitPrice`, `lossStopLimitHighPrice`, `profitStopLimitPrice`, `slippage`, `bonusId`, `uiExtraData`, `movingIndicatorType`, `movingIndicatorInterval`, `movingIndicatorParam`, `movingTrailingUpParam`, `cateType`, `movingTop`, `movingBottom`, `enableFollowClosed`
+- `buOrderData` must only contain those keys (`additionalProperties: false` + runtime check). Unknown keys cause an error.
+
+**Example prompts**
+- “Create a BTC_USDT futures grid using these parameters (top/bottom/row/etc.).”
+- “Adjust my futures grid bot with type `invest_in`.”
+- “Reduce the futures grid position by `reduceNum`.”
+
+---
+
 ## How descriptions help agents
 
 - MCP tools have **name**, **description**, and **inputSchema**. Clients (Cursor, Claude, etc.) pass this metadata to the LLM.
@@ -138,6 +160,28 @@ Agent 主要依靠每个工具的 **name**、**description** 和 **inputSchema**
 - 「帮我撤掉 BTC_USDT 上的订单 `<orderId>`。」
 - 「获取我最近 24 小时在 BTC_USDT 上的成交明细。」
 - 「撤销 BTC_USDT 上所有未成交的订单。」
+
+---
+
+## 4. Bot / Futures 网格机器人（需 API Key）
+
+| 工具名 | 说明 |
+|--------|------|
+| `pionex_bot_futures_grid_get_order` | 根据 `buOrderId` 获取一个 futures grid 机器人订单。可选 `lang`。 |
+| `pionex_bot_futures_grid_create` | 创建 futures 网格机器人订单。需要 `base`、`quote`、`buOrderData`。对 `buOrderData` 做严格 OpenAPI 校验：只接受必填/可选 key，未知 key 会直接报错。 |
+| `pionex_bot_futures_grid_adjust_params` | 调整 futures 网格机器人参数。需要 `buOrderId`、`type` 和 `extraMargin`（以及按 `type` 不同的附加字段）。 |
+| `pionex_bot_futures_grid_reduce` | 减仓 futures 网格机器人仓位。需要 `buOrderId` 和 `reduceNum`。可选：`slippage`、`condition`、`conditionDirection`。 |
+| `pionex_bot_futures_grid_cancel` | 撤销并关闭 futures 网格机器人订单。需要 `buOrderId`。可选：`closeNote`、`closeSellModel`、`immediate`、`closeSlippage`。 |
+
+**`pionex_bot_futures_grid_create` — 关键校验规则**
+- `buOrderData` 必填 key：`top`、`bottom`、`row`、`grid_type`、`trend`、`leverage`、`quoteInvestment`
+- `buOrderData` 可选 key：`extraMargin`、`condition`、`conditionDirection`、`lossStopType`、`lossStop`、`lossStopDelay`、`profitStopType`、`profitStop`、`profitStopDelay`、`lossStopHigh`、`shareRatio`、`investCoin`、`investmentFrom`、`uiInvestCoin`、`lossStopLimitPrice`、`lossStopLimitHighPrice`、`profitStopLimitPrice`、`slippage`、`bonusId`、`uiExtraData`、`movingIndicatorType`、`movingIndicatorInterval`、`movingIndicatorParam`、`movingTrailingUpParam`、`cateType`、`movingTop`、`movingBottom`、`enableFollowClosed`
+- `buOrderData` 只允许以上这些 key（`additionalProperties: false` + 运行时校验）。未知 key 会报错。
+
+**示例提示词**
+- “用这些参数创建一组 BTC_USDT futures 网格机器人（top/bottom/row 等）。”
+- “把我的 futures grid 用 `invest_in` 类型进行调整。”
+- “按给定的 `reduceNum` 减仓。”
 
 ---
 

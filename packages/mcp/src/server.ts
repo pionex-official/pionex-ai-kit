@@ -1,4 +1,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -17,7 +19,18 @@ import {
 } from "@pionex-ai/core";
 
 const SERVER_NAME = "pionex-trade-mcp";
-const SERVER_VERSION = "0.3.0";
+
+function resolveServerVersion(): string {
+  try {
+    const pkgPath = fileURLToPath(new URL("../package.json", import.meta.url));
+    const parsed = JSON.parse(readFileSync(pkgPath, "utf8")) as { version?: unknown };
+    return typeof parsed.version === "string" && parsed.version.length > 0 ? parsed.version : "0.0.0-unknown";
+  } catch {
+    return "0.0.0-unknown";
+  }
+}
+
+const SERVER_VERSION = resolveServerVersion();
 
 const SYSTEM_CAPABILITIES_TOOL_NAME = "system_get_capabilities";
 const SYSTEM_CAPABILITIES_TOOL: Tool = {

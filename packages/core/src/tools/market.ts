@@ -1,4 +1,5 @@
 import type { ToolSpec } from "./types.js";
+import type { QueryParams } from "../client/types.js";
 
 export function registerMarketTools(): ToolSpec[] {
   return [
@@ -19,7 +20,7 @@ export function registerMarketTools(): ToolSpec[] {
       async handler(args, { client }) {
         const symbol = String(args.symbol);
         const limit = args.limit == null ? undefined : Number(args.limit);
-        const q: Record<string, unknown> = { symbol };
+        const q: QueryParams = { symbol };
         if (limit != null && Number.isFinite(limit)) q.limit = limit;
         return (await client.publicGet("/api/v1/market/depth", q)).data;
       },
@@ -41,7 +42,7 @@ export function registerMarketTools(): ToolSpec[] {
       async handler(args, { client }) {
         const symbol = String(args.symbol);
         const limit = args.limit == null ? undefined : Number(args.limit);
-        const q: Record<string, unknown> = { symbol };
+        const q: QueryParams = { symbol };
         if (limit != null && Number.isFinite(limit)) q.limit = limit;
         return (await client.publicGet("/api/v1/market/trades", q)).data;
       },
@@ -68,7 +69,7 @@ export function registerMarketTools(): ToolSpec[] {
         },
       },
       async handler(args, { client }) {
-        const q: Record<string, unknown> = {};
+        const q: QueryParams = {};
         if (args.symbols) q.symbols = String(args.symbols);
         if (!args.symbols && args.type) q.type = String(args.type);
         return (await client.publicGet("/api/v1/common/symbols", q)).data;
@@ -88,7 +89,7 @@ export function registerMarketTools(): ToolSpec[] {
         },
       },
       async handler(args, { client }) {
-        const q: Record<string, unknown> = {};
+        const q: QueryParams = {};
         if (args.symbol) q.symbol = String(args.symbol);
         if (args.type) q.type = String(args.type);
         return (await client.publicGet("/api/v1/market/tickers", q)).data;
@@ -113,7 +114,7 @@ export function registerMarketTools(): ToolSpec[] {
       async handler(args, { client }) {
         const symbol = String(args.symbol);
         const interval = String(args.interval);
-        const q: Record<string, unknown> = { symbol, interval };
+        const q: QueryParams = { symbol, interval };
         if (args.endTime != null) q.endTime = Number(args.endTime);
         if (args.limit != null) q.limit = Number(args.limit);
         return (await client.publicGet("/api/v1/market/klines", q)).data;

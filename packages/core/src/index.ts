@@ -25,3 +25,9 @@ export type { ToolResult, ToolRunner } from "./tools/index.js";
 export { toMcpTool } from "./tools/types.js";
 export type { ToolSpec, ToolArgs, ToolContext, McpTool } from "./tools/types.js";
 export { ConfigError, PionexApiError, toToolErrorPayload } from "./utils/errors.js";
+export {
+  CREATE_FUTURES_GRID_ORDER_DATA_KEYS,
+  createFuturesGridOrderDataJsonSchema,
+  createFuturesGridCreateToolInputSchema,
+  parseAndValidateCreateFuturesGridBuOrderData,
+} from "./schemas/futures-grid-create.js";
