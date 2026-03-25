@@ -5,9 +5,10 @@ import type { ToolArgs, ToolSpec } from "./types.js";
 import { registerMarketTools } from "./market.js";
 import { registerAccountTools } from "./account.js";
 import { registerOrdersTools } from "./orders.js";
+import { registerBotTools } from "./bot.js";
 
 function allToolSpecs(): ToolSpec[] {
-  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools()];
+  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools(), ...registerBotTools()];
 }
 
 export function buildTools(config: PionexConfig): ToolSpec[] {

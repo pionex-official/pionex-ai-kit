@@ -1,4 +1,5 @@
 import type { ToolSpec } from "./types.js";
+import type { QueryParams } from "../client/types.js";
 
 export function registerOrdersTools(): ToolSpec[] {
   return [
@@ -111,7 +112,7 @@ export function registerOrdersTools(): ToolSpec[] {
       },
       async handler(args, { client }) {
         const symbol = String(args.symbol);
-        const q: Record<string, unknown> = { symbol };
+        const q: QueryParams = { symbol };
         if (args.limit != null) q.limit = Number(args.limit);
         return (await client.signedGet("/api/v1/trade/allOrders", q)).data;
       },
@@ -156,7 +157,7 @@ export function registerOrdersTools(): ToolSpec[] {
       },
       async handler(args, { client }) {
         const symbol = String(args.symbol);
-        const q: Record<string, unknown> = { symbol };
+        const q: QueryParams = { symbol };
         if (args.startTime != null) q.startTime = Number(args.startTime);
         if (args.endTime != null) q.endTime = Number(args.endTime);
         return (await client.signedGet("/api/v1/trade/fills", q)).data;

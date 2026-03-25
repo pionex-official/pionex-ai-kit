@@ -42,6 +42,7 @@ MCP servers for trading on Pionex.
 | **@pionex/pionex-trade-mcp** | **Market**  | `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines`                                                                                                                       | No   |
 |                                    | **Account** | `pionex_account_get_balance`                                                                                                                                                                                                                                                  | Yes  |
 |                                    | **Orders**  | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | Yes  |
+|                                    | **Bot / Futures Grid**  | `pionex_bot_get_futures_grid_order`, `pionex_bot_create_futures_grid_order`, `pionex_bot_adjust_futures_grid_params`, `pionex_bot_reduce_futures_grid_position`, `pionex_bot_cancel_futures_grid_order` | Yes  |
 
 ---
 

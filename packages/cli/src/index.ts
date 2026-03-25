@@ -15,6 +15,7 @@ import {
   PionexRestClient,
   createToolRunner,
   toToolErrorPayload,
+  parseAndValidateCreateFuturesGridBuOrderData,
 } from "@pionex-ai/core";
 
 const DEFAULT_PROFILE_NAME = "pionx-prod";
@@ -190,6 +191,7 @@ Groups:
   market   Market data (public)
   account  Account data (requires auth)
   orders   Spot orders (requires auth)
+  bot      Futures grid bot (requires auth)
 
 Examples:
   pionex market depth BTC_USDT --limit 5
@@ -198,14 +200,47 @@ Examples:
   pionex account balance
   pionex orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex orders cancel --symbol BTC_USDT --order-id 123
+  pionex bot get --bu-order-id <id>
+  pionex bot create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
 
 Global flags:
   --profile <name>     Profile in ~/.pionex/config.toml
   --modules <list>     Comma-separated modules (market,account,orders or all)
   --base-url <url>     Override API base URL
   --read-only          Disable write operations (orders new/cancel)
-  --dry-run            Print the tool call payload without executing (write ops only)
+  --dry-run            Print resolved futures-grid create body without executing (bot create only)
+
+Futures grid create (pionex bot create) — strict OpenAPI (same validation as MCP):
+  --base               Required; normalized to <BASE>.PERP if suffix missing
+  --quote              Required (e.g. USDT)
+  --bu-order-data-json Required JSON object — ONLY keys from CreateFuturesGridOrderData in openapi_bot.yaml
+  Optional: --copy-from, --copy-type, --copy-bot-order-id
+  buOrderData required: top, bottom, row, grid_type, trend, leverage, quoteInvestment
+  buOrderData optional (names only): extraMargin, condition, conditionDirection, lossStopType, lossStop,
+    lossStopDelay, profitStopType, profitStop, profitStopDelay, lossStopHigh, shareRatio, investCoin,
+    investmentFrom, uiInvestCoin, lossStopLimitPrice, lossStopLimitHighPrice, profitStopLimitPrice,
+    slippage, bonusId, uiExtraData, movingIndicatorType, movingIndicatorInterval, movingIndicatorParam,
+    movingTrailingUpParam, cateType, movingTop, movingBottom, enableFollowClosed
+  Unknown keys → error
+  YAML: https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml
+  Docs: https://www.pionex.com/docs/api-docs/bot-api/futures-grid
 `);
+}
+
+function parseJsonFlag(raw: unknown, flagName: string): Record<string, unknown> {
+  if (typeof raw !== "string") {
+    throw new Error(`Missing required flag: --${flagName}`);
+  }
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("must be a JSON object");
+    }
+    return parsed as Record<string, unknown>;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`Invalid --${flagName}: ${msg}`);
+  }
 }
 
 async function runPionexCommand(argv: string[]): Promise<void> {
@@ -364,6 +399,101 @@ async function runPionexCommand(argv: string[]): Promise<void> {
       return;
     }
     throw new Error(`Unknown orders command: ${command}`);
+  }
+
+  // bot
+  if (group === "bot") {
+    if (command === "get") {
+      const buOrderId =
+        typeof flags["bu-order-id"] === "string"
+          ? (flags["bu-order-id"] as string)
+          : typeof flags.buOrderId === "string"
+            ? (flags.buOrderId as string)
+            : undefined;
+      const lang = typeof flags.lang === "string" ? flags.lang : undefined;
+      if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+      const out = await runTool("pionex_bot_get_futures_grid_order", { buOrderId, lang });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "create") {
+      const base = typeof flags.base === "string" ? flags.base : undefined;
+      const quote = typeof flags.quote === "string" ? flags.quote : undefined;
+      const copyFrom = typeof flags["copy-from"] === "string" ? (flags["copy-from"] as string) : typeof flags.copyFrom === "string" ? (flags.copyFrom as string) : undefined;
+      const copyType = typeof flags["copy-type"] === "string" ? (flags["copy-type"] as string) : typeof flags.copyType === "string" ? (flags.copyType as string) : undefined;
+      const copyBotOrderId =
+        typeof flags["copy-bot-order-id"] === "string"
+          ? (flags["copy-bot-order-id"] as string)
+          : typeof flags.copyBotOrderId === "string"
+            ? (flags.copyBotOrderId as string)
+            : undefined;
+      const buOrderDataRaw = parseJsonFlag(flags["bu-order-data-json"] ?? flags.buOrderDataJson, "bu-order-data-json");
+      if (!base || !quote) {
+        throw new Error("Missing required flags: --base --quote --bu-order-data-json");
+      }
+      const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
+      const payload: Record<string, unknown> = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
+      if (dryRun) {
+        const out = await runTool("pionex_bot_create_futures_grid_order", { ...payload, __dryRun: true });
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_create_futures_grid_order", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "adjust") {
+      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+      if (dryRun) {
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_adjust_futures_grid_params", args: payload }, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_adjust_futures_grid_params", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "reduce") {
+      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+      if (dryRun) {
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_reduce_futures_grid_position", args: payload }, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_reduce_futures_grid_position", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "cancel") {
+      const buOrderId =
+        typeof flags["bu-order-id"] === "string"
+          ? (flags["bu-order-id"] as string)
+          : typeof flags.buOrderId === "string"
+            ? (flags.buOrderId as string)
+            : undefined;
+      const closeNote = typeof flags["close-note"] === "string" ? (flags["close-note"] as string) : typeof flags.closeNote === "string" ? (flags.closeNote as string) : undefined;
+      const closeSellModel =
+        typeof flags["close-sell-model"] === "string"
+          ? (flags["close-sell-model"] as string)
+          : typeof flags.closeSellModel === "string"
+            ? (flags.closeSellModel as string)
+            : undefined;
+      const immediate = typeof flags.immediate === "boolean" ? flags.immediate : undefined;
+      const closeSlippage =
+        typeof flags["close-slippage"] === "string"
+          ? (flags["close-slippage"] as string)
+          : typeof flags.closeSlippage === "string"
+            ? (flags.closeSlippage as string)
+            : undefined;
+      if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+      const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
+      if (dryRun) {
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_cancel_futures_grid_order", args: payload }, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_cancel_futures_grid_order", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    throw new Error(`Unknown bot command: ${command}`);
   }
 
   throw new Error(`Unknown group: ${group}`);

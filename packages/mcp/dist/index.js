@@ -720,8 +720,8 @@ var CLIENT_NAMES = {
 };
 var SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES);
 var PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-var MODULES = ["market", "account", "orders"];
-var DEFAULT_MODULES = ["market", "account", "orders"];
+var MODULES = ["market", "account", "orders", "bot"];
+var DEFAULT_MODULES = ["market", "account", "orders", "bot"];
 var ConfigError = class extends Error {
   suggestion;
   constructor(message, suggestion) {
@@ -1213,8 +1213,556 @@ function registerOrdersTools() {
     }
   ];
 }
+var CREATE_FUTURES_GRID_ORDER_DATA_KEYS = [
+  "top",
+  "bottom",
+  "row",
+  "grid_type",
+  "trend",
+  "leverage",
+  "extraMargin",
+  "quoteInvestment",
+  "condition",
+  "conditionDirection",
+  "lossStopType",
+  "lossStop",
+  "lossStopDelay",
+  "profitStopType",
+  "profitStop",
+  "profitStopDelay",
+  "lossStopHigh",
+  "shareRatio",
+  "investCoin",
+  "investmentFrom",
+  "uiInvestCoin",
+  "lossStopLimitPrice",
+  "lossStopLimitHighPrice",
+  "profitStopLimitPrice",
+  "slippage",
+  "bonusId",
+  "uiExtraData",
+  "movingIndicatorType",
+  "movingIndicatorInterval",
+  "movingIndicatorParam",
+  "movingTrailingUpParam",
+  "cateType",
+  "movingTop",
+  "movingBottom",
+  "enableFollowClosed"
+];
+var ORDER_DATA_KEY_SET = new Set(CREATE_FUTURES_GRID_ORDER_DATA_KEYS);
+function asNonEmptyString(value, field) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Invalid "${field}": expected non-empty string.`);
+  }
+  return value.trim();
+}
+function asFiniteNumber(value, field) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`Invalid "${field}": expected finite number.`);
+  }
+  return value;
+}
+function asPositiveNumber(value, field) {
+  const n = asFiniteNumber(value, field);
+  if (n <= 0) throw new Error(`Invalid "${field}": expected number > 0.`);
+  return n;
+}
+function asPositiveInteger(value, field) {
+  const n = asPositiveNumber(value, field);
+  if (!Number.isInteger(n)) {
+    throw new Error(`Invalid "${field}": expected positive integer.`);
+  }
+  return n;
+}
+function asBoolean(value, field) {
+  if (typeof value !== "boolean") {
+    throw new Error(`Invalid "${field}": expected boolean.`);
+  }
+  return value;
+}
+function assertEnum(value, field, allowed) {
+  if (!allowed.includes(value)) {
+    throw new Error(`Invalid "${field}": expected one of ${allowed.join(", ")}.`);
+  }
+}
+function asPositiveDecimalString(value, field) {
+  const s = asNonEmptyString(value, field);
+  if (!/^\d+(\.\d+)?$/.test(s)) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  const n = Number(s);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  return s;
+}
+function asPositiveDecimalStringLoose(value, field) {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return String(value);
+  }
+  return asPositiveDecimalString(value, field);
+}
+function asNonNegativeDecimalString(value, field) {
+  const s = asNonEmptyString(value, field);
+  if (!/^\d+(\.\d+)?$/.test(s)) {
+    throw new Error(`Invalid "${field}": expected non-negative decimal string.`);
+  }
+  const n = Number(s);
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error(`Invalid "${field}": expected non-negative decimal string.`);
+  }
+  return s;
+}
+function asOptionalString(value, field) {
+  if (typeof value !== "string") {
+    throw new Error(`Invalid "${field}": expected string.`);
+  }
+  return value;
+}
+function asOptionalNonNegativeNumber(value, field) {
+  const n = asFiniteNumber(value, field);
+  if (n < 0) throw new Error(`Invalid "${field}": expected number >= 0.`);
+  return n;
+}
+function parseAndValidateCreateFuturesGridBuOrderData(raw) {
+  const data = { ...raw };
+  delete data.openPrice;
+  delete data.keyId;
+  delete data.key_id;
+  for (const k of Object.keys(data)) {
+    if (!ORDER_DATA_KEY_SET.has(k)) {
+      throw new Error(`Unknown buOrderData property "${k}". Allowed keys: ${CREATE_FUTURES_GRID_ORDER_DATA_KEYS.join(", ")}.`);
+    }
+  }
+  const top = asPositiveDecimalStringLoose(data.top, "buOrderData.top");
+  const bottom = asPositiveDecimalStringLoose(data.bottom, "buOrderData.bottom");
+  if (Number(top) <= Number(bottom)) {
+    throw new Error('Invalid "buOrderData.top": expected top > bottom.');
+  }
+  const row = asPositiveInteger(data.row, "buOrderData.row");
+  const gridType = asNonEmptyString(data.grid_type, "buOrderData.grid_type");
+  assertEnum(gridType, "buOrderData.grid_type", ["arithmetic", "geometric"]);
+  const trend = asNonEmptyString(data.trend, "buOrderData.trend");
+  assertEnum(trend, "buOrderData.trend", ["long", "short", "no_trend"]);
+  const leverage = asPositiveNumber(data.leverage, "buOrderData.leverage");
+  const quoteInvestment = asPositiveDecimalStringLoose(data.quoteInvestment, "buOrderData.quoteInvestment");
+  const out = {
+    top,
+    bottom,
+    row,
+    grid_type: gridType,
+    trend,
+    leverage,
+    quoteInvestment
+  };
+  if (data.extraMargin != null) {
+    out.extraMargin = asNonNegativeDecimalString(data.extraMargin, "buOrderData.extraMargin");
+  }
+  if (data.condition != null) out.condition = asOptionalString(data.condition, "buOrderData.condition");
+  if (data.conditionDirection != null) {
+    const v = asNonEmptyString(data.conditionDirection, "buOrderData.conditionDirection");
+    assertEnum(v, "buOrderData.conditionDirection", ["-1", "1"]);
+    out.conditionDirection = v;
+  }
+  if (data.lossStopType != null) {
+    const v = asNonEmptyString(data.lossStopType, "buOrderData.lossStopType");
+    assertEnum(v, "buOrderData.lossStopType", ["price", "profit_amount", "profit_ratio", "price_limit"]);
+    out.lossStopType = v;
+  }
+  if (data.lossStop != null) out.lossStop = asOptionalString(data.lossStop, "buOrderData.lossStop");
+  if (data.lossStopDelay != null) out.lossStopDelay = asOptionalNonNegativeNumber(data.lossStopDelay, "buOrderData.lossStopDelay");
+  if (data.profitStopType != null) {
+    const v = asNonEmptyString(data.profitStopType, "buOrderData.profitStopType");
+    assertEnum(v, "buOrderData.profitStopType", ["price", "profit_amount", "profit_ratio", "price_limit"]);
+    out.profitStopType = v;
+  }
+  if (data.profitStop != null) out.profitStop = asOptionalString(data.profitStop, "buOrderData.profitStop");
+  if (data.profitStopDelay != null) out.profitStopDelay = asOptionalNonNegativeNumber(data.profitStopDelay, "buOrderData.profitStopDelay");
+  if (data.lossStopHigh != null) out.lossStopHigh = asOptionalString(data.lossStopHigh, "buOrderData.lossStopHigh");
+  if (data.shareRatio != null) out.shareRatio = asOptionalString(data.shareRatio, "buOrderData.shareRatio");
+  if (data.investCoin != null) out.investCoin = asOptionalString(data.investCoin, "buOrderData.investCoin");
+  if (data.investmentFrom != null) {
+    const v = asNonEmptyString(data.investmentFrom, "buOrderData.investmentFrom");
+    assertEnum(v, "buOrderData.investmentFrom", ["USER", "LOCK_ACTIVITY", "FUTURE_GRID_BONUS"]);
+    out.investmentFrom = v;
+  }
+  if (data.uiInvestCoin != null) out.uiInvestCoin = asOptionalString(data.uiInvestCoin, "buOrderData.uiInvestCoin");
+  if (data.lossStopLimitPrice != null) out.lossStopLimitPrice = asOptionalString(data.lossStopLimitPrice, "buOrderData.lossStopLimitPrice");
+  if (data.lossStopLimitHighPrice != null) out.lossStopLimitHighPrice = asOptionalString(data.lossStopLimitHighPrice, "buOrderData.lossStopLimitHighPrice");
+  if (data.profitStopLimitPrice != null) out.profitStopLimitPrice = asOptionalString(data.profitStopLimitPrice, "buOrderData.profitStopLimitPrice");
+  if (data.slippage != null) out.slippage = asOptionalString(data.slippage, "buOrderData.slippage");
+  if (data.bonusId != null) out.bonusId = asOptionalString(data.bonusId, "buOrderData.bonusId");
+  if (data.uiExtraData != null) out.uiExtraData = asOptionalString(data.uiExtraData, "buOrderData.uiExtraData");
+  if (data.movingIndicatorType != null) out.movingIndicatorType = asOptionalString(data.movingIndicatorType, "buOrderData.movingIndicatorType");
+  if (data.movingIndicatorInterval != null) out.movingIndicatorInterval = asOptionalString(data.movingIndicatorInterval, "buOrderData.movingIndicatorInterval");
+  if (data.movingIndicatorParam != null) out.movingIndicatorParam = asOptionalString(data.movingIndicatorParam, "buOrderData.movingIndicatorParam");
+  if (data.movingTrailingUpParam != null) out.movingTrailingUpParam = asOptionalString(data.movingTrailingUpParam, "buOrderData.movingTrailingUpParam");
+  if (data.cateType != null) {
+    const v = asNonEmptyString(data.cateType, "buOrderData.cateType");
+    assertEnum(v, "buOrderData.cateType", ["FULLY_HEDGING", "LOAN_GRID", "LEVERAGE_GRID", "FUTURE_GRID_COIN_MARGINED"]);
+    out.cateType = v;
+  }
+  if (data.movingTop != null) out.movingTop = asOptionalString(data.movingTop, "buOrderData.movingTop");
+  if (data.movingBottom != null) out.movingBottom = asOptionalString(data.movingBottom, "buOrderData.movingBottom");
+  if (data.enableFollowClosed != null) out.enableFollowClosed = asBoolean(data.enableFollowClosed, "buOrderData.enableFollowClosed");
+  return out;
+}
+var createFuturesGridOrderDataJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  description: "CreateFuturesGridOrderData (openapi_bot.yaml). Required: top, bottom, row, grid_type, trend, leverage, quoteInvestment.",
+  required: ["top", "bottom", "row", "grid_type", "trend", "leverage", "quoteInvestment"],
+  properties: {
+    top: { type: "string", description: "Grid upper price" },
+    bottom: { type: "string", description: "Grid lower price" },
+    row: { type: "number", description: "Number of grid levels" },
+    grid_type: {
+      type: "string",
+      enum: ["arithmetic", "geometric"],
+      description: "Grid spacing: arithmetic (equal difference) or geometric (equal ratio)"
+    },
+    trend: {
+      type: "string",
+      enum: ["long", "short", "no_trend"],
+      description: "Grid direction"
+    },
+    leverage: { type: "number", description: "Leverage multiplier" },
+    extraMargin: { type: "string", description: "Extra margin amount (optional)" },
+    quoteInvestment: { type: "string", description: "Investment amount" },
+    condition: { type: "string", description: "Trigger price (conditional orders)" },
+    conditionDirection: { type: "string", enum: ["-1", "1"], description: "Trigger direction" },
+    lossStopType: {
+      type: "string",
+      enum: ["price", "profit_amount", "profit_ratio", "price_limit"],
+      description: "Stop loss type"
+    },
+    lossStop: { type: "string", description: "Stop loss value" },
+    lossStopDelay: { type: "number", description: "Stop loss delay (seconds)" },
+    profitStopType: {
+      type: "string",
+      enum: ["price", "profit_amount", "profit_ratio", "price_limit"],
+      description: "Take profit type"
+    },
+    profitStop: { type: "string", description: "Take profit value" },
+    profitStopDelay: { type: "number", description: "Take profit delay (seconds)" },
+    lossStopHigh: { type: "string", description: "Upper stop loss price for neutral grid" },
+    shareRatio: { type: "string", description: "Profit sharing ratio" },
+    investCoin: { type: "string", description: "Investment currency" },
+    investmentFrom: {
+      type: "string",
+      enum: ["USER", "LOCK_ACTIVITY", "FUTURE_GRID_BONUS"],
+      description: "Funding source"
+    },
+    uiInvestCoin: { type: "string", description: "Frontend-recorded investment currency" },
+    lossStopLimitPrice: { type: "string", description: "Limit SL price (lossStopType=price_limit)" },
+    lossStopLimitHighPrice: { type: "string", description: "Upper limit SL for neutral grid" },
+    profitStopLimitPrice: { type: "string", description: "Limit TP price (profitStopType=price_limit)" },
+    slippage: { type: "string", description: "Open slippage e.g. 0.01 = 1%" },
+    bonusId: { type: "string", description: "Bonus UUID" },
+    uiExtraData: { type: "string", description: "Frontend extra (coin-margined)" },
+    movingIndicatorType: { type: "string", description: "e.g. sma" },
+    movingIndicatorInterval: { type: "string", description: "e.g. 1m, 15m" },
+    movingIndicatorParam: { type: "string", description: "JSON params e.g. length" },
+    movingTrailingUpParam: { type: "string", description: "SMA trailing up ratio" },
+    cateType: {
+      type: "string",
+      enum: ["FULLY_HEDGING", "LOAN_GRID", "LEVERAGE_GRID", "FUTURE_GRID_COIN_MARGINED"],
+      description: "Category type"
+    },
+    movingTop: { type: "string", description: "Moving grid upper limit" },
+    movingBottom: { type: "string", description: "Moving grid lower limit" },
+    enableFollowClosed: { type: "boolean", description: "Follow close" }
+  }
+};
+var createFuturesGridCreateToolInputSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["base", "quote", "buOrderData"],
+  properties: {
+    base: { type: "string", description: "Base currency (e.g. BTC); *.PERP normalized in handler" },
+    quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+    copyFrom: { type: "string", description: "Optional. Copy source order ID" },
+    copyType: { type: "string", description: "Optional. Copy type" },
+    copyBotOrderId: { type: "string", description: "Optional. Copy bot order ID" },
+    buOrderData: createFuturesGridOrderDataJsonSchema,
+    __dryRun: { type: "boolean", description: "Internal: when true, return resolved body without POST" }
+  }
+};
+function asNonEmptyString2(value, field) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Invalid "${field}": expected non-empty string.`);
+  }
+  return value.trim();
+}
+function asFiniteNumber2(value, field) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`Invalid "${field}": expected finite number.`);
+  }
+  return value;
+}
+function asPositiveNumber2(value, field) {
+  const n = asFiniteNumber2(value, field);
+  if (n <= 0) throw new Error(`Invalid "${field}": expected number > 0.`);
+  return n;
+}
+function asPositiveInteger2(value, field) {
+  const n = asPositiveNumber2(value, field);
+  if (!Number.isInteger(n)) {
+    throw new Error(`Invalid "${field}": expected positive integer.`);
+  }
+  return n;
+}
+function asBoolean2(value, field) {
+  if (typeof value !== "boolean") {
+    throw new Error(`Invalid "${field}": expected boolean.`);
+  }
+  return value;
+}
+function assertEnum2(value, field, allowed) {
+  if (!allowed.includes(value)) {
+    throw new Error(`Invalid "${field}": expected one of ${allowed.join(", ")}.`);
+  }
+}
+function asObject(value, field) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`Invalid "${field}": expected JSON object.`);
+  }
+  return value;
+}
+function asPositiveDecimalString2(value, field) {
+  const s = asNonEmptyString2(value, field);
+  if (!/^\d+(\.\d+)?$/.test(s)) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  const n = Number(s);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  return s;
+}
+function normalizePerpBase(base) {
+  return base.endsWith(".PERP") ? base : `${base}.PERP`;
+}
+function registerBotTools() {
+  return [
+    {
+      name: "pionex_bot_get_futures_grid_order",
+      module: "bot",
+      isWrite: false,
+      description: "Get one futures grid bot order by buOrderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string", description: "Futures grid bot order id." },
+          lang: { type: "string", description: "Optional language code." }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client }) {
+        const buOrderId = String(args.buOrderId);
+        const q = { buOrderId };
+        if (args.lang != null) q.lang = String(args.lang);
+        return (await client.signedGet("/api/v1/bot/orders/futuresGrid/order", q)).data;
+      }
+    },
+    {
+      name: "pionex_bot_create_futures_grid_order",
+      module: "bot",
+      isWrite: true,
+      description: "Create a futures grid order (openapi_bot.yaml CreateFuturesGridRequest / CreateFuturesGridOrderData). https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml \u2014 Required: base, quote, buOrderData. Optional: copyFrom, copyType, copyBotOrderId. buOrderData required: top, bottom, row, grid_type, trend, leverage, quoteInvestment; unknown keys rejected.",
+      inputSchema: createFuturesGridCreateToolInputSchema,
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot create is disabled.");
+        }
+        const rawBase = asNonEmptyString2(args.base, "base");
+        const base = normalizePerpBase(rawBase);
+        const quote = asNonEmptyString2(args.quote, "quote");
+        const buOrderDataOut = parseAndValidateCreateFuturesGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
+        const row = buOrderDataOut.row;
+        const gridType = buOrderDataOut.grid_type;
+        const leverage = buOrderDataOut.leverage;
+        const body = {
+          base,
+          quote,
+          buOrderData: buOrderDataOut
+        };
+        if (args.copyFrom != null) body.copyFrom = String(args.copyFrom);
+        if (args.copyType != null) body.copyType = String(args.copyType);
+        if (args.copyBotOrderId != null) body.copyBotOrderId = String(args.copyBotOrderId);
+        if (args.__dryRun === true) {
+          return {
+            dryRun: true,
+            note: "No order was sent. Body matches openapi_bot.yaml CreateFuturesGridRequest.",
+            resolvedParams: {
+              row,
+              grid_type: gridType,
+              leverage
+            },
+            resolvedBody: body
+          };
+        }
+        return (await client.signedPost("/api/v1/bot/orders/futuresGrid/create", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_adjust_futures_grid_params",
+      module: "bot",
+      isWrite: true,
+      description: "Adjust futures grid bot params (invest_in / adjust_params / invest_in_trigger).",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          type: { type: "string", enum: ["invest_in", "adjust_params", "invest_in_trigger"] },
+          quoteInvestment: { type: "number" },
+          extraMargin: { type: "boolean" },
+          bottom: { type: "string" },
+          top: { type: "string" },
+          row: { type: "number" },
+          extraMarginAmount: { type: "number" },
+          isRecommend: { type: "boolean" },
+          isReinvest: { type: "boolean" },
+          investCoin: { type: "string" },
+          investmentFrom: { type: "string", enum: ["USER", "LOCK_ACTIVITY"] },
+          condition: { type: "string" },
+          conditionDirection: { type: "string", enum: ["1", "-1"] },
+          slippage: { type: "string" },
+          adjustParamsSence: { type: "string" }
+        },
+        required: ["buOrderId", "type", "extraMargin"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot adjust is disabled.");
+        }
+        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
+        const type = asNonEmptyString2(args.type, "type");
+        assertEnum2(type, "type", ["invest_in", "adjust_params", "invest_in_trigger"]);
+        const extraMargin = asBoolean2(args.extraMargin, "extraMargin");
+        if (type === "invest_in" && args.quoteInvestment != null) {
+          asPositiveNumber2(args.quoteInvestment, "quoteInvestment");
+        }
+        if (type === "adjust_params") {
+          const bottom = asPositiveDecimalString2(args.bottom, "bottom");
+          const top = asPositiveDecimalString2(args.top, "top");
+          if (Number(top) <= Number(bottom)) {
+            throw new Error('Invalid "top": expected top > bottom.');
+          }
+          asPositiveInteger2(args.row, "row");
+        }
+        if (type === "invest_in_trigger") {
+          asPositiveDecimalString2(args.condition, "condition");
+          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
+          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+        }
+        const body = {
+          buOrderId,
+          type,
+          extraMargin
+        };
+        if (args.quoteInvestment != null) body.quoteInvestment = asFiniteNumber2(args.quoteInvestment, "quoteInvestment");
+        if (args.bottom != null) body.bottom = asPositiveDecimalString2(args.bottom, "bottom");
+        if (args.top != null) body.top = asPositiveDecimalString2(args.top, "top");
+        if (args.row != null) body.row = asPositiveInteger2(args.row, "row");
+        if (args.extraMarginAmount != null) body.extraMarginAmount = asFiniteNumber2(args.extraMarginAmount, "extraMarginAmount");
+        if (args.isRecommend != null) body.isRecommend = asBoolean2(args.isRecommend, "isRecommend");
+        if (args.isReinvest != null) body.isReinvest = asBoolean2(args.isReinvest, "isReinvest");
+        if (args.investCoin != null) body.investCoin = String(args.investCoin);
+        if (args.investmentFrom != null) {
+          const investmentFrom = asNonEmptyString2(args.investmentFrom, "investmentFrom");
+          assertEnum2(investmentFrom, "investmentFrom", ["USER", "LOCK_ACTIVITY"]);
+          body.investmentFrom = investmentFrom;
+        }
+        if (args.condition != null) body.condition = asPositiveDecimalString2(args.condition, "condition");
+        if (args.conditionDirection != null) {
+          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
+          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+          body.conditionDirection = conditionDirection;
+        }
+        if (args.slippage != null) body.slippage = String(args.slippage);
+        if (args.adjustParamsSence != null) body.adjustParamsSence = String(args.adjustParamsSence);
+        return (await client.signedPost("/api/v1/bot/orders/futuresGrid/adjustParams", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_reduce_futures_grid_position",
+      module: "bot",
+      isWrite: true,
+      description: "Reduce futures grid bot position.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          reduceNum: { type: "number" },
+          slippage: { type: "string" },
+          condition: { type: "string" },
+          conditionDirection: { type: "string", enum: ["1", "-1"] }
+        },
+        required: ["buOrderId", "reduceNum"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot reduce is disabled.");
+        }
+        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
+        const reduceNum = asPositiveInteger2(args.reduceNum, "reduceNum");
+        const body = {
+          buOrderId,
+          reduceNum
+        };
+        if (args.slippage != null) body.slippage = String(args.slippage);
+        if (args.condition != null) body.condition = String(args.condition);
+        if (args.conditionDirection != null) {
+          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
+          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+          body.conditionDirection = conditionDirection;
+        }
+        return (await client.signedPost("/api/v1/bot/orders/futuresGrid/reduce", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_cancel_futures_grid_order",
+      module: "bot",
+      isWrite: true,
+      description: "Cancel and close a futures grid bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          closeNote: { type: "string" },
+          closeSellModel: { type: "string", enum: ["TO_QUOTE", "TO_USDT"] },
+          immediate: { type: "boolean" },
+          closeSlippage: { type: "string" }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot cancel is disabled.");
+        }
+        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
+        const body = { buOrderId };
+        if (args.closeNote != null) body.closeNote = String(args.closeNote);
+        if (args.closeSellModel != null) {
+          const closeSellModel = asNonEmptyString2(args.closeSellModel, "closeSellModel");
+          assertEnum2(closeSellModel, "closeSellModel", ["TO_QUOTE", "TO_USDT"]);
+          body.closeSellModel = closeSellModel;
+        }
+        if (args.immediate != null) body.immediate = asBoolean2(args.immediate, "immediate");
+        if (args.closeSlippage != null) body.closeSlippage = String(args.closeSlippage);
+        return (await client.signedPost("/api/v1/bot/orders/futuresGrid/cancel", body)).data;
+      }
+    }
+  ];
+}
 function allToolSpecs() {
-  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools()];
+  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools(), ...registerBotTools()];
 }
 function buildTools(config) {
   const enabled = new Set(config.modules);
@@ -1238,12 +1786,23 @@ function toMcpTool(tool) {
 
 // src/server.ts
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { readFileSync as readFileSync2 } from "fs";
+import { fileURLToPath } from "url";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 var SERVER_NAME = "pionex-trade-mcp";
-var SERVER_VERSION = "0.3.0";
+function resolveServerVersion() {
+  try {
+    const pkgPath = fileURLToPath(new URL("../package.json", import.meta.url));
+    const parsed = JSON.parse(readFileSync2(pkgPath, "utf8"));
+    return typeof parsed.version === "string" && parsed.version.length > 0 ? parsed.version : "0.0.0-unknown";
+  } catch {
+    return "0.0.0-unknown";
+  }
+}
+var SERVER_VERSION = resolveServerVersion();
 var SYSTEM_CAPABILITIES_TOOL_NAME = "system_get_capabilities";
 var SYSTEM_CAPABILITIES_TOOL = {
   name: SYSTEM_CAPABILITIES_TOOL_NAME,
@@ -1352,9 +1911,9 @@ Usage: pionex-trade-mcp [options]
 
 Options:
   --modules <list>     Comma-separated list of modules to load
-                       Available: market, account, orders
+                       Available: market, account, orders, bot
                        Special: "all" loads all modules
-                       Default: market,account,orders
+                       Default: market,account,orders,bot
 
   --profile <name>     Profile to load from ~/.pionex/config.toml
                        Falls back to default_profile in config, then "default"

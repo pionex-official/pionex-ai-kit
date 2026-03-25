@@ -25,7 +25,7 @@ declare function runSetup(options: SetupOptions): void;
 declare function printSetupUsage(): void;
 
 declare const PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-declare const MODULES: readonly ["market", "account", "orders"];
+declare const MODULES: readonly ["market", "account", "orders", "bot"];
 type ModuleId = (typeof MODULES)[number];
 declare const DEFAULT_MODULES: ModuleId[];
 
@@ -150,4 +150,18 @@ declare class PionexApiError extends Error {
 }
 declare function toToolErrorPayload(error: unknown): Record<string, unknown>;
 
-export { type CliOptions, type ClientId, ConfigError, DEFAULT_MODULES, MODULES, type McpTool, type ModuleId, PIONEX_API_DEFAULT_BASE_URL, PionexApiError, type PionexConfig, type PionexProfile, PionexRestClient, type PionexTomlConfig, type RequestResult, SUPPORTED_CLIENTS, type SetupOptions, type ToolArgs, type ToolContext, type ToolResult, type ToolRunner, type ToolSpec, buildTools, configFilePath, createToolRunner, getConfigPath, loadConfig, printSetupUsage, readFullConfig, readTomlProfile, runSetup, toMcpTool, toToolErrorPayload, writeFullConfig };
+/**
+ * Mirrors openapi_bot.yaml — CreateFuturesGridRequest + CreateFuturesGridOrderData.
+ * https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml
+ */
+
+/** Every property under CreateFuturesGridOrderData (OpenAPI); no other keys allowed. */
+declare const CREATE_FUTURES_GRID_ORDER_DATA_KEYS: readonly ["top", "bottom", "row", "grid_type", "trend", "leverage", "extraMargin", "quoteInvestment", "condition", "conditionDirection", "lossStopType", "lossStop", "lossStopDelay", "profitStopType", "profitStop", "profitStopDelay", "lossStopHigh", "shareRatio", "investCoin", "investmentFrom", "uiInvestCoin", "lossStopLimitPrice", "lossStopLimitHighPrice", "profitStopLimitPrice", "slippage", "bonusId", "uiExtraData", "movingIndicatorType", "movingIndicatorInterval", "movingIndicatorParam", "movingTrailingUpParam", "cateType", "movingTop", "movingBottom", "enableFollowClosed"];
+/** Strip + reject unknown keys; validate types per OpenAPI. Returns body-ready buOrderData. */
+declare function parseAndValidateCreateFuturesGridBuOrderData(raw: Record<string, unknown>): Record<string, unknown>;
+/** JSON Schema for MCP tool `buOrderData` — matches openapi_bot.yaml CreateFuturesGridOrderData.properties */
+declare const createFuturesGridOrderDataJsonSchema: JsonSchema;
+/** Full MCP input schema for pionex_bot_create_futures_grid_order (includes internal __dryRun for CLI). */
+declare const createFuturesGridCreateToolInputSchema: JsonSchema;
+
+export { CREATE_FUTURES_GRID_ORDER_DATA_KEYS, type CliOptions, type ClientId, ConfigError, DEFAULT_MODULES, MODULES, type McpTool, type ModuleId, PIONEX_API_DEFAULT_BASE_URL, PionexApiError, type PionexConfig, type PionexProfile, PionexRestClient, type PionexTomlConfig, type RequestResult, SUPPORTED_CLIENTS, type SetupOptions, type ToolArgs, type ToolContext, type ToolResult, type ToolRunner, type ToolSpec, buildTools, configFilePath, createFuturesGridCreateToolInputSchema, createFuturesGridOrderDataJsonSchema, createToolRunner, getConfigPath, loadConfig, parseAndValidateCreateFuturesGridBuOrderData, printSetupUsage, readFullConfig, readTomlProfile, runSetup, toMcpTool, toToolErrorPayload, writeFullConfig };

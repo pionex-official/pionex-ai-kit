@@ -11,9 +11,9 @@ Usage: pionex-trade-mcp [options]
 
 Options:
   --modules <list>     Comma-separated list of modules to load
-                       Available: market, account, orders
+                       Available: market, account, orders, bot
                        Special: "all" loads all modules
-                       Default: market,account,orders
+                       Default: market,account,orders,bot
 
   --profile <name>     Profile to load from ~/.pionex/config.toml
                        Falls back to default_profile in config, then "default"
