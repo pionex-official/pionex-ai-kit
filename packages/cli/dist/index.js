@@ -1814,7 +1814,7 @@ function normalizePerpBase(base) {
 function registerBotTools() {
   return [
     {
-      name: "pionex_bot_get_futures_grid_order",
+      name: "pionex_bot_futures_grid_get_order",
       module: "bot",
       isWrite: false,
       description: "Get one futures grid bot order by buOrderId.",
@@ -1835,7 +1835,7 @@ function registerBotTools() {
       }
     },
     {
-      name: "pionex_bot_create_futures_grid_order",
+      name: "pionex_bot_futures_grid_create",
       module: "bot",
       isWrite: true,
       description: "Create a futures grid order (openapi_bot.yaml CreateFuturesGridRequest / CreateFuturesGridOrderData). https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml \u2014 Required: base, quote, buOrderData. Optional: copyFrom, copyType, copyBotOrderId. buOrderData required: top, bottom, row, grid_type, trend, leverage, quoteInvestment; unknown keys rejected.",
@@ -1875,7 +1875,7 @@ function registerBotTools() {
       }
     },
     {
-      name: "pionex_bot_adjust_futures_grid_params",
+      name: "pionex_bot_futures_grid_adjust_params",
       module: "bot",
       isWrite: true,
       description: "Adjust futures grid bot params (invest_in / adjust_params / invest_in_trigger).",
@@ -1904,7 +1904,7 @@ function registerBotTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot adjust is disabled.");
+          throw new Error("Server is running in --read-only mode; bot adjust_params is disabled.");
         }
         const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
         const type = asNonEmptyString2(args.type, "type");
@@ -1956,7 +1956,7 @@ function registerBotTools() {
       }
     },
     {
-      name: "pionex_bot_reduce_futures_grid_position",
+      name: "pionex_bot_futures_grid_reduce",
       module: "bot",
       isWrite: true,
       description: "Reduce futures grid bot position.",
@@ -1993,7 +1993,7 @@ function registerBotTools() {
       }
     },
     {
-      name: "pionex_bot_cancel_futures_grid_order",
+      name: "pionex_bot_futures_grid_cancel",
       module: "bot",
       isWrite: true,
       description: "Cancel and close a futures grid bot order.",
@@ -2392,7 +2392,7 @@ async function runPionexCommand(argv) {
       const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
       const lang = typeof flags.lang === "string" ? flags.lang : void 0;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const out = await runTool("pionex_bot_get_futures_grid_order", { buOrderId, lang });
+      const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
@@ -2409,31 +2409,31 @@ async function runPionexCommand(argv) {
       const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
       const payload = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
       if (dryRun) {
-        const out2 = await runTool("pionex_bot_create_futures_grid_order", { ...payload, __dryRun: true });
+        const out2 = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
         process.stdout.write(JSON.stringify(out2.data, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_create_futures_grid_order", payload);
+      const out = await runTool("pionex_bot_futures_grid_create", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "adjust") {
+    if (command === "adjust_params") {
       const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_adjust_futures_grid_params", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_adjust_futures_grid_params", payload);
+      const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "reduce") {
       const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_reduce_futures_grid_position", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_reduce_futures_grid_position", payload);
+      const out = await runTool("pionex_bot_futures_grid_reduce", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
@@ -2446,10 +2446,10 @@ async function runPionexCommand(argv) {
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
       const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_cancel_futures_grid_order", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_cancel_futures_grid_order", payload);
+      const out = await runTool("pionex_bot_futures_grid_cancel", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }

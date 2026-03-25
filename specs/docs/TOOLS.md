@@ -69,13 +69,13 @@ Agents mostly rely on each tool’s **name**, **description**, and **input schem
 
 | Tool | Description |
 |------|-------------|
-| `pionex_bot_get_futures_grid_order` | Get one futures grid bot order by `buOrderId`. Optional `lang`. |
-| `pionex_bot_create_futures_grid_order` | Create a futures grid bot order. Requires `base`, `quote`, and `buOrderData`. Strict OpenAPI validation for `buOrderData`: only required/optional keys are accepted; unknown keys rejected. |
-| `pionex_bot_adjust_futures_grid_params` | Adjust futures grid params. Requires `buOrderId`, `type`, and `extraMargin` (plus fields depending on `type`). |
-| `pionex_bot_reduce_futures_grid_position` | Reduce futures grid position. Requires `buOrderId` and `reduceNum`. Optional: `slippage`, `condition`, `conditionDirection`. |
-| `pionex_bot_cancel_futures_grid_order` | Cancel and close a futures grid bot order. Requires `buOrderId`. Optional: `closeNote`, `closeSellModel`, `immediate`, `closeSlippage`. |
+| `pionex_bot_futures_grid_get_order` | Get one futures grid bot order by `buOrderId`. Optional `lang`. |
+| `pionex_bot_futures_grid_create` | Create a futures grid bot order. Requires `base`, `quote`, and `buOrderData`. Strict OpenAPI validation for `buOrderData`: only required/optional keys are accepted; unknown keys rejected. |
+| `pionex_bot_futures_grid_adjust_params` | Adjust futures grid params. Requires `buOrderId`, `type`, and `extraMargin` (plus fields depending on `type`). |
+| `pionex_bot_futures_grid_reduce` | Reduce futures grid position. Requires `buOrderId` and `reduceNum`. Optional: `slippage`, `condition`, `conditionDirection`. |
+| `pionex_bot_futures_grid_cancel` | Cancel and close a futures grid bot order. Requires `buOrderId`. Optional: `closeNote`, `closeSellModel`, `immediate`, `closeSlippage`. |
 
-**`pionex_bot_create_futures_grid_order` — key rules**
+**`pionex_bot_futures_grid_create` — key rules**
 - `buOrderData` required keys: `top`, `bottom`, `row`, `grid_type`, `trend`, `leverage`, `quoteInvestment`
 - `buOrderData` optional keys: `extraMargin`, `condition`, `conditionDirection`, `lossStopType`, `lossStop`, `lossStopDelay`, `profitStopType`, `profitStop`, `profitStopDelay`, `lossStopHigh`, `shareRatio`, `investCoin`, `investmentFrom`, `uiInvestCoin`, `lossStopLimitPrice`, `lossStopLimitHighPrice`, `profitStopLimitPrice`, `slippage`, `bonusId`, `uiExtraData`, `movingIndicatorType`, `movingIndicatorInterval`, `movingIndicatorParam`, `movingTrailingUpParam`, `cateType`, `movingTop`, `movingBottom`, `enableFollowClosed`
 - `buOrderData` must only contain those keys (`additionalProperties: false` + runtime check). Unknown keys cause an error.
@@ -168,13 +168,13 @@ Agent 主要依靠每个工具的 **name**、**description** 和 **inputSchema**
 
 | 工具名 | 说明 |
 |--------|------|
-| `pionex_bot_get_futures_grid_order` | 根据 `buOrderId` 获取一个 futures grid 机器人订单。可选 `lang`。 |
-| `pionex_bot_create_futures_grid_order` | 创建 futures 网格机器人订单。需要 `base`、`quote`、`buOrderData`。对 `buOrderData` 做严格 OpenAPI 校验：只接受必填/可选 key，未知 key 会直接报错。 |
-| `pionex_bot_adjust_futures_grid_params` | 调整 futures 网格机器人参数。需要 `buOrderId`、`type` 和 `extraMargin`（以及按 `type` 不同的附加字段）。 |
-| `pionex_bot_reduce_futures_grid_position` | 减仓 futures 网格机器人仓位。需要 `buOrderId` 和 `reduceNum`。可选：`slippage`、`condition`、`conditionDirection`。 |
-| `pionex_bot_cancel_futures_grid_order` | 撤销并关闭 futures 网格机器人订单。需要 `buOrderId`。可选：`closeNote`、`closeSellModel`、`immediate`、`closeSlippage`。 |
+| `pionex_bot_futures_grid_get_order` | 根据 `buOrderId` 获取一个 futures grid 机器人订单。可选 `lang`。 |
+| `pionex_bot_futures_grid_create` | 创建 futures 网格机器人订单。需要 `base`、`quote`、`buOrderData`。对 `buOrderData` 做严格 OpenAPI 校验：只接受必填/可选 key，未知 key 会直接报错。 |
+| `pionex_bot_futures_grid_adjust_params` | 调整 futures 网格机器人参数。需要 `buOrderId`、`type` 和 `extraMargin`（以及按 `type` 不同的附加字段）。 |
+| `pionex_bot_futures_grid_reduce` | 减仓 futures 网格机器人仓位。需要 `buOrderId` 和 `reduceNum`。可选：`slippage`、`condition`、`conditionDirection`。 |
+| `pionex_bot_futures_grid_cancel` | 撤销并关闭 futures 网格机器人订单。需要 `buOrderId`。可选：`closeNote`、`closeSellModel`、`immediate`、`closeSlippage`。 |
 
-**`pionex_bot_create_futures_grid_order` — 关键校验规则**
+**`pionex_bot_futures_grid_create` — 关键校验规则**
 - `buOrderData` 必填 key：`top`、`bottom`、`row`、`grid_type`、`trend`、`leverage`、`quoteInvestment`
 - `buOrderData` 可选 key：`extraMargin`、`condition`、`conditionDirection`、`lossStopType`、`lossStop`、`lossStopDelay`、`profitStopType`、`profitStop`、`profitStopDelay`、`lossStopHigh`、`shareRatio`、`investCoin`、`investmentFrom`、`uiInvestCoin`、`lossStopLimitPrice`、`lossStopLimitHighPrice`、`profitStopLimitPrice`、`slippage`、`bonusId`、`uiExtraData`、`movingIndicatorType`、`movingIndicatorInterval`、`movingIndicatorParam`、`movingTrailingUpParam`、`cateType`、`movingTop`、`movingBottom`、`enableFollowClosed`
 - `buOrderData` 只允许以上这些 key（`additionalProperties: false` + 运行时校验）。未知 key 会报错。

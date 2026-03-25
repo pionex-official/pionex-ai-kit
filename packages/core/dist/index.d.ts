@@ -161,7 +161,7 @@ declare const CREATE_FUTURES_GRID_ORDER_DATA_KEYS: readonly ["top", "bottom", "r
 declare function parseAndValidateCreateFuturesGridBuOrderData(raw: Record<string, unknown>): Record<string, unknown>;
 /** JSON Schema for MCP tool `buOrderData` — matches openapi_bot.yaml CreateFuturesGridOrderData.properties */
 declare const createFuturesGridOrderDataJsonSchema: JsonSchema;
-/** Full MCP input schema for pionex_bot_create_futures_grid_order (includes internal __dryRun for CLI). */
+/** Full MCP input schema for pionex_bot_futures_grid_create (includes internal __dryRun for CLI). */
 declare const createFuturesGridCreateToolInputSchema: JsonSchema;
 
 export { CREATE_FUTURES_GRID_ORDER_DATA_KEYS, type CliOptions, type ClientId, ConfigError, DEFAULT_MODULES, MODULES, type McpTool, type ModuleId, PIONEX_API_DEFAULT_BASE_URL, PionexApiError, type PionexConfig, type PionexProfile, PionexRestClient, type PionexTomlConfig, type RequestResult, SUPPORTED_CLIENTS, type SetupOptions, type ToolArgs, type ToolContext, type ToolResult, type ToolRunner, type ToolSpec, buildTools, configFilePath, createFuturesGridCreateToolInputSchema, createFuturesGridOrderDataJsonSchema, createToolRunner, getConfigPath, loadConfig, parseAndValidateCreateFuturesGridBuOrderData, printSetupUsage, readFullConfig, readTomlProfile, runSetup, toMcpTool, toToolErrorPayload, writeFullConfig };

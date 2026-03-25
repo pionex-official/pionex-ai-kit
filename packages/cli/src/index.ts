@@ -412,7 +412,7 @@ async function runPionexCommand(argv: string[]): Promise<void> {
             : undefined;
       const lang = typeof flags.lang === "string" ? flags.lang : undefined;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const out = await runTool("pionex_bot_get_futures_grid_order", { buOrderId, lang });
+      const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
@@ -434,31 +434,31 @@ async function runPionexCommand(argv: string[]): Promise<void> {
       const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
       const payload: Record<string, unknown> = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
       if (dryRun) {
-        const out = await runTool("pionex_bot_create_futures_grid_order", { ...payload, __dryRun: true });
+        const out = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
         process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_create_futures_grid_order", payload);
+      const out = await runTool("pionex_bot_futures_grid_create", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "adjust") {
+    if (command === "adjust_params") {
       const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_adjust_futures_grid_params", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_adjust_futures_grid_params", payload);
+      const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "reduce") {
       const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_reduce_futures_grid_position", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_reduce_futures_grid_position", payload);
+      const out = await runTool("pionex_bot_futures_grid_reduce", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
@@ -486,10 +486,10 @@ async function runPionexCommand(argv: string[]): Promise<void> {
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
       const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_cancel_futures_grid_order", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_cancel_futures_grid_order", payload);
+      const out = await runTool("pionex_bot_futures_grid_cancel", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }

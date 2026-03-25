@@ -42,7 +42,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 | **@pionex/pionex-trade-mcp** | **Market**  | `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines`                                                                                                                       | 否   |
 |                                    | **Account** | `pionex_account_get_balance`                                                                                                                                                                                                                                                  | 是   |
 |                                    | **Orders**  | `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders` | 是   |
-|                                    | **Bot / Futures Grid**  | `pionex_bot_get_futures_grid_order`, `pionex_bot_create_futures_grid_order`, `pionex_bot_adjust_futures_grid_params`, `pionex_bot_reduce_futures_grid_position`, `pionex_bot_cancel_futures_grid_order` | 是   |
+|                                    | **Bot / Futures Grid**  | `pionex_bot_futures_grid_get_order`, `pionex_bot_futures_grid_create`, `pionex_bot_futures_grid_adjust_params`, `pionex_bot_futures_grid_reduce`, `pionex_bot_futures_grid_cancel` | 是   |
 
 ---
 

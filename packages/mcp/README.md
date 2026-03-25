@@ -38,9 +38,9 @@ Credentials are read from `~/.pionex/config.toml` when the server starts; the cl
 - **Market** (no auth): `pionex_market_get_depth`, `pionex_market_get_trades`, `pionex_market_get_symbol_info`, `pionex_market_get_tickers`, `pionex_market_get_klines`
 - **Account** (auth): `pionex_account_get_balance`
 - **Orders** (auth): `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_cancel_all_orders`
-- **Bot / Futures Grid** (auth): `pionex_bot_get_futures_grid_order`, `pionex_bot_create_futures_grid_order`, `pionex_bot_adjust_futures_grid_params`, `pionex_bot_reduce_futures_grid_position`, `pionex_bot_cancel_futures_grid_order`
+- **Bot / Futures Grid** (auth): `pionex_bot_futures_grid_get_order`, `pionex_bot_futures_grid_create`, `pionex_bot_futures_grid_adjust_params`, `pionex_bot_futures_grid_reduce`, `pionex_bot_futures_grid_cancel`
 
-### `pionex_bot_create_futures_grid_order` (strict OpenAPI)
+### `pionex_bot_futures_grid_create` (strict OpenAPI)
 
 Source: [openapi_bot.yaml](https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml) — `CreateFuturesGridRequest` / `CreateFuturesGridOrderData`.
 

@@ -289,7 +289,7 @@ export const createFuturesGridOrderDataJsonSchema: JsonSchema = {
   },
 };
 
-/** Full MCP input schema for pionex_bot_create_futures_grid_order (includes internal __dryRun for CLI). */
+/** Full MCP input schema for pionex_bot_futures_grid_create (includes internal __dryRun for CLI). */
 export const createFuturesGridCreateToolInputSchema: JsonSchema = {
   type: "object",
   additionalProperties: false,
