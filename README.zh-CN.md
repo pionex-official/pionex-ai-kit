@@ -53,11 +53,11 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 | [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | 公开行情数据：盘口、行情、交易对、K线、成交 | 否   |
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | 账户余额（现货）                         | 是   |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | 现货订单：下单、撤单、查询挂单、成交记录    | 是   |
-| [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | 合约期货网格：查询、创建、调参、减仓、撤单 | 是   |
+| [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | 合约网格：查询、创建、调参、减仓、撤单 | 是   |
 
 ### CLI
 
-**`pionex-trade-cli`** — 直接通过命令行访问 Pionex 行情、账户、订单与期货网格机器人
+**`pionex-trade-cli`** — 直接通过命令行访问 Pionex 行情、账户、订单与合约网格机器人
 
 ## 快速开始（Quick Start）
 
@@ -99,7 +99,7 @@ Agent 会调用 MCP 工具并展示买卖盘口。
 
 <img src="examples/orderbook-btc-usdt.png" width="50%" />
 
-**期货网格（BTC 做多网格）**
+**合约网格（BTC 做多网格）**
 
 在 AI 客户端里输入：*"Use the Pionex tools to create a BTC long futures grid: invest 100 USDT, upper bound 100000, lower bound 50000, 30 grid rows, 3x leverage."*
 
@@ -117,7 +117,7 @@ Agent 会使用 Pionex market skill 并展示买卖盘口。
 
 <img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
 
-**期货网格（BTC 做多网格）**
+**合约网格（BTC 做多网格）**
 
 在 AI 客户端里输入：*"Use the Pionex bot skill to create a BTC long futures grid: 100 USDT margin, price range 50000–100000, 30 rows, 3x leverage."*
 
@@ -142,9 +142,9 @@ pionex-trade-cli market trades BTC_USDT --limit 10
 pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 100 --dry-run
 ```
 
-**期货网格（BTC 做多网格）**
+**合约网格（BTC 做多网格）**
 
-在 BTC/USDT 上创建做多期货网格：保证金计价 100 USDT、上边界 100000、下边界 50000、格子数 30、杠杆 3 倍（建议先用 dry-run）：
+在 BTC/USDT 上创建做多合约网格：保证金计价 100 USDT、上边界 100000、下边界 50000、格子数 30、杠杆 3 倍（建议先用 dry-run）：
 
 ```
 pionex-trade-cli bot create \
