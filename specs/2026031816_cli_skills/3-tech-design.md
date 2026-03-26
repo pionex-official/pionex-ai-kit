@@ -1,16 +1,16 @@
-# 技术设计文档：CLI & Skills 支持
+# Technical Design Document: CLI & Skills Support
 
-## 设计目标
+## Design Goals
 
-本文档给出实现 CLI 命令支持和 Skills 集成的详细技术设计，包括：
-- 架构分层和模块职责
-- 命令与接口规范
-- 数据模型和错误处理
-- 文件变更清单
+This document provides the detailed technical design for implementing CLI command support and Skills integration, including:
+- Architecture layers and module responsibilities
+- Command and interface specifications
+- Data models and error handling
+- File change checklist
 
 ---
 
-## 总体架构
+## Overall Architecture
 
 ```text
 Agent (Cursor/Claude)
@@ -27,16 +27,16 @@ Human / Script
             └─ Pionex REST API
 ```
 
-**设计原则：**
-1. CLI 与 MCP 共享 `@pionex-ai/core` 代码（避免双重实现）
-2. Skills 仅约束流程，不承载业务执行代码
-3. 凭证只在本地（env 或 `~/.pionex/config.toml`）
+**Design Principles:**
+1. CLI and MCP share `@pionex-ai/core` code (avoid dual implementation)
+2. Skills only constrain workflows — they carry no business execution code
+3. Credentials stay local (env vars or `~/.pionex/config.toml`)
 
 ---
 
-## 数据模型
+## Data Models
 
-### 配置模型
+### Configuration Model
 
 ```typescript
 interface PionexConfig {
@@ -49,20 +49,20 @@ interface PionexConfig {
 }
 ```
 
-**配置优先级：**
-1. CLI 参数（`--api-key`, `--secret-key`, `--read-only` 等）
-2. 环境变量（`PIONEX_API_KEY`, `PIONEX_API_SECRET`, `PIONEX_BASE_URL`）
-3. TOML 配置文件（`~/.pionex/config.toml` 的指定 profile）
+**Configuration Priority:**
+1. CLI arguments (`--api-key`, `--secret-key`, `--read-only`, etc.)
+2. Environment variables (`PIONEX_API_KEY`, `PIONEX_API_SECRET`, `PIONEX_BASE_URL`)
+3. TOML config file (specified profile in `~/.pionex/config.toml`)
 
-### 工具模型
+### Tool Model
 
 ```typescript
 interface ToolSpec {
-  name: string;                   // 工具名称，如 "pionex_market_get_depth"
-  description: string;            // 工具描述
-  module: ModuleId;               // 所属模块
-  isWrite: boolean;               // 是否为写操作
-  inputSchema: JsonSchema;        // 输入参数 schema
+  name: string;                   // Tool name, e.g. "pionex_market_get_depth"
+  description: string;            // Tool description
+  module: ModuleId;               // Parent module
+  isWrite: boolean;               // Whether this is a write operation
+  inputSchema: JsonSchema;        // Input parameter schema
   handler(args: ToolArgs, ctx: ToolContext): Promise<unknown>;
 }
 
@@ -74,43 +74,43 @@ interface ToolContext {
 
 ---
 
-## 核心模块设计
+## Core Module Design
 
-### 1. `@pionex-ai/core` 职责
+### 1. `@pionex-ai/core` Responsibilities
 
-**职责范围：**
-- 配置读取与校验（`config.ts`, `config/toml.ts`）
-- REST 请求签名与发送（`client/rest-client.ts`）
-- 统一错误模型（`utils/errors.ts`）
-- 工具注册与执行（`tools/index.ts`）
-- MCP 映射转换（`tools/types.ts` 的 `toMcpTool()`）
+**Scope:**
+- Configuration reading and validation (`config.ts`, `config/toml.ts`)
+- REST request signing and sending (`client/rest-client.ts`)
+- Unified error model (`utils/errors.ts`)
+- Tool registration and execution (`tools/index.ts`)
+- MCP mapping conversion (`toMcpTool()` in `tools/types.ts`)
 
-**关键文件：**
+**Key Files:**
 ```
 packages/core/src/
   config/
-    toml.ts              # TOML 配置读写
+    toml.ts              # TOML config reading/writing
   client/
-    rest-client.ts       # REST API 封装
-    types.ts             # 请求/响应类型
+    rest-client.ts       # REST API wrapper
+    types.ts             # Request/response types
   tools/
-    market.ts            # Market 模块工具
-    account.ts           # Account 模块工具
-    orders.ts            # Orders 模块工具
-    bot.ts               # Bot 模块工具（如需）
-    types.ts             # ToolSpec 和 toMcpTool()
-    index.ts             # 工具注册表
+    market.ts            # Market module tools
+    account.ts           # Account module tools
+    orders.ts            # Orders module tools
+    bot.ts               # Bot module tools (if needed)
+    types.ts             # ToolSpec and toMcpTool()
+    index.ts             # Tool registry
   utils/
     errors.ts            # ConfigError, PionexApiError
   constants.ts           # MODULES, DEFAULT_BASE_URL
   config.ts              # loadConfig()
-  setup.ts               # MCP 客户端配置写入
-  index.ts               # 导出所有公开 API
+  setup.ts               # MCP client config writing
+  index.ts               # Export all public APIs
 ```
 
-### 2. REST Client 设计
+### 2. REST Client Design
 
-**类定义：**
+**Class Definition:**
 
 ```typescript
 class PionexRestClient {
@@ -120,10 +120,10 @@ class PionexRestClient {
     baseUrl: string
   })
 
-  // 公开端点（无需认证）
+  // Public endpoints (no authentication required)
   async publicGet(path: string, query?: QueryParams): Promise<RequestResult>
 
-  // 私有端点（需认证 + 签名）
+  // Private endpoints (authentication + signature required)
   async privatePost(path: string, params?: Record<string, unknown>): Promise<RequestResult>
 }
 
@@ -134,7 +134,7 @@ interface RequestResult {
 }
 ```
 
-**签名算法：**
+**Signature Algorithm:**
 ```
 message = timestamp + method + path + body
 signature = HMAC-SHA256(message, secretKey)
@@ -145,11 +145,11 @@ headers = {
 }
 ```
 
-- `timestamp`: 13 位毫秒时间戳
-- `body`: JSON 字符串（`JSON.stringify()`）
-- `path`: 包含 query string（如有）
+- `timestamp`: 13-digit millisecond timestamp
+- `body`: JSON string (`JSON.stringify()`)
+- `path`: includes query string (if any)
 
-### 3. 错误模型
+### 3. Error Model
 
 ```typescript
 class ConfigError extends Error {
@@ -172,13 +172,13 @@ function toToolErrorPayload(error: Error): {
 } {}
 ```
 
-**错误处理流程：**
-- CLI: 捕获错误 → 输出到 stderr → `process.exit(1)`
-- MCP: 捕获错误 → 转为 `CallToolResult` 的 `isError: true` 格式
+**Error Handling Flow:**
+- CLI: catch error → output to stderr → `process.exit(1)`
+- MCP: catch error → convert to `CallToolResult` with `isError: true` format
 
-### 4. 工具装配
+### 4. Tool Assembly
 
-**注册函数：**
+**Registration Functions:**
 ```typescript
 function registerMarketTools(): ToolSpec[]
 function registerAccountTools(): ToolSpec[]
@@ -186,7 +186,7 @@ function registerOrdersTools(): ToolSpec[]
 function registerBotTools(): ToolSpec[]
 ```
 
-**构建函数：**
+**Build Function:**
 ```typescript
 function buildTools(config: PionexConfig): ToolSpec[] {
   const enabled = new Set(config.modules);
@@ -197,7 +197,7 @@ function buildTools(config: PionexConfig): ToolSpec[] {
 }
 ```
 
-**工具执行器：**
+**Tool Runner:**
 ```typescript
 type ToolRunner = (toolName: string, args: ToolArgs) => Promise<ToolResult>
 
@@ -209,13 +209,13 @@ function createToolRunner(
 
 ---
 
-## CLI 技术设计
+## CLI Technical Design
 
-### 1. 包与 Bin
+### 1. Package & Bin
 
-**包名：** `@pionex/pionex-ai-kit`
+**Package Name:** `@pionex/pionex-ai-kit`
 
-**Bin 入口：**
+**Bin Entry:**
 ```json
 {
   "bin": {
@@ -225,13 +225,13 @@ function createToolRunner(
 }
 ```
 
-**入口逻辑：** 根据 `process.argv[1]` 的 basename 区分命令：
+**Entry Logic:** Distinguish commands based on the basename of `process.argv[1]`:
 - `pionex-ai-kit` → onboard/setup/help
 - `pionex-trade-cli` → market/account/orders/bot
 
-### 2. 命令路由
+### 2. Command Routing
 
-#### `pionex-ai-kit` 命令
+#### `pionex-ai-kit` Commands
 
 ```typescript
 function main() {
@@ -246,7 +246,7 @@ function main() {
 }
 ```
 
-#### `pionex-trade-cli` 命令
+#### `pionex-trade-cli` Commands
 
 ```typescript
 function main() {
@@ -258,21 +258,21 @@ function main() {
 }
 ```
 
-### 3. 参数解析
+### 3. Argument Parsing
 
-**支持格式：**
+**Supported Formats:**
 - `--key value`
 - `--key=value`
-- `--flag` (布尔，无值)
+- `--flag` (boolean, no value)
 
-**全局参数：**
-- `--profile <name>` - 使用指定 profile
-- `--modules <m1,m2>` - 启用的模块列表
-- `--base-url <url>` - API 基础 URL
-- `--read-only` - 只读模式（过滤写工具）
-- `--dry-run` - 预览模式（不执行 API 调用）
+**Global Arguments:**
+- `--profile <name>` - Use specified profile
+- `--modules <m1,m2>` - List of enabled modules
+- `--base-url <url>` - API base URL
+- `--read-only` - Read-only mode (filter out write tools)
+- `--dry-run` - Preview mode (do not execute API calls)
 
-**实现：**
+**Implementation:**
 ```typescript
 function parseArgs(argv: string[]): Record<string, string | boolean> {
   const result: Record<string, string | boolean> = {};
@@ -302,21 +302,21 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
 }
 ```
 
-### 4. Dry-run 实现
+### 4. Dry-run Implementation
 
-**仅对写操作生效：**
+**Only applies to write operations:**
 - `orders new`
 - `orders cancel`
 - `orders cancel-all`
 - `bot futures_grid create/adjust/reduce/cancel`
 
-**实现方式：**
+**Implementation:**
 ```typescript
 async function cmdTrade(module, command, args) {
   const config = loadConfig({ ...args, dryRun: args["dry-run"] });
 
   if (config.readOnly && isWriteCommand(module, command)) {
-    // 输出将执行的工具和参数
+    // Output the tool and arguments that would be executed
     console.log(JSON.stringify({
       tool: getToolName(module, command),
       args: extractToolArgs(args)
@@ -324,7 +324,7 @@ async function cmdTrade(module, command, args) {
     return;
   }
 
-  // 正常执行
+  // Normal execution
   const runner = createToolRunner(client, config);
   const result = await runner(toolName, toolArgs);
   console.log(JSON.stringify(result.data, null, 2));
@@ -333,13 +333,13 @@ async function cmdTrade(module, command, args) {
 
 ---
 
-## MCP 技术设计
+## MCP Technical Design
 
-### 1. 包与入口
+### 1. Package & Entry
 
-**包名：** `@pionex/pionex-trade-mcp`
+**Package Name:** `@pionex/pionex-trade-mcp`
 
-**Bin 入口：**
+**Bin Entry:**
 ```json
 {
   "bin": {
@@ -348,7 +348,7 @@ async function cmdTrade(module, command, args) {
 }
 ```
 
-### 2. Server 处理流程
+### 2. Server Processing Flow
 
 ```typescript
 export function createMcpServer(config: PionexConfig): Server {
@@ -362,7 +362,7 @@ export function createMcpServer(config: PionexConfig): Server {
   const client = new PionexRestClient({ ...config });
   const tools = buildTools(config);
 
-  // 注册工具列表 handler
+  // Register tool listing handler
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
       ...tools.map(toMcpTool),
@@ -370,7 +370,7 @@ export function createMcpServer(config: PionexConfig): Server {
     ]
   }));
 
-  // 注册工具调用 handler
+  // Register tool call handler
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
@@ -410,9 +410,9 @@ export function createMcpServer(config: PionexConfig): Server {
 }
 ```
 
-### 3. 系统能力工具
+### 3. System Capabilities Tool
 
-**工具定义：**
+**Tool Definition:**
 ```typescript
 const SYSTEM_CAPABILITIES_TOOL: Tool = {
   name: "system_get_capabilities",
@@ -429,7 +429,7 @@ const SYSTEM_CAPABILITIES_TOOL: Tool = {
 };
 ```
 
-**返回结构：**
+**Return Structure:**
 ```typescript
 interface CapabilitySnapshot {
   readOnly: boolean;
@@ -443,9 +443,9 @@ interface CapabilitySnapshot {
 
 ---
 
-## Skills 技术设计
+## Skills Technical Design
 
-### 1. 仓库结构
+### 1. Repository Structure
 
 ```
 pionex-skills/
@@ -459,9 +459,9 @@ pionex-skills/
       SKILL.md
 ```
 
-### 2. SKILL.md 规范
+### 2. SKILL.md Specification
 
-**Frontmatter：**
+**Frontmatter:**
 ```yaml
 ---
 name: pionex-market
@@ -475,47 +475,47 @@ metadata:
 ---
 ```
 
-**内容结构：**
-1. 触发条件（When to use this skill）
-2. 前置条件（Prerequisites）
-3. 命令参考（Commands）
-4. 示例（Examples）
-5. 错误处理（Error handling）
+**Content Structure:**
+1. When to use this skill
+2. Prerequisites
+3. Commands
+4. Examples
+5. Error handling
 
-### 3. 三个 Skill 的职责
+### 3. Responsibilities of the Three Skills
 
 #### `pionex-market`
-- **用途**: 查询公开市场数据
-- **无需认证**: 明确说明
-- **命令**:
+- **Purpose**: Query public market data
+- **No authentication required**: Explicitly stated
+- **Commands**:
   - `pionex-trade-cli market depth <symbol>`
   - `pionex-trade-cli market trades <symbol>`
   - `pionex-trade-cli market tickers`
 
 #### `pionex-portfolio`
-- **用途**: 查询账户信息
-- **需要认证**: 明确说明
-- **命令**:
+- **Purpose**: Query account information
+- **Authentication required**: Explicitly stated
+- **Commands**:
   - `pionex-trade-cli account balance`
 
 #### `pionex-trade`
-- **用途**: 下单、撤单、查询订单
-- **需要认证**: 明确说明
-- **风控流程**:
-  1. 先查询余额：`pionex-trade-cli account balance`
-  2. 检查最小下单量（从 symbol info 获取）
-  3. 使用 `--dry-run` 预览订单
-  4. 等待用户确认
-  5. 执行真实订单
-  6. `cancel-all` 前预览将影响的订单数量
+- **Purpose**: Place orders, cancel orders, query orders
+- **Authentication required**: Explicitly stated
+- **Risk control flow**:
+  1. First query balance: `pionex-trade-cli account balance`
+  2. Check minimum order size (from symbol info)
+  3. Use `--dry-run` to preview the order
+  4. Wait for user confirmation
+  5. Execute the real order
+  6. Before `cancel-all`, preview the number of affected orders
 
 ---
 
-## MCP 客户端配置
+## MCP Client Configuration
 
-### Setup 命令实现
+### Setup Command Implementation
 
-**函数签名：**
+**Function Signature:**
 ```typescript
 export function runSetup(options: SetupOptions): void
 
@@ -533,7 +533,7 @@ type ClientId =
   | "openclaw";
 ```
 
-**配置路径映射：**
+**Config Path Mapping:**
 ```typescript
 const CONFIG_PATHS: Record<ClientId, string> = {
   "cursor": "~/.cursor/mcp.json",
@@ -541,12 +541,12 @@ const CONFIG_PATHS: Record<ClientId, string> = {
     ? "~/Library/Application Support/Claude/claude_desktop_config.json"
     : "...",  // Windows/Linux
   "windsurf": "~/.codeium/windsurf/mcp_config.json",
-  "vscode": ".mcp.json",  // 项目级
+  "vscode": ".mcp.json",  // project-level
   "openclaw": "~/.openclaw/workspace/config/mcporter.json"
 };
 ```
 
-**MCP 配置格式：**
+**MCP Config Format:**
 ```json
 {
   "mcpServers": {
@@ -558,7 +558,7 @@ const CONFIG_PATHS: Record<ClientId, string> = {
 }
 ```
 
-**Claude Code 特殊处理：**
+**Special Handling for Claude Code:**
 ```typescript
 if (client === "claude-code") {
   execSync("claude mcp add --scope user --transport stdio pionex-trade-mcp -- @pionex/pionex-trade-mcp");
@@ -568,19 +568,19 @@ if (client === "claude-code") {
 
 ---
 
-## 文件变更清单
+## File Change Checklist
 
-### 新增文件
+### New Files
 
 **Core:**
-- ✅ `packages/core/src/tools/bot.ts` - Bot 模块工具（如需）
-- ✅ `packages/core/src/schemas/futures-grid-create.ts` - 合约网格参数验证
+- ✅ `packages/core/src/tools/bot.ts` - Bot module tools (if needed)
+- ✅ `packages/core/src/schemas/futures-grid-create.ts` - Futures grid parameter validation
 
 **CLI:**
-- （无新增，修改现有 `packages/cli/src/index.ts`）
+- (No new files — modify existing `packages/cli/src/index.ts`)
 
 **MCP:**
-- （无新增，修改现有 `packages/mcp/src/server.ts`）
+- (No new files — modify existing `packages/mcp/src/server.ts`)
 
 **Skills:**
 - `pionex-skills/README.md`
@@ -588,88 +588,88 @@ if (client === "claude-code") {
 - `pionex-skills/skills/pionex-portfolio/SKILL.md`
 - `pionex-skills/skills/pionex-trade/SKILL.md`
 
-### 修改文件
+### Modified Files
 
 **Core:**
-- `packages/core/src/tools/index.ts` - 添加 bot 工具注册
-- `packages/core/src/tools/market.ts` - 补充缺失的工具（如 klines）
-- `packages/core/src/tools/orders.ts` - 补充缺失的工具（如 get_fills_by_order_id）
-- `packages/core/src/constants.ts` - 添加 "bot" 到 MODULES
+- `packages/core/src/tools/index.ts` - Add bot tool registration
+- `packages/core/src/tools/market.ts` - Add missing tools (e.g. klines)
+- `packages/core/src/tools/orders.ts` - Add missing tools (e.g. get_fills_by_order_id)
+- `packages/core/src/constants.ts` - Add "bot" to MODULES
 
 **CLI:**
-- `packages/cli/src/index.ts` - 添加 `pionex-trade-cli` 命令路由
+- `packages/cli/src/index.ts` - Add `pionex-trade-cli` command routing
 
 **MCP:**
-- `packages/mcp/src/server.ts` - 确保所有工具正确注册
+- `packages/mcp/src/server.ts` - Ensure all tools are correctly registered
 
-**文档:**
-- `README.md` - 添加 CLI 命令示例
-- `CONTRIBUTING.md` - 更新开发和发布流程
-- `specs/docs/TOOLS.md` - 补充完整工具列表
-
----
-
-## 测试策略
-
-### 单元测试
-
-- [ ] `parseArgs()` 参数解析正确性
-- [ ] `buildTools()` 模块和 readOnly 过滤逻辑
-- [ ] `toToolErrorPayload()` 错误格式转换
-- [ ] `loadConfig()` 配置优先级
-
-### 集成测试
-
-- [ ] `pionex-trade-cli market depth BTC_USDT` 返回数据
-- [ ] `pionex-trade-mcp --modules market` + MCP 调用
-- [ ] `--dry-run` 模式不调用真实 API
-
-### E2E 测试
-
-- [ ] 完整安装流程：install → onboard → setup → 工具调用
-- [ ] Skills 安装和识别
-- [ ] 风控流程在对话中复现
+**Documentation:**
+- `README.md` - Add CLI command examples
+- `CONTRIBUTING.md` - Update development and publishing workflow
+- `specs/docs/TOOLS.md` - Add complete tool listing
 
 ---
 
-## 实施步骤建议
+## Testing Strategy
 
-1. **Phase 1**: 完善 core 工具（补充缺失工具）
-2. **Phase 2**: 实现 CLI 命令路由和参数解析
-3. **Phase 3**: 实现 dry-run 逻辑
-4. **Phase 4**: 创建 Skills 仓库和 3 个 SKILL.md
-5. **Phase 5**: 更新文档和示例
-6. **Phase 6**: 测试和发布
+### Unit Tests
 
----
+- [ ] `parseArgs()` argument parsing correctness
+- [ ] `buildTools()` module and readOnly filtering logic
+- [ ] `toToolErrorPayload()` error format conversion
+- [ ] `loadConfig()` configuration priority
 
-## 技术决策记录
+### Integration Tests
 
-### 决策 1：CLI 与 MCP 共享 core
+- [ ] `pionex-trade-cli market depth BTC_USDT` returns data
+- [ ] `pionex-trade-mcp --modules market` + MCP call
+- [ ] `--dry-run` mode does not call the real API
 
-**背景**: 需要在 CLI 和 MCP 两个入口提供相同功能
-**方案**: 创建 `@pionex-ai/core` 私有包，CLI 和 MCP 打包时 bundle 进去
-**理由**: 避免重复实现，确保行为一致
-**权衡**: 增加构建复杂度，但提升可维护性
+### E2E Tests
 
-### 决策 2：Skills 仅为文档
-
-**背景**: 需要为 AI 提供交易流程指导
-**方案**: Skills 只包含 SKILL.md 文档，不包含可执行代码
-**理由**: 简化维护，避免与 CLI/MCP 版本不一致
-**权衡**: AI 需要理解文档并正确调用 CLI
-
-### 决策 3：手写参数解析
-
-**背景**: CLI 需要解析命令行参数
-**方案**: 手写简单的参数解析器，不引入 commander 等库
-**理由**: 保持零依赖目标，参数简单够用
-**权衡**: 不支持复杂参数（如数组、嵌套对象），但当前需求不需要
+- [ ] Full installation flow: install → onboard → setup → tool call
+- [ ] Skills installation and recognition
+- [ ] Risk control flow reproduced in conversation
 
 ---
 
-## 参考资料
+## Suggested Implementation Steps
 
-- Pionex API 文档: https://pionex-doc.gitbook.io/api-zh-hans/
-- MCP SDK 文档: https://github.com/modelcontextprotocol/sdk
-- Claude Code Skills 规范: Claude Code 官方文档
+1. **Phase 1**: Complete core tools (add missing tools)
+2. **Phase 2**: Implement CLI command routing and argument parsing
+3. **Phase 3**: Implement dry-run logic
+4. **Phase 4**: Create Skills repository and 3 SKILL.md files
+5. **Phase 5**: Update documentation and examples
+6. **Phase 6**: Testing and publishing
+
+---
+
+## Technical Decision Records
+
+### Decision 1: CLI and MCP Share Core
+
+**Context**: Need to provide the same functionality through both CLI and MCP entry points
+**Solution**: Create `@pionex-ai/core` as a private package, bundled into both CLI and MCP at build time
+**Rationale**: Avoid duplicate implementation, ensure consistent behavior
+**Trade-off**: Increased build complexity, but improved maintainability
+
+### Decision 2: Skills Are Documentation Only
+
+**Context**: Need to provide trading workflow guidance for AI agents
+**Solution**: Skills contain only SKILL.md documents, no executable code
+**Rationale**: Simplifies maintenance, avoids version inconsistencies with CLI/MCP
+**Trade-off**: AI must understand the documentation and correctly invoke the CLI
+
+### Decision 3: Hand-written Argument Parsing
+
+**Context**: CLI needs to parse command-line arguments
+**Solution**: Hand-write a simple argument parser instead of introducing libraries like commander
+**Rationale**: Maintain zero-dependency goal; the arguments are simple enough
+**Trade-off**: Does not support complex arguments (arrays, nested objects), but current requirements don't need them
+
+---
+
+## References
+
+- Pionex API Documentation: https://pionex-doc.gitbook.io/api-zh-hans/
+- MCP SDK Documentation: https://github.com/modelcontextprotocol/sdk
+- Claude Code Skills Specification: Claude Code official documentation

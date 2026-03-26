@@ -1,23 +1,23 @@
-# 技术规范
+# Technical Rules and Conventions
 
-本文档定义 Pionex AI Kit 项目的代码规范、测试规范和开发流程。
+This document defines the coding standards, testing standards, and development workflow for the Pionex AI Kit project.
 
-## 最后更新
+## Last Updated
 
-**日期：** 2026-03-26
+**Date:** 2026-03-26
 
-## 代码规范
+## Coding Standards
 
-### 1. TypeScript 规范
+### 1. TypeScript Standards
 
-#### 类型安全
+#### Type Safety
 
-**强制要求：**
-- 所有公开 API 必须有显式类型注解
-- 禁止使用 `any`，如确需动态类型使用 `unknown`
-- 接口优先于 type alias（除非需要联合类型）
+**Mandatory Requirements:**
+- All public APIs must have explicit type annotations
+- Using `any` is prohibited; use `unknown` if dynamic types are truly needed
+- Prefer interfaces over type aliases (unless union types are needed)
 
-**示例：**
+**Example:**
 ```typescript
 // ✅ Good
 interface ToolSpec {
@@ -29,35 +29,35 @@ interface ToolSpec {
 function register(tool: any) { ... }
 ```
 
-#### 命名约定
+#### Naming Conventions
 
-| 类型 | 约定 | 示例 |
-|------|------|------|
-| 类 | PascalCase | `PionexRestClient` |
-| 接口/类型 | PascalCase | `ToolSpec`, `PionexConfig` |
-| 函数/变量 | camelCase | `buildTools`, `apiKey` |
-| 常量 | UPPER_SNAKE_CASE | `DEFAULT_BASE_URL`, `MODULES` |
-| 文件 | kebab-case | `rest-client.ts`, `futures-grid-create.ts` |
-| MCP 工具名 | snake_case | `pionex_market_get_depth` |
+| Type | Convention | Example |
+|------|-----------|---------|
+| Class | PascalCase | `PionexRestClient` |
+| Interface/Type | PascalCase | `ToolSpec`, `PionexConfig` |
+| Function/Variable | camelCase | `buildTools`, `apiKey` |
+| Constant | UPPER_SNAKE_CASE | `DEFAULT_BASE_URL`, `MODULES` |
+| File | kebab-case | `rest-client.ts`, `futures-grid-create.ts` |
+| MCP Tool Name | snake_case | `pionex_market_get_depth` |
 
-#### 模块导入
+#### Module Imports
 
-**规则：**
-- ESM 导入必须包含 `.js` 后缀（即使源码是 `.ts`）
-- 导入顺序：Node 内置 → 外部依赖 → 本地模块
+**Rules:**
+- ESM imports must include `.js` suffix (even when source is `.ts`)
+- Import order: Node built-ins → External dependencies → Local modules
 
-**示例：**
+**Example:**
 ```typescript
-import { readFileSync } from "node:fs"              // Node 内置
-import { Server } from "@modelcontextprotocol/sdk"  // 外部依赖
-import { buildTools } from "./tools/index.js"       // 本地模块
+import { readFileSync } from "node:fs"              // Node built-in
+import { Server } from "@modelcontextprotocol/sdk"  // External dependency
+import { buildTools } from "./tools/index.js"       // Local module
 ```
 
-### 2. 错误处理
+### 2. Error Handling
 
-#### 错误类型
+#### Error Types
 
-**自定义错误类：**
+**Custom Error Classes:**
 ```typescript
 class PionexApiError extends Error {
   constructor(
@@ -72,16 +72,16 @@ class ConfigError extends Error {
 }
 ```
 
-**使用场景：**
-- API 调用失败 → `PionexApiError`
-- 配置文件缺失/格式错误 → `ConfigError`
-- 参数验证失败 → `Error` (包含详细消息)
+**Usage Scenarios:**
+- API call failure → `PionexApiError`
+- Config file missing/malformed → `ConfigError`
+- Parameter validation failure → `Error` (with detailed message)
 
-#### 错误传播
+#### Error Propagation
 
-**原则：** 在合适的层级捕获，不吞错
+**Principle:** Catch at the appropriate layer, never swallow errors
 
-**MCP Server：** 捕获所有错误，转换为 `CallToolResult` 的 `isError` 格式
+**MCP Server:** Catches all errors, converts to `CallToolResult` `isError` format
 ```typescript
 try {
   const data = await tool.handler(args, context)
@@ -94,7 +94,7 @@ try {
 }
 ```
 
-**CLI：** 捕获顶层错误，输出到 stderr，退出码 1
+**CLI:** Catches top-level errors, outputs to stderr, exit code 1
 ```typescript
 try {
   await cmdTrade(argv)
@@ -104,15 +104,15 @@ try {
 }
 ```
 
-**Core：** 不捕获错误，让调用方决定处理方式
+**Core:** Does not catch errors, lets the caller decide how to handle
 
-### 3. 异步代码
+### 3. Async Code
 
-**强制使用 async/await**
-- 禁止裸露的 Promise chain（`.then().catch()`）
-- 异常处理统一使用 `try/catch`
+**Mandatory async/await**
+- Bare Promise chains (`.then().catch()`) are prohibited
+- Exception handling uses `try/catch` uniformly
 
-**示例：**
+**Example:**
 ```typescript
 // ✅ Good
 async function fetchData() {
@@ -132,36 +132,36 @@ function fetchData() {
 }
 ```
 
-### 4. 安全规范
+### 4. Security Standards
 
-#### 凭证处理
+#### Credential Handling
 
-**禁止事项：**
-- ❌ 在日志中打印 API key 或 secret
-- ❌ 在错误消息中包含完整的认证 header
-- ❌ 将凭证写入 MCP 客户端配置文件
+**Prohibited:**
+- ❌ Printing API keys or secrets in logs
+- ❌ Including full authentication headers in error messages
+- ❌ Writing credentials to MCP client config files
 
-**允许事项：**
-- ✅ 在 `~/.pionex/config.toml` 存储凭证（用户主目录）
-- ✅ 从环境变量读取凭证
-- ✅ 在错误消息中提示"签名无效"（不暴露签名值）
+**Allowed:**
+- ✅ Storing credentials in `~/.pionex/config.toml` (user home directory)
+- ✅ Reading credentials from environment variables
+- ✅ Indicating "invalid signature" in error messages (without exposing the signature value)
 
-#### API 请求
+#### API Requests
 
-**签名逻辑必须：**
-- 使用标准 HMAC-SHA256 算法
-- 时间戳精度为 13 位毫秒
-- Body 使用 `JSON.stringify()`（无额外空格）
+**Signature logic must:**
+- Use standard HMAC-SHA256 algorithm
+- Use 13-digit millisecond timestamp precision
+- Use `JSON.stringify()` for body (no extra spaces)
 
-**实现位置：** `packages/core/src/client/rest-client.ts`
+**Implementation Location:** `packages/core/src/client/rest-client.ts`
 
-### 5. 文档注释
+### 5. Documentation Comments
 
-**要求：**
-- 所有公开 API（导出的函数/类/接口）必须有 JSDoc 注释
-- 工具的 `description` 字段需清晰说明用途和参数
+**Requirements:**
+- All public APIs (exported functions/classes/interfaces) must have JSDoc comments
+- Tool `description` fields must clearly explain purpose and parameters
 
-**示例：**
+**Example:**
 ```typescript
 /**
  * Create a function that can call any registered tool by name.
@@ -176,210 +176,210 @@ export function createToolRunner(
 ): ToolRunner { ... }
 ```
 
-## 测试规范
+## Testing Standards
 
-### 当前状态
+### Current State
 
-**⚠️ 项目暂无自动化测试**
+**⚠️ Project currently has no automated tests**
 
-### 计划测试策略
+### Planned Testing Strategy
 
-#### 单元测试
+#### Unit Tests
 
-**工具：** Vitest（推荐，与 tsup 生态一致）
+**Tool:** Vitest (recommended, consistent with tsup ecosystem)
 
-**覆盖范围：**
-- 签名算法（`PionexRestClient.privatePost`）
-- 工具注册逻辑（`buildTools` 过滤规则）
-- TOML 配置读写（`readFullConfig`, `writeFullConfig`）
-- JSON Schema 验证（`parseAndValidateCreateFuturesGridBuOrderData`）
+**Coverage Scope:**
+- Signature algorithm (`PionexRestClient.privatePost`)
+- Tool registration logic (`buildTools` filtering rules)
+- TOML config read/write (`readFullConfig`, `writeFullConfig`)
+- JSON Schema validation (`parseAndValidateCreateFuturesGridBuOrderData`)
 
-**Mock 策略：**
-- Mock `fetch` 或整个 `PionexRestClient`
-- 不依赖真实 API（避免限流、凭证问题）
+**Mock Strategy:**
+- Mock `fetch` or the entire `PionexRestClient`
+- No dependency on real APIs (avoid rate limiting, credential issues)
 
-#### 集成测试
+#### Integration Tests
 
-**覆盖范围：**
-- MCP 服务器启动和工具调用流程
-- CLI 命令解析和工具执行
-- 配置文件读写（临时目录）
+**Coverage Scope:**
+- MCP server startup and tool call flow
+- CLI command parsing and tool execution
+- Config file read/write (temporary directory)
 
-**环境：**
-- 使用测试凭证（或 Mock API 响应）
-- 隔离真实配置文件（`~/.pionex/config.toml`）
+**Environment:**
+- Use test credentials (or mock API responses)
+- Isolate real config file (`~/.pionex/config.toml`)
 
-#### 手动测试
+#### Manual Testing
 
-**每次发布前检查：**
-1. 安装测试：`npm install -g @pionex/pionex-ai-kit`
-2. Onboard 流程：`pionex-ai-kit onboard`
-3. Setup 流程：`pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor`
-4. MCP 工具调用（在 Cursor 中测试至少一个工具）
-5. CLI 命令：`pionex-trade-cli market depth BTC_USDT`
+**Pre-release Checklist:**
+1. Installation test: `npm install -g @pionex/pionex-ai-kit`
+2. Onboard flow: `pionex-ai-kit onboard`
+3. Setup flow: `pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor`
+4. MCP tool call (test at least one tool in Cursor)
+5. CLI command: `pionex-trade-cli market depth BTC_USDT`
 
-## 开发流程
+## Development Workflow
 
-### 1. 分支管理
+### 1. Branch Management
 
-**主分支：** `main`
-- 生产就绪代码，每次合并对应一个发布
+**Main Branch:** `main`
+- Production-ready code, each merge corresponds to a release
 
-**功能分支：** `feature/<description>`
-- 从 `main` 创建，完成后合并回 `main`
+**Feature Branches:** `feature/<description>`
+- Created from `main`, merged back to `main` when complete
 
-**紧急修复：** `hotfix/<issue>`
-- 从 `main` 创建，修复后直接合并
+**Hotfixes:** `hotfix/<issue>`
+- Created from `main`, merged directly after fix
 
-### 2. Commit 规范
+### 2. Commit Conventions
 
-**格式：** `<type>: <description>`
+**Format:** `<type>: <description>`
 
-**类型：**
-- `feat`: 新功能
-- `fix`: Bug 修复
-- `docs`: 文档更新
-- `refactor`: 代码重构（不改变行为）
-- `chore`: 构建/工具配置变更
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation update
+- `refactor`: Code refactoring (no behavior change)
+- `chore`: Build/tooling configuration changes
 
-**示例：**
+**Examples:**
 ```
 feat: add pionex_orders_get_fills_by_order_id tool
 fix: correct signature algorithm for POST requests
 docs: update README with new MCP client support
 ```
 
-### 3. 发布流程
+### 3. Release Workflow
 
-**步骤：**
-1. 更新版本号（`packages/cli/package.json` 和 `packages/mcp/package.json`）
-2. 更新 `CHANGELOG.md`（如有）
-3. 运行 `npm run build` 确保构建成功
-4. 发布 CLI：`cd packages/cli && npm publish --access public`
-5. 发布 MCP：`cd packages/mcp && npm publish --access public`
-6. 创建 Git tag：`git tag v0.2.35 && git push origin v0.2.35`
-7. 测试：`npx @pionex/pionex-trade-mcp --help`
+**Steps:**
+1. Update version numbers (`packages/cli/package.json` and `packages/mcp/package.json`)
+2. Update `CHANGELOG.md` (if applicable)
+3. Run `npm run build` to ensure build succeeds
+4. Publish CLI: `cd packages/cli && npm publish --access public`
+5. Publish MCP: `cd packages/mcp && npm publish --access public`
+6. Create Git tag: `git tag v0.2.35 && git push origin v0.2.35`
+7. Test: `npx @pionex/pionex-trade-mcp --help`
 
-**版本号约定：**
-- `0.x.y`：API 可能不稳定
-- `1.x.y`：稳定版本，遵循 Semver
-- 两个包版本号保持同步（简化用户理解）
+**Version Number Convention:**
+- `0.x.y`: API may be unstable
+- `1.x.y`: Stable version, follows Semver
+- Both packages keep version numbers in sync (simplifies user understanding)
 
-### 4. 代码审查
+### 4. Code Review
 
-**关注点：**
-- 是否引入新的依赖？是否必要？
-- 错误处理是否完整？
-- 是否遵循命名和代码风格规范？
-- 是否更新相关文档（README, TOOLS.md）？
+**Focus Areas:**
+- Does it introduce new dependencies? Are they necessary?
+- Is error handling complete?
+- Does it follow naming and code style conventions?
+- Is relevant documentation updated (README, TOOLS.md)?
 
-**自审清单：**
-- [ ] 运行 `npm run build` 成功
-- [ ] 手动测试新功能（CLI 或 MCP）
-- [ ] 检查 git diff 无调试代码
-- [ ] 更新文档（如有 API 变更）
+**Self-Review Checklist:**
+- [ ] `npm run build` succeeds
+- [ ] Manually tested new feature (CLI or MCP)
+- [ ] Checked git diff for debug code
+- [ ] Updated documentation (if API changes)
 
-## 工具规范
+## Tool Standards
 
-### 添加新工具
+### Adding New Tools
 
-**步骤：**
-1. 在 `packages/core/src/tools/<module>.ts` 添加 `ToolSpec`
-2. 定义 `inputSchema`（JSON Schema）
-3. 实现 `handler` 函数
-4. 导出到 `register*Tools()` 数组
-5. 运行 `npm run build`
-6. 更新 `specs/docs/TOOLS.md`
+**Steps:**
+1. Add `ToolSpec` in `packages/core/src/tools/<module>.ts`
+2. Define `inputSchema` (JSON Schema)
+3. Implement `handler` function
+4. Export to `register*Tools()` array
+5. Run `npm run build`
+6. Update `specs/docs/TOOLS.md`
 
-**工具命名：**
-- 格式：`pionex_<module>_<action>_<resource>`
-- 动词：`get`, `create`, `cancel`, `update`
-- 保持一致性（参考现有工具）
+**Tool Naming:**
+- Format: `pionex_<module>_<action>_<resource>`
+- Verbs: `get`, `create`, `cancel`, `update`
+- Maintain consistency (reference existing tools)
 
-**Description 编写：**
-- 第一句说明用途（"Get order book depth..."）
-- 第二句说明使用场景（"Use for spread, liquidity, or best bid/ask."）
-- 简洁明了，避免技术术语（AI 需要理解）
+**Description Writing:**
+- First sentence states the purpose ("Get order book depth...")
+- Second sentence states the use case ("Use for spread, liquidity, or best bid/ask.")
+- Concise and clear, avoid technical jargon (AI needs to understand)
 
-**Input Schema：**
-- 必填字段放在 `required` 数组
-- 每个字段提供 `description`
-- 使用标准 JSON Schema 类型（`string`, `integer`, `boolean`）
+**Input Schema:**
+- Required fields go in the `required` array
+- Each field provides a `description`
+- Use standard JSON Schema types (`string`, `integer`, `boolean`)
 
-### 修改现有工具
+### Modifying Existing Tools
 
-**向后兼容原则：**
-- 不要删除现有参数（标记为 deprecated）
-- 新增参数必须是可选的（有默认值）
-- 如需破坏性变更，增加新工具（如 `pionex_market_get_depth_v2`）
+**Backward Compatibility Principle:**
+- Do not delete existing parameters (mark as deprecated)
+- New parameters must be optional (with default values)
+- For breaking changes, add a new tool (e.g., `pionex_market_get_depth_v2`)
 
-### 工具测试
+### Tool Testing
 
-**手动测试：**
-1. CLI 测试：`pionex-trade-cli <module> <command> [options]`
-2. MCP 测试：在 AI 客户端中调用
-3. 错误情况测试：
-   - 缺少必填参数
-   - 参数类型错误
-   - API 返回错误（如无效 symbol）
+**Manual Testing:**
+1. CLI test: `pionex-trade-cli <module> <command> [options]`
+2. MCP test: Call in AI client
+3. Error case testing:
+   - Missing required parameters
+   - Wrong parameter types
+   - API returns errors (e.g., invalid symbol)
 
-## 依赖管理
+## Dependency Management
 
-### 添加依赖
+### Adding Dependencies
 
-**评估标准：**
-1. 是否真的需要？能否手写实现？
-2. 包大小如何？（查看 bundlephobia.com）
-3. 维护状态如何？（最近更新时间、GitHub stars）
-4. 是否有安全漏洞？（`npm audit`）
+**Evaluation Criteria:**
+1. Is it truly needed? Can it be hand-written?
+2. What is the package size? (Check bundlephobia.com)
+3. What is the maintenance status? (Last update, GitHub stars)
+4. Are there security vulnerabilities? (`npm audit`)
 
-**决策树：**
-- 功能简单（<100 行） → 手写
-- 工具库（lodash, dayjs） → 考虑替代（date-fns-tiny）
-- 核心依赖（MCP SDK, TypeScript） → 接受
+**Decision Tree:**
+- Simple functionality (<100 lines) → hand-write
+- Utility libraries (lodash, dayjs) → consider alternatives (date-fns-tiny)
+- Core dependencies (MCP SDK, TypeScript) → accept
 
-### 更新依赖
+### Updating Dependencies
 
-**频率：** 每月检查一次（或有安全漏洞时立即）
+**Frequency:** Check monthly (or immediately if security vulnerabilities exist)
 
-**命令：**
+**Commands:**
 ```bash
-npm outdated                    # 查看过期依赖
-npm update                      # 更新 minor/patch 版本
-npm install <pkg>@latest       # 更新 major 版本
+npm outdated                    # View outdated dependencies
+npm update                      # Update minor/patch versions
+npm install <pkg>@latest       # Update major versions
 ```
 
-**测试：** 更新后运行 `npm run build` 和手动测试
+**Testing:** Run `npm run build` and manual testing after updates
 
-## 性能规范
+## Performance Standards
 
-### REST 客户端
+### REST Client
 
-**原则：** 无连接池，每次请求独立
-- **理由：** MCP 服务器短生命周期，无需优化连接复用
-- **如需优化：** 考虑 HTTP/2 或引入连接池库
+**Principle:** No connection pooling, each request is independent
+- **Rationale:** MCP server is short-lived, no need to optimize connection reuse
+- **If Optimization Needed:** Consider HTTP/2 or introducing a connection pool library
 
-### 构建产物
+### Build Artifacts
 
-**目标：** 最小化包体积
-- 使用 tsup tree-shaking（自动移除未使用代码）
-- 避免引入大型依赖（如 axios → 使用 fetch）
+**Goal:** Minimize package size
+- Use tsup tree-shaking (automatically removes unused code)
+- Avoid introducing large dependencies (e.g., axios → use fetch)
 
-**当前大小：**
+**Current Size:**
 - `@pionex/pionex-ai-kit`: ~50KB (dist/)
 - `@pionex/pionex-trade-mcp`: ~60KB (dist/)
 
-## 兼容性
+## Compatibility
 
-### Node.js 版本
+### Node.js Versions
 
-**最低要求：** Node.js 18
-- **理由：** 使用原生 `fetch` API
-- **测试：** 每次发布前在 Node 18/20/22 测试
+**Minimum Requirement:** Node.js 18
+- **Rationale:** Uses native `fetch` API
+- **Testing:** Test on Node 18/20/22 before each release
 
-### MCP 客户端
+### MCP Clients
 
-**支持列表：**
+**Supported List:**
 - Cursor
 - Claude Desktop
 - Claude Code
@@ -387,47 +387,47 @@ npm install <pkg>@latest       # 更新 major 版本
 - VS Code
 - OpenClaw
 
-**测试策略：** 每次添加新客户端时在实际环境测试 setup 和工具调用
+**Testing Strategy:** Test setup and tool calls in actual environment when adding each new client
 
-## 文档规范
+## Documentation Standards
 
 ### README.md
 
-**必须包含：**
-- 项目简介（一句话说明用途）
-- 快速开始（安装、配置、使用）
-- 功能列表（工具模块）
-- 示例（截图或代码）
+**Must Include:**
+- Project overview (one sentence describing the purpose)
+- Quick start (installation, configuration, usage)
+- Feature list (tool modules)
+- Examples (screenshots or code)
 
-**更新时机：** 添加新功能或改变安装流程时
+**When to Update:** When adding new features or changing the installation process
 
 ### CONTRIBUTING.md
 
-**必须包含：**
-- 开发环境搭建
-- 构建命令
-- 发布流程
+**Must Include:**
+- Development environment setup
+- Build commands
+- Release workflow
 
 ### specs/docs/TOOLS.md
 
-**必须包含：**
-- 所有工具的列表和描述
-- 示例 prompt（如何让 AI 调用工具）
+**Must Include:**
+- List and description of all tools
+- Example prompts (how to have AI call the tools)
 
-**更新时机：** 每次添加或修改工具时
+**When to Update:** Every time tools are added or modified
 
-## 规范演进
+## Standards Evolution
 
-### 提出新规范
+### Proposing New Standards
 
-**流程：**
-1. 在迭代文档中记录问题和提议
-2. 团队讨论达成共识
-3. 更新本文档
-4. 在新代码中执行
+**Process:**
+1. Record the issue and proposal in iteration documents
+2. Discuss and reach team consensus
+3. Update this document
+4. Enforce in new code
 
-### 规范例外
+### Standards Exceptions
 
-**原则：** 规范服务于代码质量，不是教条
-- 如有充分理由，可以违反规范（在代码注释中说明）
-- 持续违反的规范需要修订（可能规范不合理）
+**Principle:** Standards serve code quality, not dogma
+- If there is sufficient reason, standards can be violated (explain in code comments)
+- Standards that are consistently violated need revision (the standard may be unreasonable)
