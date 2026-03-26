@@ -191,7 +191,7 @@ Groups:
   market   Market data (public)
   account  Account data (requires auth)
   orders   Spot orders (requires auth)
-  bot      Futures grid bot (requires auth)
+  bot      Bot commands (requires auth) — use sub-route futures_grid (more bot types may be added later)
 
 Examples:
   pionex-trade-cli market depth BTC_USDT --limit 5
@@ -200,17 +200,17 @@ Examples:
   pionex-trade-cli account balance
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
-  pionex-trade-cli bot get --bu-order-id <id>
-  pionex-trade-cli bot create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
+  pionex-trade-cli bot futures_grid get --bu-order-id <id>
+  pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
 
 Global flags:
   --profile <name>     Profile in ~/.pionex/config.toml
   --modules <list>     Comma-separated modules (market,account,orders or all)
   --base-url <url>     Override API base URL
   --read-only          Disable write operations (orders new/cancel)
-  --dry-run            Print resolved futures-grid create body without executing (bot create only)
+  --dry-run            Print resolved futures-grid create body without executing (bot futures_grid create only)
 
-Futures grid create (pionex-trade-cli bot create) — strict OpenAPI (same validation as MCP):
+Futures grid create (pionex-trade-cli bot futures_grid create) — strict OpenAPI (same validation as MCP):
   --base               Required; normalized to <BASE>.PERP if suffix missing
   --quote              Required (e.g. USDT)
   --bu-order-data-json Required JSON object — ONLY keys from CreateFuturesGridOrderData in openapi_bot.yaml
@@ -246,7 +246,8 @@ function parseJsonFlag(raw: unknown, flagName: string): Record<string, unknown> 
 async function runPionexCommand(argv: string[]): Promise<void> {
   const { positionals, flags } = parseFlags(argv);
   const group = positionals[0];
-  const command = positionals[1];
+  /** For \`bot\` group, positionals are: bot <sub-route> <command> ... */
+  const command = group === "bot" ? positionals[2] : positionals[1];
 
   if (!group || group === "help" || group === "--help" || group === "-h") {
     printPionexHelp();
@@ -403,6 +404,17 @@ async function runPionexCommand(argv: string[]): Promise<void> {
 
   // bot
   if (group === "bot") {
+    const botRoute = positionals[1];
+    if (!botRoute || botRoute !== "futures_grid") {
+      throw new Error(
+        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
+      );
+    }
+    if (!command) {
+      throw new Error(
+        "Missing bot command. Example: pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{...}'"
+      );
+    }
     if (command === "get") {
       const buOrderId =
         typeof flags["bu-order-id"] === "string"
@@ -493,7 +505,7 @@ async function runPionexCommand(argv: string[]): Promise<void> {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    throw new Error(`Unknown bot command: ${command}`);
+    throw new Error(`Unknown futures_grid command: ${command}`);
   }
 
   throw new Error(`Unknown group: ${group}`);

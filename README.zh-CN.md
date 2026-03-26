@@ -150,7 +150,7 @@ pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 
 在 BTC/USDT 上创建做多合约网格：保证金计价 100 USDT、上边界 100000、下边界 50000、格子数 30、杠杆 3 倍（建议先用 dry-run）：
 
 ```
-pionex-trade-cli bot create \
+pionex-trade-cli bot futures_grid create \
   --base BTC \
   --quote USDT \
   --bu-order-data-json '{"top":"100000","bottom":"50000","row":30,"grid_type":"arithmetic","trend":"long","leverage":3,"quoteInvestment":"100"}' \

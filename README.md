@@ -147,7 +147,7 @@ pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 
 Create a long futures grid on BTC/USDT: 100 USDT quoted investment, upper bound 100000, lower bound 50000, 30 rows, 3× leverage (dry-run first):
 
 ```
-pionex-trade-cli bot create \
+pionex-trade-cli bot futures_grid create \
   --base BTC \
   --quote USDT \
   --bu-order-data-json '{"top":"100000","bottom":"50000","row":30,"grid_type":"arithmetic","trend":"long","leverage":3,"quoteInvestment":"100"}' \
