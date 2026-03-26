@@ -18,7 +18,5 @@
   - CLI 子命令 `adjust` -> `adjust_params`
   - create/adjust/reduce 输入中移除/禁止 `openPrice` 与 `keyId`；未知字段将直接报错
 - 更新文档与 skills 指引，确保 Agent 按新的参数/字段规则调用。
-- 文档：补充按版本号固定的升级建议（非 Bot 功能 vs 含 Bot）：
-  - 非 Bot 功能：`@pionex/pionex-ai-kit@0.2.19` + `@pionex/pionex-trade-mcp@0.2.17`
-  - 含 Futures Grid Bot：`@pionex/pionex-ai-kit@0.2.32` + `@pionex/pionex-trade-mcp@0.2.28`
+- BREAKING：CLI 二进制重命名——已彻底用 `pionex-trade-cli` 替换旧命令 `pionex`。
 

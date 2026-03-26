@@ -1,13 +1,13 @@
 {
   "name": "@pionex/pionex-ai-kit",
-  "version": "0.2.32",
+  "version": "0.2.33",
   "description": "CLI for Pionex MCP: config init and credentials (writes ~/.pionex/config.toml)",
   "type": "module",
   "license": "MIT",
   "main": "dist/index.js",
   "bin": {
     "pionex-ai-kit": "dist/index.js",
-    "pionex": "dist/index.js"
+    "pionex-trade-cli": "dist/index.js"
   },
   "files": [
     "dist",

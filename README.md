@@ -46,17 +46,18 @@ MCP servers for trading on Pionex.
 
 ---
 
-### SKills
+### Skills
 
 | Skill                                                                                                        | Description                                                 | Auth |
 | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ---- |
 | [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | Public market data: depth, tickers, symbols, klines, trades | No   |
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | Account balance (spot)                                      | Yes  |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | Spot orders: place, cancel, open orders, fills              | Yes  |
+| [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | Futures Grid Bot: get, create, adjust params, reduce, cancel | Yes  |
 
 ### CLI
 
-**`pionex-trade-cli`** — Direct command-line access to Pionex market data, account, and order operations
+**`pionex-trade-cli`** — Direct command-line access to Pionex market data, account, orders, and futures grid bot operations
 
 ## Quick Start
 
@@ -90,29 +91,45 @@ npx skills add pionex-official/pionex-skills
 
 #### MCP
 
+**Order book**
+
 In your AI client, ask: *"Use the Pionex tools to show the order book depth for BTC_USDT."*
 
 The agent will call the MCP tool and display the bids and asks.
 
-**Example:**
-
 <img src="examples/orderbook-btc-usdt.png" width="50%" />
 
+**Futures Grid Bot (long BTC grid)**
+
+In your AI client, ask: *"Use the Pionex tools to create a BTC long futures grid: invest 100 USDT, upper bound 100000, lower bound 50000, 30 grid rows, 3x leverage."*
+
+The agent should call `pionex_bot_futures_grid_create` with matching `base`, `quote`, and `buOrderData`.
+
+<img src="examples/btc-bot-create.png" width="50%" />
+
 #### Skills
+
+**Order book**
 
 In your AI client, ask: *"Use the Pionex skills to show the order book depth 5 for BTC_USDT."*
 
 The agent will use the Pionex market skill and display the bids and asks.
 
-**Example:**
-
 <img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
+
+**Futures Grid Bot (long BTC grid)**
+
+In your AI client, ask: *"Use the Pionex bot skill to create a BTC long futures grid: 100 USDT margin, price range 50000–100000, 30 rows, 3x leverage."*
+
+The agent will follow the `pionex-bot` skill and use the CLI or MCP tools as documented there.
+
+<img src="examples/btc-bot-create-skill.png" width="75%" />
 
 ---
 
 #### CLI
 
-**Example:**
+**Order book & orders**
 
 ```
 # Order book depth
@@ -124,6 +141,20 @@ pionex-trade-cli market trades BTC_USDT --limit 10
 # Place a market buy order (dry-run)
 pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 100 --dry-run
 ```
+
+**Futures Grid Bot (long BTC grid)**
+
+Create a long futures grid on BTC/USDT: 100 USDT quoted investment, upper bound 100000, lower bound 50000, 30 rows, 3× leverage (dry-run first):
+
+```
+pionex-trade-cli bot create \
+  --base BTC \
+  --quote USDT \
+  --bu-order-data-json '{"top":"100000","bottom":"50000","row":30,"grid_type":"arithmetic","trend":"long","leverage":3,"quoteInvestment":"100"}' \
+  --dry-run
+```
+
+Remove `--dry-run` to submit the order for real.
 
 ## Guides
 
