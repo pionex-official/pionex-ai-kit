@@ -19,4 +19,5 @@
   - create/adjust/reduce 输入中移除/禁止 `openPrice` 与 `keyId`；未知字段将直接报错
 - 更新文档与 skills 指引，确保 Agent 按新的参数/字段规则调用。
 - BREAKING：CLI 二进制重命名——已彻底用 `pionex-trade-cli` 替换旧命令 `pionex`。
+- BREAKING：Bot 命令路由调整——请使用 `pionex-trade-cli bot futures_grid <command>`（例如 `create`），不再使用 `pionex-trade-cli bot <command>`。
 

@@ -16,7 +16,7 @@ npm install -g @pionex/pionex-ai-kit
 - **pionex-trade-cli market ...** — Public market data commands.
 - **pionex-trade-cli account ...** — Account balance command.
 - **pionex-trade-cli orders ...** — Spot order lifecycle commands.
-- **pionex-trade-cli bot ...** — Futures grid bot lifecycle commands (`get/create/adjust_params/reduce/cancel`).
+- **pionex-trade-cli bot futures_grid ...** — Futures grid bot lifecycle commands (`get/create/adjust_params/reduce/cancel`).
 
 The MCP server (**@pionex/pionex-trade-mcp**) reads from the same file. After init, run:
 

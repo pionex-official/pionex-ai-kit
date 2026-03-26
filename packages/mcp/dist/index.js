@@ -1572,7 +1572,7 @@ function registerBotTools() {
       inputSchema: createFuturesGridCreateToolInputSchema,
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot create is disabled.");
+          throw new Error("Server is running in --read-only mode; bot futures_grid create is disabled.");
         }
         const rawBase = asNonEmptyString2(args.base, "base");
         const base = normalizePerpBase(rawBase);
@@ -1634,7 +1634,7 @@ function registerBotTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot adjust_params is disabled.");
+          throw new Error("Server is running in --read-only mode; bot futures_grid adjust_params is disabled.");
         }
         const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
         const type = asNonEmptyString2(args.type, "type");
@@ -1704,7 +1704,7 @@ function registerBotTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot reduce is disabled.");
+          throw new Error("Server is running in --read-only mode; bot futures_grid reduce is disabled.");
         }
         const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
         const reduceNum = asPositiveInteger2(args.reduceNum, "reduceNum");
@@ -1741,7 +1741,7 @@ function registerBotTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot cancel is disabled.");
+          throw new Error("Server is running in --read-only mode; bot futures_grid cancel is disabled.");
         }
         const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
         const body = { buOrderId };

@@ -19,4 +19,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed/forbade `openPrice` and `keyId` from create/adjust/reduce inputs; unknown keys now error
 - Updated docs/skills guidance so agents follow the new stricter parameter rules and names.
 - BREAKING: CLI binary renamed — `pionex` has been fully replaced by `pionex-trade-cli`.
+- BREAKING: Bot CLI routing — use `pionex-trade-cli bot futures_grid <command>` (e.g. `create`) instead of `pionex-trade-cli bot <command>`.
 
