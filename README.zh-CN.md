@@ -85,6 +85,9 @@ pionex-ai-kit setup --mcp=pionex-trade-mcp --client openclaw
 
 # 4. 安装 skills
 npx skills add pionex-official/pionex-skills
+
+# 5. 更新到最新版本（可选）
+npm update -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
 ```
 
 ### 示例
@@ -176,7 +179,7 @@ npm install -g @pionex/pionex-ai-kit
 统一使用以下更新命令：
 
 ```bash
-npm update -g @pionex/pionex-ai-kit
+npm update -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
 ```
 
 变更记录：见 `CHANGELOG.md`。
