@@ -1258,6 +1258,26 @@ function registerMarketTools() {
       }
     },
     {
+      name: "pionex_market_get_book_tickers",
+      module: "market",
+      isWrite: false,
+      description: "Get best bid/ask ticker(s). Optional symbol or type (SPOT/PERP).",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT; if omitted, returns all book tickers filtered by type" },
+          type: { type: "string", enum: ["SPOT", "PERP"], description: "If symbol is not specified, filter by type." }
+        }
+      },
+      async handler(args, { client }) {
+        const q = {};
+        if (args.symbol) q.symbol = String(args.symbol);
+        if (args.type) q.type = String(args.type);
+        return (await client.publicGet("/api/v1/market/bookTickers", q)).data;
+      }
+    },
+    {
       name: "pionex_market_get_klines",
       module: "market",
       isWrite: false,
@@ -1457,6 +1477,26 @@ function registerOrdersTools() {
         if (args.startTime != null) q.startTime = Number(args.startTime);
         if (args.endTime != null) q.endTime = Number(args.endTime);
         return (await client.signedGet("/api/v1/trade/fills", q)).data;
+      }
+    },
+    {
+      name: "pionex_orders_get_fills_by_order_id",
+      module: "orders",
+      isWrite: false,
+      description: "Get fills for a specific order by symbol and orderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT" },
+          orderId: { type: "integer", description: "Order id" }
+        },
+        required: ["symbol", "orderId"]
+      },
+      async handler(args, { client }) {
+        const symbol = String(args.symbol);
+        const orderId = Number(args.orderId);
+        return (await client.signedGet("/api/v1/trade/fillsByOrderId", { symbol, orderId })).data;
       }
     },
     {
@@ -2192,10 +2232,12 @@ Groups:
 Examples:
   pionex-trade-cli market depth BTC_USDT --limit 5
   pionex-trade-cli market tickers --symbol BTC_USDT
+  pionex-trade-cli market book-tickers --symbol BTC_USDT
   pionex-trade-cli market symbols --symbols BTC_USDT
   pionex-trade-cli account balance
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
+  pionex-trade-cli orders fills-by-order-id --symbol BTC_USDT --order-id 123
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
 
@@ -2285,6 +2327,13 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
+    if (command === "book-tickers" || command === "bookTickers") {
+      const symbol = typeof flags.symbol === "string" ? flags.symbol : void 0;
+      const type = typeof flags.type === "string" ? flags.type : void 0;
+      const out = await runTool("pionex_market_get_book_tickers", { symbol, type });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
     if (command === "klines") {
       const symbol = typeof flags.symbol === "string" ? flags.symbol : positionals[2];
       const interval = typeof flags.interval === "string" ? flags.interval : positionals[3];
@@ -2354,6 +2403,14 @@ async function runPionexCommand(argv) {
       const endTime = flags.endTime != null ? Number(flags.endTime) : void 0;
       if (!symbol) throw new Error("Missing required flag: --symbol");
       const out = await runTool("pionex_orders_get_fills", { symbol, startTime, endTime });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "fills-by-order-id" || command === "fillsByOrderId") {
+      const symbol = typeof flags.symbol === "string" ? flags.symbol : void 0;
+      const orderId = flags["order-id"] != null ? Number(flags["order-id"]) : void 0;
+      if (!symbol || orderId == null) throw new Error("Missing required flags: --symbol --order-id");
+      const out = await runTool("pionex_orders_get_fills_by_order_id", { symbol, orderId });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }

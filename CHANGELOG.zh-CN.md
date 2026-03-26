@@ -18,6 +18,7 @@
   - CLI 子命令 `adjust` -> `adjust_params`
   - create/adjust/reduce 输入中移除/禁止 `openPrice` 与 `keyId`；未知字段将直接报错
 - 更新文档与 skills 指引，确保 Agent 按新的参数/字段规则调用。
+- 新增缺失接口：`pionex_market_get_book_tickers`（公开行情最优买一/卖一）与 `pionex_orders_get_fills_by_order_id`（按 `symbol` + `orderId` 查询成交明细）。
 - BREAKING：CLI 二进制重命名——已彻底用 `pionex-trade-cli` 替换旧命令 `pionex`。
 - BREAKING：Bot 命令路由调整——请使用 `pionex-trade-cli bot futures_grid <command>`（例如 `create`），不再使用 `pionex-trade-cli bot <command>`。
 

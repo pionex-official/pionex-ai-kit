@@ -17,6 +17,7 @@ Agents mostly rely on each tool’s **name**, **description**, and **input schem
 | `pionex_market_get_trades` | Get recent trades for a symbol. Use for latest price and recent volume. |
 | `pionex_market_get_symbol_info` | Get symbol metadata (precision, min size, price limits). Call before placing orders to avoid filter errors. |
 | `pionex_market_get_tickers` | Get 24‑hour tickers (open, high, low, close, volume, amount, count). Optional symbol or type (SPOT/PERP). |
+| `pionex_market_get_book_tickers` | Get best bid/ask ticker(s). Optional symbol or type (SPOT/PERP). |
 | `pionex_market_get_klines` | Get OHLCV candles for a symbol. Use for charts and historical price/volume. Intervals: `1M` `5M` `15M` `30M` `60M` `4H` `8H` `12H` `1D`. |
 
 **Example prompts**
@@ -52,6 +53,7 @@ Agents mostly rely on each tool’s **name**, **description**, and **input schem
 | `pionex_orders_get_all_orders` | List order history for a symbol (filled + cancelled). Optional `limit`. |
 | `pionex_orders_cancel_order` | Cancel a single open order by `orderId`. |
 | `pionex_orders_get_fills` | Get fills (executed trades) for a symbol in a time range. Up to 100 latest fills. |
+| `pionex_orders_get_fills_by_order_id` | Get fills for one specific order by `symbol` + `orderId`. |
 | `pionex_orders_cancel_all_orders` | Cancel all open orders for a symbol. |
 
 **Example prompts**
@@ -115,6 +117,7 @@ Agent 主要依靠每个工具的 **name**、**description** 和 **inputSchema**
 | `pionex_market_get_trades` | 获取指定交易对最近成交记录。用于查看最新价和近期成交量。 |
 | `pionex_market_get_symbol_info` | 获取交易对元信息（精度、最小下单量、价格限制等）。下单前建议先查，避免触发下单金额/数量过滤错误。 |
 | `pionex_market_get_tickers` | 获取 24 小时 ticker（开高低收、成交量、成交额、笔数）。可选 `symbol` 或 `type`（SPOT/PERP）。 |
+| `pionex_market_get_book_tickers` | 获取最优买一/卖一（best bid/ask）ticker。可选 `symbol` 或 `type`（SPOT/PERP）。 |
 | `pionex_market_get_klines` | 获取 K 线（OHLCV）。用于图表或历史价格/成交量分析；需 `symbol`、`interval`（1M/5M/15M/30M/60M/4H/8H/12H/1D）。 |
 
 **示例提示词**
@@ -150,6 +153,7 @@ Agent 主要依靠每个工具的 **name**、**description** 和 **inputSchema**
 | `pionex_orders_get_all_orders` | 查询指定交易对的历史订单（含已成交/已撤销），可用 `limit` 控制返回条数。 |
 | `pionex_orders_cancel_order` | 撤销指定 `orderId` 的订单。 |
 | `pionex_orders_get_fills` | 查询指定交易对在时间范围内的成交明细（fills），最多返回 100 条。 |
+| `pionex_orders_get_fills_by_order_id` | 按 `symbol` + `orderId` 查询某一笔订单对应的成交明细。 |
 | `pionex_orders_cancel_all_orders` | 撤销指定交易对下所有未成交订单。 |
 
 **示例提示词**
