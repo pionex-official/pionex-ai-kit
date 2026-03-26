@@ -53,10 +53,11 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 | [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | 公开行情数据：盘口、行情、交易对、K线、成交 | 否   |
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | 账户余额（现货）                         | 是   |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | 现货订单：下单、撤单、查询挂单、成交记录    | 是   |
+| [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | 合约期货网格：查询、创建、调参、减仓、撤单 | 是   |
 
 ### CLI
 
-**`pionex-trade-cli`** — 直接通过命令行访问 Pionex 行情、账户和订单操作
+**`pionex-trade-cli`** — 直接通过命令行访问 Pionex 行情、账户、订单与期货网格机器人
 
 ## 快速开始（Quick Start）
 
@@ -90,29 +91,45 @@ npx skills add pionex-official/pionex-skills
 
 #### MCP
 
+**盘口深度**
+
 在 AI 客户端里输入：*"Use the Pionex tools to show the order book depth for BTC_USDT."*
 
 Agent 会调用 MCP 工具并展示买卖盘口。
 
-**示例：**
-
 <img src="examples/orderbook-btc-usdt.png" width="50%" />
 
+**期货网格（BTC 做多网格）**
+
+在 AI 客户端里输入：*"Use the Pionex tools to create a BTC long futures grid: invest 100 USDT, upper bound 100000, lower bound 50000, 30 grid rows, 3x leverage."*
+
+Agent 应调用 `pionex_bot_futures_grid_create`，并传入对应的 `base`、`quote` 与 `buOrderData`。
+
+<img src="examples/btc-bot-create.png" width="50%" />
+
 #### Skills
+
+**盘口深度**
 
 在 AI 客户端里输入：*"Use the Pionex skills to show the order book depth 5 for BTC_USDT."*
 
 Agent 会使用 Pionex market skill 并展示买卖盘口。
 
-**示例：**
-
 <img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
+
+**期货网格（BTC 做多网格）**
+
+在 AI 客户端里输入：*"Use the Pionex bot skill to create a BTC long futures grid: 100 USDT margin, price range 50000–100000, 30 rows, 3x leverage."*
+
+Agent 会按 `pionex-bot` 技能指引，通过 CLI 或 MCP 完成创建。
+
+<img src="examples/btc-bot-create-skill.png" width="75%" />
 
 ---
 
 #### CLI
 
-**示例：**
+**行情与订单**
 
 ```
 # 盘口深度
@@ -124,6 +141,20 @@ pionex-trade-cli market trades BTC_USDT --limit 10
 # 下一个市价买单（dry-run 模式）
 pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 100 --dry-run
 ```
+
+**期货网格（BTC 做多网格）**
+
+在 BTC/USDT 上创建做多期货网格：保证金计价 100 USDT、上边界 100000、下边界 50000、格子数 30、杠杆 3 倍（建议先用 dry-run）：
+
+```
+pionex-trade-cli bot create \
+  --base BTC \
+  --quote USDT \
+  --bu-order-data-json '{"top":"100000","bottom":"50000","row":30,"grid_type":"arithmetic","trend":"long","leverage":3,"quoteInvestment":"100"}' \
+  --dry-run
+```
+
+去掉 `--dry-run` 后才会真实下单。
 
 ## 详细指南（Guides）
 

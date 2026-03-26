@@ -13,10 +13,10 @@ npm install -g @pionex/pionex-ai-kit
 - **pionex-ai-kit onboard** — Interactive wizard: API Key, API Secret, profile name. Writes `~/.pionex/config.toml`.
 - **pionex-ai-kit setup** — Register MCP servers for supported clients.
 - **pionex-ai-kit help** — Show help.
-- **pionex market ...** — Public market data commands.
-- **pionex account ...** — Account balance command.
-- **pionex orders ...** — Spot order lifecycle commands.
-- **pionex bot ...** — Futures grid bot lifecycle commands (`get/create/adjust_params/reduce/cancel`).
+- **pionex-trade-cli market ...** — Public market data commands.
+- **pionex-trade-cli account ...** — Account balance command.
+- **pionex-trade-cli orders ...** — Spot order lifecycle commands.
+- **pionex-trade-cli bot ...** — Futures grid bot lifecycle commands (`get/create/adjust_params/reduce/cancel`).
 
 The MCP server (**@pionex/pionex-trade-mcp**) reads from the same file. After init, run:
 

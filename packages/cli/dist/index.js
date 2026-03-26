@@ -2181,7 +2181,7 @@ function parseFlags(argv) {
 }
 function printPionexHelp() {
   process.stdout.write(`
-Usage: pionex <group> <command> [args] [--flags]
+Usage: pionex-trade-cli <group> <command> [args] [--flags]
 
 Groups:
   market   Market data (public)
@@ -2190,14 +2190,14 @@ Groups:
   bot      Futures grid bot (requires auth)
 
 Examples:
-  pionex market depth BTC_USDT --limit 5
-  pionex market tickers --symbol BTC_USDT
-  pionex market symbols --symbols BTC_USDT
-  pionex account balance
-  pionex orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
-  pionex orders cancel --symbol BTC_USDT --order-id 123
-  pionex bot get --bu-order-id <id>
-  pionex bot create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
+  pionex-trade-cli market depth BTC_USDT --limit 5
+  pionex-trade-cli market tickers --symbol BTC_USDT
+  pionex-trade-cli market symbols --symbols BTC_USDT
+  pionex-trade-cli account balance
+  pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
+  pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
+  pionex-trade-cli bot get --bu-order-id <id>
+  pionex-trade-cli bot create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
 
 Global flags:
   --profile <name>     Profile in ~/.pionex/config.toml
@@ -2206,7 +2206,7 @@ Global flags:
   --read-only          Disable write operations (orders new/cancel)
   --dry-run            Print resolved futures-grid create body without executing (bot create only)
 
-Futures grid create (pionex bot create) \u2014 strict OpenAPI (same validation as MCP):
+Futures grid create (pionex-trade-cli bot create) \u2014 strict OpenAPI (same validation as MCP):
   --base               Required; normalized to <BASE>.PERP if suffix missing
   --quote              Required (e.g. USDT)
   --bu-order-data-json Required JSON object \u2014 ONLY keys from CreateFuturesGridOrderData in openapi_bot.yaml
@@ -2257,7 +2257,7 @@ async function runPionexCommand(argv) {
   if (group === "market") {
     if (command === "depth") {
       const symbol = positionals[2];
-      if (!symbol) throw new Error("Missing symbol. Example: pionex market depth BTC_USDT");
+      if (!symbol) throw new Error("Missing symbol. Example: pionex-trade-cli market depth BTC_USDT");
       const limit = flags.limit != null ? Number(flags.limit) : void 0;
       const out = await runTool("pionex_market_get_depth", { symbol, limit });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
@@ -2265,7 +2265,7 @@ async function runPionexCommand(argv) {
     }
     if (command === "trades") {
       const symbol = positionals[2];
-      if (!symbol) throw new Error("Missing symbol. Example: pionex market trades BTC_USDT");
+      if (!symbol) throw new Error("Missing symbol. Example: pionex-trade-cli market trades BTC_USDT");
       const limit = flags.limit != null ? Number(flags.limit) : void 0;
       const out = await runTool("pionex_market_get_trades", { symbol, limit });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
@@ -2288,7 +2288,7 @@ async function runPionexCommand(argv) {
     if (command === "klines") {
       const symbol = typeof flags.symbol === "string" ? flags.symbol : positionals[2];
       const interval = typeof flags.interval === "string" ? flags.interval : positionals[3];
-      if (!symbol || !interval) throw new Error("Missing symbol/interval. Example: pionex market klines BTC_USDT 60M");
+      if (!symbol || !interval) throw new Error("Missing symbol/interval. Example: pionex-trade-cli market klines BTC_USDT 60M");
       const endTime = flags.endTime != null ? Number(flags.endTime) : void 0;
       const limit = flags.limit != null ? Number(flags.limit) : void 0;
       const out = await runTool("pionex_market_get_klines", { symbol, interval, endTime, limit });
