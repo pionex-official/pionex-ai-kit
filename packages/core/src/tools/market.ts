@@ -96,6 +96,26 @@ export function registerMarketTools(): ToolSpec[] {
       },
     },
     {
+      name: "pionex_market_get_book_tickers",
+      module: "market",
+      isWrite: false,
+      description: "Get best bid/ask ticker(s). Optional symbol or type (SPOT/PERP).",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT; if omitted, returns all book tickers filtered by type" },
+          type: { type: "string", enum: ["SPOT", "PERP"], description: "If symbol is not specified, filter by type." },
+        },
+      },
+      async handler(args, { client }) {
+        const q: QueryParams = {};
+        if (args.symbol) q.symbol = String(args.symbol);
+        if (args.type) q.type = String(args.type);
+        return (await client.publicGet("/api/v1/market/bookTickers", q)).data;
+      },
+    },
+    {
       name: "pionex_market_get_klines",
       module: "market",
       isWrite: false,

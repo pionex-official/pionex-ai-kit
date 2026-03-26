@@ -448,6 +448,26 @@ function registerMarketTools() {
       }
     },
     {
+      name: "pionex_market_get_book_tickers",
+      module: "market",
+      isWrite: false,
+      description: "Get best bid/ask ticker(s). Optional symbol or type (SPOT/PERP).",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT; if omitted, returns all book tickers filtered by type" },
+          type: { type: "string", enum: ["SPOT", "PERP"], description: "If symbol is not specified, filter by type." }
+        }
+      },
+      async handler(args, { client }) {
+        const q = {};
+        if (args.symbol) q.symbol = String(args.symbol);
+        if (args.type) q.type = String(args.type);
+        return (await client.publicGet("/api/v1/market/bookTickers", q)).data;
+      }
+    },
+    {
       name: "pionex_market_get_klines",
       module: "market",
       isWrite: false,
@@ -651,6 +671,26 @@ function registerOrdersTools() {
         if (args.startTime != null) q.startTime = Number(args.startTime);
         if (args.endTime != null) q.endTime = Number(args.endTime);
         return (await client.signedGet("/api/v1/trade/fills", q)).data;
+      }
+    },
+    {
+      name: "pionex_orders_get_fills_by_order_id",
+      module: "orders",
+      isWrite: false,
+      description: "Get fills for a specific order by symbol and orderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT" },
+          orderId: { type: "integer", description: "Order id" }
+        },
+        required: ["symbol", "orderId"]
+      },
+      async handler(args, { client }) {
+        const symbol = String(args.symbol);
+        const orderId = Number(args.orderId);
+        return (await client.signedGet("/api/v1/trade/fillsByOrderId", { symbol, orderId })).data;
       }
     },
     {

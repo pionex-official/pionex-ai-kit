@@ -164,6 +164,26 @@ export function registerOrdersTools(): ToolSpec[] {
       },
     },
     {
+      name: "pionex_orders_get_fills_by_order_id",
+      module: "orders",
+      isWrite: false,
+      description: "Get fills for a specific order by symbol and orderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          symbol: { type: "string", description: "e.g. BTC_USDT" },
+          orderId: { type: "integer", description: "Order id" },
+        },
+        required: ["symbol", "orderId"],
+      },
+      async handler(args, { client }) {
+        const symbol = String(args.symbol);
+        const orderId = Number(args.orderId);
+        return (await client.signedGet("/api/v1/trade/fillsByOrderId", { symbol, orderId })).data;
+      },
+    },
+    {
       name: "pionex_orders_cancel_all_orders",
       module: "orders",
       isWrite: true,

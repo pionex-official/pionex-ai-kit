@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Renamed CLI subcommand `adjust` -> `adjust_params`
   - Removed/forbade `openPrice` and `keyId` from create/adjust/reduce inputs; unknown keys now error
 - Updated docs/skills guidance so agents follow the new stricter parameter rules and names.
+- Added missing endpoints: `pionex_market_get_book_tickers` (public market best bid/ask) and `pionex_orders_get_fills_by_order_id` (signed order fills by `symbol` + `orderId`).
 - BREAKING: CLI binary renamed — `pionex` has been fully replaced by `pionex-trade-cli`.
 - BREAKING: Bot CLI routing — use `pionex-trade-cli bot futures_grid <command>` (e.g. `create`) instead of `pionex-trade-cli bot <command>`.
 
