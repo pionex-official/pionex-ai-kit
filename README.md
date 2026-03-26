@@ -175,7 +175,7 @@ You can either:
 Use the unified update command:
 
 ```bash
-npm update -g @pionex/pionex-ai-kit
+npm update -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
 ```
 
 Changelog: see `CHANGELOG.md`.
