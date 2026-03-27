@@ -45,6 +45,12 @@ pionex-trade-cli market tickers --symbol BTC_USDT
 pionex-trade-cli account balance
 ```
 
+### Upgrade
+
+```bash
+npm update -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
+```
+
 ### Quick Examples
 
 ```bash

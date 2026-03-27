@@ -1,4 +1,4 @@
-[English](CHANGELOG.md) | [中文](CHANGELOG.zh-CN.md)
+**English** | [简体中文](CHANGELOG.zh-hans.md) | [繁體中文](CHANGELOG.zh-hant.md)
 
 # Changelog
 

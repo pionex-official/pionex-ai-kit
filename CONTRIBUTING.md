@@ -1,3 +1,5 @@
+English | [简体中文](CONTRIBUTING.zh-hans.md) | [繁體中文](CONTRIBUTING.zh-hant.md)
+
 # Contributing to Pionex AI Kit
 
 This repository is a monorepo that ships two npm packages:

@@ -58,6 +58,12 @@ pionex-ai-kit setup --mcp=pionex-trade-mcp --client openclaw
 
 After setup, **restart your AI client** for the MCP Server to take effect.
 
+### Upgrade
+
+```bash
+npm update -g @pionex/pionex-ai-kit @pionex/pionex-trade-mcp
+```
+
 ### Verify the Installation
 
 Type the following prompt in your AI client:

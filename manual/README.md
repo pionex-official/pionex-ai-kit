@@ -1,3 +1,5 @@
+English | [简体中文](../manual.zh-hans/README.md) | [繁體中文](../manual.zh-hant/README.md)
+
 # Overview
 
 Pionex AI Kit provides you with a complete set of AI Agent infrastructure for connecting to Pionex, including **MCP**, **Skills**, and **CLI**. It supports mainstream AI Agents such as Cursor, Claude, OpenClaw, Windsurf, and VSCode.
