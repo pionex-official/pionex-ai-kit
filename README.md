@@ -99,7 +99,7 @@ In your AI client, ask: *"Use the Pionex tools to show the order book depth for 
 
 The agent will call the MCP tool and display the bids and asks.
 
-<img src="examples/orderbook-btc-usdt.png" width="50%" />
+<img src="assets/images/orderbook-btc-usdt.png" width="50%" />
 
 **Futures Grid Bot (long BTC grid)**
 
@@ -107,7 +107,7 @@ In your AI client, ask: *"Use the Pionex tools to create a BTC long futures grid
 
 The agent should call `pionex_bot_futures_grid_create` with matching `base`, `quote`, and `buOrderData`.
 
-<img src="examples/btc-bot-create.png" width="50%" />
+<img src="assets/images/btc-bot-create.png" width="50%" />
 
 #### Skills
 
@@ -117,7 +117,7 @@ In your AI client, ask: *"Use the Pionex skills to show the order book depth 5 f
 
 The agent will use the Pionex market skill and display the bids and asks.
 
-<img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
+<img src="assets/images/orderbook-btc-usdt-skill.png" width="75%" />
 
 **Futures Grid Bot (long BTC grid)**
 
@@ -125,7 +125,7 @@ In your AI client, ask: *"Use the Pionex bot skill to create a BTC long futures 
 
 The agent will follow the `pionex-bot` skill and use the CLI or MCP tools as documented there.
 
-<img src="examples/btc-bot-create-skill.png" width="75%" />
+<img src="assets/images/btc-bot-create-skill.png" width="75%" />
 
 ---
 

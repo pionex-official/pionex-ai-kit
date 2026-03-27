@@ -99,7 +99,7 @@ npx skills add pionex-official/pionex-skills
 
 Agent 会调用 MCP 工具并展示买卖盘口。
 
-<img src="examples/orderbook-btc-usdt.png" width="50%" />
+<img src="assets/images/orderbook-btc-usdt.png" width="50%" />
 
 **合约网格（BTC 做多网格）**
 
@@ -107,7 +107,7 @@ Agent 会调用 MCP 工具并展示买卖盘口。
 
 Agent 应调用 `pionex_bot_futures_grid_create`，并传入对应的 `base`、`quote` 和 `buOrderData`。
 
-<img src="examples/btc-bot-create.png" width="50%" />
+<img src="assets/images/btc-bot-create.png" width="50%" />
 
 #### Skills
 
@@ -117,7 +117,7 @@ Agent 应调用 `pionex_bot_futures_grid_create`，并传入对应的 `base`、`
 
 Agent 会使用 Pionex market skill 并展示买卖盘口。
 
-<img src="examples/orderbook-btc-usdt-skill.png" width="75%" />
+<img src="assets/images/orderbook-btc-usdt-skill.png" width="75%" />
 
 **合约网格（BTC 做多网格）**
 
@@ -125,7 +125,7 @@ Agent 会使用 Pionex market skill 并展示买卖盘口。
 
 Agent 会按照 `pionex-bot` skill 的指引，通过 CLI 或 MCP 工具完成创建。
 
-<img src="examples/btc-bot-create-skill.png" width="75%" />
+<img src="assets/images/btc-bot-create-skill.png" width="75%" />
 
 ---
 
