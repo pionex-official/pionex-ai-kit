@@ -91,6 +91,7 @@ pionex-trade-cli <group> <command> [args] [--flags]
 
 * [交易命令](cli-guides-trade.md) — 市场数据、账户余额和现货订单操作
 * [机器人命令](cli-guides-bot.md) — 合约网格机器人创建、管理和取消
+* [双向理财命令](cli-guides-earn.md) — 双向理财：查询产品、申购、撤单、收益提取
 
 ---
 

@@ -4,7 +4,7 @@ This document summarizes the requirement history and current status of the Pione
 
 ## Current Status
 
-**Last Updated:** 2026-03-26
+**Last Updated:** 2026-04-01
 
 ### Core Features
 
@@ -57,9 +57,19 @@ This document summarizes the requirement history and current status of the Pione
 
 **See:** `specs/iterations/20260318_cli_skills/PRD.md`
 
-## Future Plans
+#### 5. Earn Dual Investment Module (`@pionex-ai/core` + CLI + MCP)
+**Status:** Planning (iteration `2026040100_earn_dual`)
+**Description:** Adds Dual Investment (双向理财) support — 11 new tools covering product discovery, investment lifecycle, and earnings collection.
 
-No definitive future requirements at this time. The project is currently in a stable state, focusing on maintenance and bug fixes.
+**Tool Modules:**
+- `earn_dual` module (new):
+  - Public: symbols, open_products, prices, index, delivery_prices
+  - View (auth): balances, get_invests, records
+  - Earn/Write (auth): invest, revoke_invest, collect
+
+**CLI:** `pionex-trade-cli earn dual <command>`
+
+## Future Plans
 
 Possible expansion directions:
 - Add more trading tool modules (VIP endpoints, other trading pair types)

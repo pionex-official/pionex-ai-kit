@@ -4,7 +4,7 @@ This document records important decisions, lessons learned, and technical knowle
 
 ## Last Updated
 
-**Date:** 2026-03-26
+**Date:** 2026-04-01
 
 ## Project Initialization (Before 2026-03)
 
@@ -102,6 +102,31 @@ This document records important decisions, lessons learned, and technical knowle
 - Format: `pionex_<module>_<action>_<resource>`
 - Example: `pionex_orders_get_fills_by_order_id`
 - Rationale: Avoid naming conflicts with other MCP servers, maintain consistency
+
+## Iteration 3: Earn Dual Investment (2026-04-01)
+
+**Iteration Directory:** `specs/2026040100_earn_dual/`
+
+### Key Decisions
+
+1. **New module `earn_dual`** added to `MODULES` and `DEFAULT_MODULES` in `constants.ts`
+   - Rationale: Dual Investment is a distinct product category from trading/bot, deserves its own module toggle
+
+2. **`signedDeleteQuery` method added to `PionexRestClient`**
+   - Problem: `DELETE /api/v1/earn/dual/invest` passes params as query string, not body
+   - Existing `signedDelete` always puts params in request body
+   - Approach: New method reuses `buildSignedRequest(method="DELETE", query, body=null)`, making the intent explicit
+   - Why not modify existing `signedDelete`: would break bot cancel callers
+
+3. **CLI `earn dual <command>` pattern mirrors `bot futures_grid <command>`**
+   - `positionals[0]="earn"`, `positionals[1]="dual"`, `positionals[2]=command`
+   - Rationale: Consistent with existing bot pattern; leaves room for future `earn <other-product>` routes
+
+4. **`--client-dual-ids` parsed as comma-separated string → string array**
+   - Rationale: CLI flags are strings; splitting on comma is consistent with other multi-value flags
+
+5. **Write tools (`invest`, `revoke-invest`, `collect`) all support `--dry-run`**
+   - Consistent with orders/bot pattern established in iteration 1
 
 ## General Technical Knowledge
 

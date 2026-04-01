@@ -4,7 +4,7 @@ This document describes the detailed technical design of Pionex AI Kit, includin
 
 ## Last Updated
 
-**Date:** 2026-03-26
+**Date:** 2026-04-01
 
 ## Core Module Design
 
@@ -24,7 +24,11 @@ class PionexRestClient {
   async publicGet(path: string, query?: QueryParams): Promise<RequestResult>
 
   // Private endpoints (authentication + signature required)
-  async privatePost(path: string, params?: Record<string, unknown>): Promise<RequestResult>
+  async signedGet(path: string, query?: QueryParams): Promise<RequestResult>
+  async signedPost(path: string, body: Record<string, unknown>): Promise<RequestResult>
+  async signedDelete(path: string, body: Record<string, unknown>): Promise<RequestResult>
+  // DELETE with query params (not body) — used by earn/dual revoke endpoint
+  async signedDeleteQuery(path: string, query?: QueryParams): Promise<RequestResult>
 }
 ```
 
@@ -77,6 +81,7 @@ packages/core/src/tools/
   account.ts            → Account module tools
   orders.ts             → Orders module tools
   bot.ts                → Bot module tools
+  earn-dual.ts          → Earn Dual Investment tools (11 tools)
 ```
 
 **Registration Flow:**
@@ -353,6 +358,7 @@ $ pionex-trade-cli market depth BTC_USDT --limit 5
 | Tool Registry | `packages/core/src/tools/index.ts` |
 | Market Tools | `packages/core/src/tools/market.ts` |
 | Bot Tools | `packages/core/src/tools/bot.ts` |
+| Earn Dual Tools | `packages/core/src/tools/earn-dual.ts` |
 | TOML Config | `packages/core/src/config/toml.ts` |
 | Runtime Config | `packages/core/src/config.ts` |
 | MCP Server | `packages/mcp/src/server.ts` |
