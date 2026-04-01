@@ -1,8 +1,8 @@
-# 双向理财工具
+# 双币理财工具
 
-双向理财工具（`earn_dual` 模块）将 Pionex 双向理财 API 以 MCP 工具的形式暴露给 AI 客户端。
+双币理财工具（`earn_dual` 模块）将 Pionex 双币理财 API 以 MCP 工具的形式暴露给 AI 客户端。
 
-> **Beta：** 双向理财 API 当前处于 Beta 阶段，如需使用请联系 [open@pionex.com](mailto:open@pionex.com)。
+> **Beta：** 双币理财 API 当前处于 Beta 阶段，如需使用请联系 [open@pionex.com](mailto:open@pionex.com)。
 
 ---
 
@@ -10,7 +10,7 @@
 
 #### `pionex_earn_dual_symbols`
 
-列出双向理财支持的所有交易对。
+列出双币理财支持的所有交易对。
 
 | 参数 | 必填 | 描述 |
 |------|------|------|
@@ -67,7 +67,7 @@
 
 #### `pionex_earn_dual_balances`
 
-查询双向理财账户余额。
+查询双币理财账户余额。
 
 | 参数 | 必填 | 描述 |
 |------|------|------|
@@ -102,7 +102,7 @@
 
 #### `pionex_earn_dual_invest`
 
-创建双向理财申购订单。
+创建双币理财申购订单。
 
 | 参数 | 必填 | 描述 |
 |------|------|------|
@@ -138,12 +138,12 @@
 ### 示例 Prompt
 
 ```
-"用 Pionex 工具列出所有 BTC DUAL_BASE 方向的开放双向理财产品。"
+"用 Pionex 工具列出所有 BTC DUAL_BASE 方向的开放双币理财产品。"
 "用 Pionex 工具查询 BTC-USDXO-260410-70000-C-USDT 的当前收益率。"
 "用 Pionex 工具查看实时 BTC/USDXO 指数价格。"
-"用 Pionex 工具查询我的双向理财余额。"
+"用 Pionex 工具查询我的双币理财余额。"
 "用 Pionex 工具申购 100 USDT 投入 BTC-USDXO-260402-68000-P-USDT，使用当前收益率。"
-"用 Pionex 工具撤销我的双向理财待匹配订单 my-order-001。"
-"用 Pionex 工具提取我已结算的双向理财收益。"
-"用 Pionex 工具查询我 BTC 双向理财的历史记录。"
+"用 Pionex 工具撤销我的双币理财待匹配订单 my-order-001。"
+"用 Pionex 工具提取我已结算的双币理财收益。"
+"用 Pionex 工具查询我 BTC 双币理财的历史记录。"
 ```

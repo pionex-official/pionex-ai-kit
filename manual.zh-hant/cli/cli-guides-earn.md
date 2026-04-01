@@ -1,8 +1,8 @@
-# 雙向理財命令
+# 雙幣理財命令
 
-雙向理財（earn dual）讓你投資與加密貨幣價格目標掛鉤的結構化產品。所有命令格式為 `pionex-trade-cli earn dual <command>`。
+雙幣理財（earn dual）讓你投資與加密貨幣價格目標掛鉤的結構化產品。所有命令格式為 `pionex-trade-cli earn dual <command>`。
 
-> **Beta：** 雙向理財 API 目前處於 Beta 階段，如需使用請聯絡 [open@pionex.com](mailto:open@pionex.com)。
+> **Beta：** 雙幣理財 API 目前處於 Beta 階段，如需使用請聯絡 [open@pionex.com](mailto:open@pionex.com)。
 
 **產品 ID 格式：** `{BASE}-{QUOTE}-{YYMMDD}-{STRIKE}-{C|P}-{CURRENCY}`，其中 `C` = DUAL_BASE，`P` = DUAL_CURRENCY。
 
@@ -12,7 +12,7 @@
 
 #### earn dual symbols
 
-列出雙向理財支援的所有交易對。
+列出雙幣理財支援的所有交易對。
 
 ```bash
 pionex-trade-cli earn dual symbols [--base <BASE>]
@@ -108,7 +108,7 @@ pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
 
 #### earn dual balances
 
-查詢雙向理財帳戶餘額。需要 `View` 權限。
+查詢雙幣理財帳戶餘額。需要 `View` 權限。
 
 ```bash
 pionex-trade-cli earn dual balances [--merge]
@@ -118,7 +118,7 @@ pionex-trade-cli earn dual balances [--merge]
 
 #### earn dual records
 
-查詢雙向理財歷史訂單。`--base` 和 `--end-time` 為必填。需要 `View` 權限。
+查詢雙幣理財歷史訂單。`--base` 和 `--end-time` 為必填。需要 `View` 權限。
 
 ```bash
 pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE>] [--currency <CURRENCY>] [--limit <N>] [--start-time <ms>]
@@ -148,7 +148,7 @@ pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001
 
 #### earn dual invest
 
-建立雙向理財申購訂單。
+建立雙幣理財申購訂單。
 
 ```bash
 pionex-trade-cli earn dual invest \
@@ -217,7 +217,7 @@ pionex-trade-cli earn dual revoke-invest \
 
 #### earn dual collect
 
-將已結算的雙向理財收益提取至現貨帳戶。三個旗標均為必填。
+將已結算的雙幣理財收益提取至現貨帳戶。三個旗標均為必填。
 
 ```bash
 pionex-trade-cli earn dual collect \

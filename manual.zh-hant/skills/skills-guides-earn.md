@@ -1,6 +1,6 @@
-# 雙向理財 Skills
+# 雙幣理財 Skills
 
-`pionex-earn-dual` skill 引導 AI Agent 使用 `pionex-trade-cli earn dual` 命令在 Pionex 上完成雙向理財操作。
+`pionex-earn-dual` skill 引導 AI Agent 使用 `pionex-trade-cli earn dual` 命令在 Pionex 上完成雙幣理財操作。
 
 > **注意：** `pionex-earn-dual` skill 將在 `pionex-official/pionex-skills` 儲存庫中提供，安裝指令：
 > ```bash

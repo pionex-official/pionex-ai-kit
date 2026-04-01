@@ -31,7 +31,7 @@ npx skills add pionex-official/pionex-skills
 | **pionex-portfolio** | 账户余额（现货）                                                     | 是               |
 | **pionex-trade**     | 现货订单：下单、撤单、查询未完成订单、成交记录                          | 是               |
 | **pionex-bot**        | 合约网格机器人：创建、调整、减仓、取消、查询                           | 是               |
-| **pionex-earn-dual** | 双向理财：查询产品与收益率、申购、撤单、提取收益                        | 部分             |
+| **pionex-earn-dual** | 双币理财：查询产品与收益率、申购、撤单、提取收益                        | 部分             |
 
 ### Skill 路由
 
@@ -41,7 +41,7 @@ npx skills add pionex-official/pionex-skills
 * 余额、可用资金 -> **pionex-portfolio**
 * 下单/撤单、订单状态 -> **pionex-trade**
 * 合约网格机器人创建/调整/减仓/取消/查询 -> **pionex-bot**
-* 双向理财查询/申购/撤单/收益提取 -> **pionex-earn-dual**
+* 双币理财查询/申购/撤单/收益提取 -> **pionex-earn-dual**
 
 ---
 
@@ -49,7 +49,7 @@ npx skills add pionex-official/pionex-skills
 
 * [Trade Skills](skills-guides-trade.md) — 市场数据、账户余额和现货订单操作
 * [Bot Skills](skills-guides-bot.md) — 合约网格机器人的创建、管理和取消
-* [Earn Dual Skills](skills-guides-earn.md) — 双向理财：查询产品、申购、撤单、收益提取
+* [Earn Dual Skills](skills-guides-earn.md) — 双币理财：查询产品、申购、撤单、收益提取
 
 ---
 

@@ -59,7 +59,7 @@ This document summarizes the requirement history and current status of the Pione
 
 #### 5. Earn Dual Investment Module (`@pionex-ai/core` + CLI + MCP)
 **Status:** Planning (iteration `2026040100_earn_dual`)
-**Description:** Adds Dual Investment (双向理财) support — 11 new tools covering product discovery, investment lifecycle, and earnings collection.
+**Description:** Adds Dual Investment (双币理财) support — 11 new tools covering product discovery, investment lifecycle, and earnings collection.
 
 **Tool Modules:**
 - `earn_dual` module (new):

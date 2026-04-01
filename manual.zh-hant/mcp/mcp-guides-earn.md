@@ -1,8 +1,8 @@
-# 雙向理財工具
+# 雙幣理財工具
 
-雙向理財工具（`earn_dual` 模組）將 Pionex 雙向理財 API 以 MCP 工具的形式提供給 AI 客戶端。
+雙幣理財工具（`earn_dual` 模組）將 Pionex 雙幣理財 API 以 MCP 工具的形式提供給 AI 客戶端。
 
-> **Beta：** 雙向理財 API 目前處於 Beta 階段，如需使用請聯絡 [open@pionex.com](mailto:open@pionex.com)。
+> **Beta：** 雙幣理財 API 目前處於 Beta 階段，如需使用請聯絡 [open@pionex.com](mailto:open@pionex.com)。
 
 ---
 
@@ -10,7 +10,7 @@
 
 #### `pionex_earn_dual_symbols`
 
-列出雙向理財支援的所有交易對。
+列出雙幣理財支援的所有交易對。
 
 | 參數 | 必填 | 說明 |
 |------|------|------|
@@ -67,7 +67,7 @@
 
 #### `pionex_earn_dual_balances`
 
-查詢雙向理財帳戶餘額。
+查詢雙幣理財帳戶餘額。
 
 | 參數 | 必填 | 說明 |
 |------|------|------|
@@ -102,7 +102,7 @@
 
 #### `pionex_earn_dual_invest`
 
-建立雙向理財申購訂單。
+建立雙幣理財申購訂單。
 
 | 參數 | 必填 | 說明 |
 |------|------|------|
@@ -138,12 +138,12 @@
 ### 示例 Prompt
 
 ```
-"用 Pionex 工具列出所有 BTC DUAL_BASE 方向的開放雙向理財產品。"
+"用 Pionex 工具列出所有 BTC DUAL_BASE 方向的開放雙幣理財產品。"
 "用 Pionex 工具查詢 BTC-USDXO-260410-70000-C-USDT 的當前收益率。"
 "用 Pionex 工具查看實時 BTC/USDXO 指數價格。"
-"用 Pionex 工具查詢我的雙向理財餘額。"
+"用 Pionex 工具查詢我的雙幣理財餘額。"
 "用 Pionex 工具申購 100 USDT 投入 BTC-USDXO-260402-68000-P-USDT，使用當前收益率。"
-"用 Pionex 工具撤銷我的雙向理財待撮合訂單 my-order-001。"
-"用 Pionex 工具提取我已結算的雙向理財收益。"
-"用 Pionex 工具查詢我 BTC 雙向理財的歷史記錄。"
+"用 Pionex 工具撤銷我的雙幣理財待撮合訂單 my-order-001。"
+"用 Pionex 工具提取我已結算的雙幣理財收益。"
+"用 Pionex 工具查詢我 BTC 雙幣理財的歷史記錄。"
 ```

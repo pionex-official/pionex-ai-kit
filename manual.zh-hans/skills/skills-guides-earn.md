@@ -1,6 +1,6 @@
-# 双向理财 Skills
+# 双币理财 Skills
 
-`pionex-earn-dual` skill 引导 AI 智能体使用 `pionex-trade-cli earn dual` 命令在 Pionex 上完成双向理财操作。
+`pionex-earn-dual` skill 引导 AI 智能体使用 `pionex-trade-cli earn dual` 命令在 Pionex 上完成双币理财操作。
 
 > **注意：** `pionex-earn-dual` skill 将在 `pionex-official/pionex-skills` 仓库中提供，安装命令：
 > ```bash

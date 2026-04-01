@@ -6,7 +6,7 @@
 
 ## Background
 
-Pionex provides a Dual Investment (双向理财) product that allows users to invest in structured products tied to cryptocurrency price targets. This iteration adds Dual Investment support to both the MCP server and CLI.
+Pionex provides a Dual Investment (双币理财) product that allows users to invest in structured products tied to cryptocurrency price targets. This iteration adds Dual Investment support to both the MCP server and CLI.
 
 ## Change: Before → After
 

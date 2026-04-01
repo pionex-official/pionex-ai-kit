@@ -1,8 +1,8 @@
-# 双向理财命令
+# 双币理财命令
 
-双向理财（earn dual）允许你投资与加密货币价格目标挂钩的结构化产品。所有命令格式为 `pionex-trade-cli earn dual <command>`。
+双币理财（earn dual）允许你投资与加密货币价格目标挂钩的结构化产品。所有命令格式为 `pionex-trade-cli earn dual <command>`。
 
-> **Beta：** 双向理财 API 当前处于 Beta 阶段，如需使用请联系 [open@pionex.com](mailto:open@pionex.com)。
+> **Beta：** 双币理财 API 当前处于 Beta 阶段，如需使用请联系 [open@pionex.com](mailto:open@pionex.com)。
 
 **产品 ID 格式：** `{BASE}-{QUOTE}-{YYMMDD}-{STRIKE}-{C|P}-{CURRENCY}`，其中 `C` = DUAL_BASE，`P` = DUAL_CURRENCY。
 
@@ -12,7 +12,7 @@
 
 #### earn dual symbols
 
-列出双向理财支持的所有交易对。
+列出双币理财支持的所有交易对。
 
 ```bash
 pionex-trade-cli earn dual symbols [--base <BASE>]
@@ -108,7 +108,7 @@ pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
 
 #### earn dual balances
 
-查询双向理财账户余额。需要 `View` 权限。
+查询双币理财账户余额。需要 `View` 权限。
 
 ```bash
 pionex-trade-cli earn dual balances [--merge]
@@ -118,7 +118,7 @@ pionex-trade-cli earn dual balances [--merge]
 
 #### earn dual records
 
-查询双向理财历史订单。`--base` 和 `--end-time` 为必填。需要 `View` 权限。
+查询双币理财历史订单。`--base` 和 `--end-time` 为必填。需要 `View` 权限。
 
 ```bash
 pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE>] [--currency <CURRENCY>] [--limit <N>] [--start-time <ms>]
@@ -148,7 +148,7 @@ pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001
 
 #### earn dual invest
 
-创建双向理财申购订单。
+创建双币理财申购订单。
 
 ```bash
 pionex-trade-cli earn dual invest \
@@ -217,7 +217,7 @@ pionex-trade-cli earn dual revoke-invest \
 
 #### earn dual collect
 
-将已结算的双向理财收益提取到现货账户。三个标志均为必填。
+将已结算的双币理财收益提取到现货账户。三个标志均为必填。
 
 ```bash
 pionex-trade-cli earn dual collect \
