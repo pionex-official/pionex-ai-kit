@@ -112,13 +112,13 @@ The agent should call `pionex_bot_futures_grid_create` with matching `base`, `qu
 
 <img src="assets/images/btc-bot-create.png" width="50%" />
 
-**Dual Investment — find low-strike BTC products**
+**Dual Investment — query open products and invest**
 
-In your AI client, ask: *"Use the Pionex tools to find BTC Dual Investment products where I invest USDT and receive BTC if the price drops below the strike at expiry — show me the available strikes and their current yields."*
+In your AI client, ask: *"Use the Pionex tools to find BTC Dual Investment products where I invest USDT and receive BTC if the price drops below the strike at expiry — show me the available strikes and their current yields, then invest 100 USDT in the best one."*
 
-The agent will call `pionex_earn_dual_open_products` (type=DUAL_CURRENCY) then `pionex_earn_dual_prices` to retrieve investable products and live yields.
+The agent will call `pionex_earn_dual_open_products` (type=DUAL_CURRENCY) → `pionex_earn_dual_prices` → `pionex_earn_dual_invest` in sequence.
 
-<img src="assets/images/dual-open-products.png" width="50%" />
+<img src="assets/images/earn-dual-open-products.png" width="50%" />
 
 </details>
 
@@ -141,11 +141,13 @@ The agent will follow the `pionex-bot` skill and use the CLI or MCP tools as doc
 
 <img src="assets/images/btc-bot-create-skill.png" width="75%" />
 
-**Dual Investment — find low-strike BTC products**
+**Dual Investment — query open products and invest**
 
-In your AI client, ask: *"Use the Pionex skills to find BTC Dual Investment products where I invest USDT and receive BTC if the price drops below the strike at expiry — show me the available strikes and their current yields."*
+In your AI client, ask: *"Use the Pionex skills to find BTC Dual Investment products where I invest USDT and receive BTC if the price drops below the strike at expiry — show me the available strikes and their current yields, then invest 100 USDT in the best one."*
 
-<img src="assets/images/dual-open-products-skill.png" width="75%" />
+The skill will run `pionex-trade-cli earn dual open-products` → `earn dual prices` → `earn dual invest` and present a summary.
+
+<img src="assets/images/earn-dual-open-products-skill.png" width="75%" />
 
 </details>
 
@@ -181,11 +183,31 @@ Remove `--dry-run` to submit the order for real.
 
 **Dual Investment (earn dual)**
 
-```
-# List open BTC DUAL_BASE products (BTC/ETH use quote=USDXO)
-pionex-trade-cli earn dual open-products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
+> BTC/ETH use `--quote USDXO`; all other base currencies use `--quote USDT`.
 
-# Invest 100 USDT (dry-run first)
+<details>
+<summary>Full workflow — query → price → invest → records → collect</summary>
+
+```bash
+# 1. List supported trading pairs
+pionex-trade-cli earn dual symbols --base BTC
+
+# 2. List open products (DUAL_BASE: invest BTC, get USDT if price rises above strike)
+#    (DUAL_CURRENCY: invest USDT, get BTC if price falls below strike)
+pionex-trade-cli earn dual open-products \
+  --base BTC --quote USDXO --currency USDT --type DUAL_CURRENCY
+```
+
+```bash
+# 3. Get current yield for chosen product(s)
+pionex-trade-cli earn dual prices \
+  --base BTC --quote USDXO \
+  --product-ids BTC-USDXO-260402-68000-P-USDT
+
+# 4. Get real-time index price
+pionex-trade-cli earn dual index --base BTC --quote USDXO
+
+# 5. Invest 100 USDT — pass the profit value from step 3 unchanged (dry-run first)
 pionex-trade-cli earn dual invest \
   --base BTC \
   --product-id BTC-USDXO-260402-68000-P-USDT \
@@ -193,7 +215,23 @@ pionex-trade-cli earn dual invest \
   --currency-amount 100 \
   --profit 0.0039 \
   --dry-run
+
+# Remove --dry-run to place the real order.
+
+# 6. Check investment history after settlement (endTime is required)
+pionex-trade-cli earn dual records \
+  --base BTC --quote USDXO \
+  --limit 10 \
+  --end-time 1775030400000
+
+# 7. Collect settled earnings
+pionex-trade-cli earn dual collect \
+  --base BTC \
+  --product-id BTC-USDXO-260402-68000-P-USDT \
+  --client-dual-id my-order-001
 ```
+
+</details>
 
 </details>
 
