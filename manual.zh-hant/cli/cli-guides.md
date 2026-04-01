@@ -91,6 +91,7 @@ pionex-trade-cli <group> <command> [args] [--flags]
 
 * [交易命令](cli-guides-trade.md) — 市場資料、帳戶餘額及現貨訂單操作
 * [機器人命令](cli-guides-bot.md) — 合約網格機器人的建立、管理與取消
+* [雙幣理財命令](cli-guides-earn.md) — 雙幣理財：查詢產品、申購、撤單、收益提取
 
 ---
 

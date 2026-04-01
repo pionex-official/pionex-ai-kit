@@ -6,9 +6,10 @@ import { registerMarketTools } from "./market.js";
 import { registerAccountTools } from "./account.js";
 import { registerOrdersTools } from "./orders.js";
 import { registerBotTools } from "./bot.js";
+import { registerEarnDualTools } from "./earn-dual.js";
 
 function allToolSpecs(): ToolSpec[] {
-  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools(), ...registerBotTools()];
+  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools(), ...registerBotTools(), ...registerEarnDualTools()];
 }
 
 export function buildTools(config: PionexConfig): ToolSpec[] {

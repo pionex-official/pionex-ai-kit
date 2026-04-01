@@ -96,6 +96,7 @@ If you prefer not to use the `setup` command, add the server entry to your clien
 
 * [Trade Tools](mcp-guides-trade.md) — Market data, account balances, and spot order operations
 * [Bot Tools](mcp-guides-bot.md) — Futures grid bot creation, management, and cancellation
+* [Earn Dual Tools](mcp-guides-earn.md) — Dual Investment: query products, invest, revoke, and collect earnings
 
 ### Example Prompts
 
@@ -119,6 +120,14 @@ If you prefer not to use the `setup` command, add the server entry to your clien
 * "Use the Pionex tools to add 500 USDT margin to my futures grid bot `<buOrderId>`."
 * "Use the Pionex tools to reduce 10 positions from my futures grid bot `<buOrderId>`."
 * "Use the Pionex tools to cancel my futures grid bot `<buOrderId>`."
+
+#### Dual Investment (API Key Required for most)
+
+* "Use the Pionex tools to list all open BTC dual investment products for the UP direction."
+* "Use the Pionex tools to get the current yield rate for product BTC-USDT-260402-70000-C-USDT."
+* "Use the Pionex tools to invest 100 USDT in the BTC dual investment product BTC-USDT-260402-70000-C-USDT."
+* "Use the Pionex tools to show my dual investment balance."
+* "Use the Pionex tools to collect my settled dual investment earnings."
 
 ### Security Best Practices
 

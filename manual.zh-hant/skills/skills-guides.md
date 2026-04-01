@@ -30,7 +30,8 @@ npx skills add pionex-official/pionex-skills
 | **pionex-market**    | 公開市場資料：訂單簿深度、行情、交易對資訊、K 線、成交記錄 | 否               |
 | **pionex-portfolio** | 帳戶餘額（現貨）                                                     | 是              |
 | **pionex-trade**     | 現貨訂單：下單、取消、未完成訂單、成交記錄                             | 是              |
-| **pionex-bot**       | 合約網格機器人：建立、調整、減倉、取消、查詢                    | 是              |
+| **pionex-bot**        | 合約網格機器人：建立、調整、減倉、取消、查詢                   | 是               |
+| **pionex-earn-dual** | 雙幣理財：查詢產品與收益率、申購、撤單、提取收益                | 部分             |
 
 ### Skill 路由
 
@@ -40,6 +41,7 @@ Agent 會根據使用者意圖自動選擇適當的 Skill：
 * 餘額、可用資金 -> **pionex-portfolio**
 * 下單/取消訂單、訂單狀態 -> **pionex-trade**
 * 合約網格機器人的建立/調整/減倉/取消/查詢 -> **pionex-bot**
+* 雙幣理財查詢/申購/撤單/收益提取 -> **pionex-earn-dual**
 
 ---
 
@@ -47,6 +49,7 @@ Agent 會根據使用者意圖自動選擇適當的 Skill：
 
 * [交易 Skills](skills-guides-trade.md) — 市場資料、帳戶餘額及現貨訂單操作
 * [機器人 Skills](skills-guides-bot.md) — 合約網格機器人的建立、管理與取消
+* [雙幣理財 Skills](skills-guides-earn.md) — 雙幣理財：查詢產品、申購、撤單、收益提取
 
 ---
 

@@ -112,5 +112,16 @@ export class PionexRestClient {
     const data = (await res.json()) as TData;
     return { endpoint: path, requestTime: new Date().toISOString(), data };
   }
+
+  public async signedDeleteQuery<TData = unknown>(path: string, query: QueryParams = {}): Promise<RequestResult<TData>> {
+    const { url, headers } = buildSignedRequest(this.config, "DELETE", path, query, null);
+    const res = await fetch(url, { method: "DELETE", headers });
+    if (!res.ok) {
+      const txt = await readTextSafe(res);
+      throw new PionexApiError(`HTTP ${res.status}: ${txt || res.statusText}`, { status: res.status, endpoint: path, responseText: txt });
+    }
+    const data = (await res.json()) as TData;
+    return { endpoint: path, requestTime: new Date().toISOString(), data };
+  }
 }
 

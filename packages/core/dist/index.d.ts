@@ -25,7 +25,7 @@ declare function runSetup(options: SetupOptions): void;
 declare function printSetupUsage(): void;
 
 declare const PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-declare const MODULES: readonly ["market", "account", "orders", "bot"];
+declare const MODULES: readonly ["market", "account", "orders", "bot", "earn_dual"];
 type ModuleId = (typeof MODULES)[number];
 declare const DEFAULT_MODULES: ModuleId[];
 
@@ -65,6 +65,7 @@ declare class PionexRestClient {
     signedGet<TData = unknown>(path: string, query?: QueryParams): Promise<RequestResult<TData>>;
     signedPost<TData = unknown>(path: string, body: Record<string, unknown>): Promise<RequestResult<TData>>;
     signedDelete<TData = unknown>(path: string, body: Record<string, unknown>): Promise<RequestResult<TData>>;
+    signedDeleteQuery<TData = unknown>(path: string, query?: QueryParams): Promise<RequestResult<TData>>;
 }
 
 type JsonSchema = {

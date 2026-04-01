@@ -91,6 +91,7 @@ pionex-trade-cli <group> <command> [args] [--flags]
 
 * [Trade Commands](cli-guides-trade.md) — Market data, account balances, and spot order operations
 * [Bot Commands](cli-guides-bot.md) — Futures grid bot creation, management, and cancellation
+* [Earn Dual Commands](cli-guides-earn.md) — Dual Investment: query products, invest, revoke, and collect earnings
 
 ---
 

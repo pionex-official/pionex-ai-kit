@@ -27,10 +27,11 @@ npx skills add pionex-official/pionex-skills
 
 | Skill                      | Description                                                                | API Key Required |
 | -------------------------- | -------------------------------------------------------------------------- | ---------------- |
-| **pionex-market**    | Public market data: order book depth, tickers, symbol info, klines, trades | No               |
-| **pionex-portfolio** | Account balance (spot)                                                     | Yes              |
-| **pionex-trade**     | Spot orders: place, cancel, open orders, fills                             | Yes              |
-| **pionex-bot**       | Futures grid bot: create, adjust, reduce, cancel, query                    | Yes              |
+| **pionex-market**     | Public market data: order book depth, tickers, symbol info, klines, trades | No               |
+| **pionex-portfolio**  | Account balance (spot)                                                     | Yes              |
+| **pionex-trade**      | Spot orders: place, cancel, open orders, fills                             | Yes              |
+| **pionex-bot**        | Futures grid bot: create, adjust, reduce, cancel, query                    | Yes              |
+| **pionex-earn-dual**  | Dual Investment: query products & prices, invest, revoke, collect earnings | Partial          |
 
 ### Skill Routing
 
@@ -40,6 +41,7 @@ The agent automatically selects the appropriate skill based on user intent:
 * Balance, available funds -> **pionex-portfolio**
 * Place/cancel orders, order status -> **pionex-trade**
 * Futures grid bot create/adjust/reduce/cancel/query -> **pionex-bot**
+* Dual Investment query/invest/revoke/collect -> **pionex-earn-dual**
 
 ---
 
@@ -47,6 +49,7 @@ The agent automatically selects the appropriate skill based on user intent:
 
 * [Trade Skills](skills-guides-trade.md) — Market data, account balances, and spot order operations
 * [Bot Skills](skills-guides-bot.md) — Futures grid bot creation, management, and cancellation
+* [Earn Dual Skills](skills-guides-earn.md) — Dual Investment: query products, invest, revoke, collect earnings
 
 ---
 
