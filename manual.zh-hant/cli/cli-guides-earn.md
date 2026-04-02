@@ -108,7 +108,7 @@ pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
 
 #### earn dual balances
 
-查詢雙幣理財帳戶餘額。需要 `View` 權限。
+查詢雙幣理財帳戶餘額。需要 `讀取`權限。
 
 ```bash
 pionex-trade-cli earn dual balances [--merge]
@@ -118,7 +118,7 @@ pionex-trade-cli earn dual balances [--merge]
 
 #### earn dual records
 
-查詢雙幣理財歷史訂單。`--base` 和 `--end-time` 為必填。需要 `View` 權限。
+查詢雙幣理財歷史訂單。`--base` 和 `--end-time` 為必填。需要 `讀取`權限。
 
 ```bash
 pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE>] [--currency <CURRENCY>] [--limit <N>] [--start-time <ms>]
@@ -130,7 +130,7 @@ pionex-trade-cli earn dual records --base BTC --quote USDXO --end-time 177502781
 
 #### earn dual get-invests
 
-依客戶端訂單 ID 批次查詢投資訂單。需要 `View` 權限。
+依客戶端訂單 ID 批次查詢投資訂單。需要 `讀取`權限。
 
 ```bash
 pionex-trade-cli earn dual get-invests [--base <BASE>] --client-dual-ids <id1,id2,...>
@@ -142,7 +142,7 @@ pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001
 
 ---
 
-### 寫入命令（需要 Earn 權限）
+### 寫入命令（需要理財權限）
 
 所有寫入命令均支援 `--dry-run`，預覽請求而不實際執行。
 

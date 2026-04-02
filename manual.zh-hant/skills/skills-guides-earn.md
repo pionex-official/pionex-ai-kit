@@ -18,12 +18,12 @@
 | 查詢收益率 | `earn dual prices` | 否 |
 | 取得指數價格 | `earn dual index` | 否 |
 | 歷史交割價格 | `earn dual delivery-prices` | 否 |
-| 查詢我的餘額 | `earn dual balances` | 是（View） |
-| 查詢我的訂單 | `earn dual get-invests` | 是（View） |
-| 投資歷史 | `earn dual records` | 是（View） |
-| 建立申購 | `earn dual invest` | 是（Earn） |
-| 撤銷申購 | `earn dual revoke-invest` | 是（Earn） |
-| 提取收益 | `earn dual collect` | 是（Earn） |
+| 查詢我的餘額 | `earn dual balances` | 是（讀取） |
+| 查詢我的訂單 | `earn dual get-invests` | 是（讀取） |
+| 投資歷史 | `earn dual records` | 是（讀取） |
+| 建立申購 | `earn dual invest` | 是（理財） |
+| 撤銷申購 | `earn dual revoke-invest` | 是（理財） |
+| 提取收益 | `earn dual collect` | 是（理財） |
 
 ---
 
