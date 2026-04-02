@@ -12,6 +12,7 @@
 | `pionex-trade-cli market trades <symbol> [--limit <n>]`                             | 最近公開成交記錄；limit 1–100                              |
 | `pionex-trade-cli market symbols [--symbols <list>] [--type SPOT\|PERP]`            | 交易對中繼資料（精度、最小數量）；以逗號分隔 |
 | `pionex-trade-cli market tickers [--symbol <s>] [--type SPOT\|PERP]`                | 24 小時行情：開盤、收盤、最高、最低、成交量                     |
+| `pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT\|PERP]`           | 最優買賣價行情                                               |
 | `pionex-trade-cli market klines <symbol> <interval> [--endTime <ms>] [--limit <n>]` | OHLCV K 線；interval: 1M, 5M, 15M, 30M, 60M, 4H, 8H, 12H, 1D |
 
 #### 範例
@@ -64,7 +65,8 @@ pionex-trade-cli market klines BTC_USDT 4H --limit 24
 | `pionex-trade-cli orders get --symbol <s> --order-id <id>`                                                                | 讀取  | 依 ID 查詢訂單                     |
 | `pionex-trade-cli orders open --symbol <s>`                                                                               | 讀取  | 列出未完成訂單                    |
 | `pionex-trade-cli orders all --symbol <s> [--limit <n>]`                                                                  | 讀取  | 訂單歷史記錄                       |
-| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | 讀取  | 成交明細                        |
+| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | 讀取  | 按時間範圍查詢成交明細          |
+| `pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>`                                                  | 讀取  | 查詢特定訂單的成交明細          |
 | `pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]`                                                 | 寫入 | 取消特定訂單             |
 | `pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]`                                                             | 寫入 | 取消某交易對的所有未完成訂單 |
 

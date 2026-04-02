@@ -33,14 +33,17 @@
 
 ```bash
 pionex-trade-cli earn dual symbols --base BTC
-pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
+# BTC/ETH 使用 USDXO；其他幣種使用 USDT
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 ```
 
 #### 第二步 — 查詢收益率
 
 ```bash
-pionex-trade-cli earn dual prices --base BTC --quote USDT
-pionex-trade-cli earn dual index --base BTC --quote USDT
+# --product-ids 為必填項
+pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-70000-C-USDT
+# BTC/ETH 使用 USDXO
+pionex-trade-cli earn dual index --base BTC --quote USDXO
 ```
 
 #### 第三步 — 確認餘額
@@ -54,7 +57,7 @@ pionex-trade-cli earn dual balances
 ```bash
 pionex-trade-cli earn dual invest \
   --base BTC \
-  --product-id BTC-USDT-260402-70000-C-USDT \
+  --product-id BTC-USDXO-260402-70000-C-USDT \
   --client-dual-id my-order-001 \
   --currency-amount 100 \
   --profit 0.0215 \
@@ -64,7 +67,10 @@ pionex-trade-cli earn dual invest \
 #### 第五步 — 提取收益
 
 ```bash
-pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
+pionex-trade-cli earn dual collect \
+  --base BTC \
+  --client-dual-id my-order-001 \
+  --product-id BTC-USDXO-260402-70000-C-USDT
 ```
 
 ---

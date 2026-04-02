@@ -35,18 +35,18 @@
 # 哪些交易对可用？
 pionex-trade-cli earn dual symbols --base BTC
 
-# BTC/USDT 看涨方向有哪些开放产品？
-pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
+# BTC DUAL_BASE 方向有哪些开放产品？（BTC/ETH 使用 USDXO；其他用 USDT）
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 ```
 
 #### 第二步 — 查询当前收益率
 
 ```bash
-# 查询 BTC/USDT 所有产品的收益率
-pionex-trade-cli earn dual prices --base BTC --quote USDT
+# 查询指定产品 ID 的收益率（--product-ids 为必填项）
+pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-70000-C-USDT
 
-# 查询 BTC 实时指数价格
-pionex-trade-cli earn dual index --base BTC --quote USDT
+# 查询 BTC 实时指数价格（BTC/ETH 使用 USDXO）
+pionex-trade-cli earn dual index --base BTC --quote USDXO
 ```
 
 #### 第三步 — 查询可用余额
@@ -61,7 +61,7 @@ pionex-trade-cli earn dual balances
 # 预览
 pionex-trade-cli earn dual invest \
   --base BTC \
-  --product-id BTC-USDT-260402-70000-C-USDT \
+  --product-id BTC-USDXO-260402-70000-C-USDT \
   --client-dual-id my-order-001 \
   --currency-amount 100 \
   --profit 0.0215 \
@@ -70,7 +70,7 @@ pionex-trade-cli earn dual invest \
 # 执行
 pionex-trade-cli earn dual invest \
   --base BTC \
-  --product-id BTC-USDT-260402-70000-C-USDT \
+  --product-id BTC-USDXO-260402-70000-C-USDT \
   --client-dual-id my-order-001 \
   --currency-amount 100 \
   --profit 0.0215
@@ -79,7 +79,10 @@ pionex-trade-cli earn dual invest \
 #### 第五步 — 收益提取
 
 ```bash
-pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
+pionex-trade-cli earn dual collect \
+  --base BTC \
+  --client-dual-id my-order-001 \
+  --product-id BTC-USDXO-260402-70000-C-USDT
 ```
 
 ---

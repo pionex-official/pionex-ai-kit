@@ -75,6 +75,19 @@ pionex-trade-cli market klines BTC_USDT 60M --limit 24
 pionex-trade-cli market klines BTC_USDT 1D
 ```
 
+#### market book_tickers
+
+获取最优买卖价行情。
+
+```bash
+pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT|PERP]
+```
+
+```bash
+pionex-trade-cli market book_tickers --symbol BTC_USDT
+pionex-trade-cli market book_tickers --type SPOT
+```
+
 ---
 
 ### 账户命令（需要认证）
@@ -153,10 +166,22 @@ pionex-trade-cli orders all --symbol <s> [--limit <n>]
 
 #### orders fills
 
-查询成交（执行）详情。
+按时间范围查询成交详情。
 
 ```bash
 pionex-trade-cli orders fills --symbol <s> [--startTime <ms>] [--endTime <ms>]
+```
+
+#### orders fills_by_order_id
+
+查询特定订单的成交详情。
+
+```bash
+pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>
+```
+
+```bash
+pionex-trade-cli orders fills_by_order_id --symbol BTC_USDT --order-id 123456
 ```
 
 #### orders cancel
