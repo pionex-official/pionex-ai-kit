@@ -2531,19 +2531,19 @@ Groups:
 Examples:
   pionex-trade-cli market depth BTC_USDT --limit 5
   pionex-trade-cli market tickers --symbol BTC_USDT
-  pionex-trade-cli market book-tickers --symbol BTC_USDT
+  pionex-trade-cli market book_tickers --symbol BTC_USDT
   pionex-trade-cli market symbols --symbols BTC_USDT
   pionex-trade-cli account balance
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
-  pionex-trade-cli orders fills-by-order-id --symbol BTC_USDT --order-id 123
+  pionex-trade-cli orders fills_by_order_id --symbol BTC_USDT --order-id 123
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
   pionex-trade-cli earn dual symbols --base BTC
-  pionex-trade-cli earn dual open-products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
+  pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
   pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-68000-P-USDT
   pionex-trade-cli earn dual invest --base BTC --product-id BTC-USDXO-260402-68000-P-USDT --currency-amount 100 --profit 0.0039
-  pionex-trade-cli earn dual revoke-invest --base BTC --client-dual-id my-order-001 --dry-run
+  pionex-trade-cli earn dual revoke_invest --base BTC --client-dual-id my-order-001 --dry-run
   pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001 --dry-run
 
 Global flags:
@@ -2637,7 +2637,7 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "book-tickers" || command === "bookTickers") {
+    if (command === "book_tickers" || command === "bookTickers") {
       const symbol = typeof flags.symbol === "string" ? flags.symbol : void 0;
       const type = typeof flags.type === "string" ? flags.type : void 0;
       const out = await runTool("pionex_market_get_book_tickers", { symbol, type });
@@ -2716,7 +2716,7 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "fills-by-order-id" || command === "fillsByOrderId") {
+    if (command === "fills_by_order_id" || command === "fillsByOrderId") {
       const symbol = typeof flags.symbol === "string" ? flags.symbol : void 0;
       const orderId = flags["order-id"] != null ? Number(flags["order-id"]) : void 0;
       if (!symbol || orderId == null) throw new Error("Missing required flags: --symbol --order-id");
