@@ -3,6 +3,10 @@ import {
   createFuturesGridCreateToolInputSchema,
   parseAndValidateCreateFuturesGridBuOrderData,
 } from "../schemas/futures-grid-create.js";
+import {
+  createSpotGridCreateToolInputSchema,
+  parseAndValidateCreateSpotGridBuOrderData,
+} from "../schemas/spot-grid-create.js";
 import type { QueryParams } from "../client/types.js";
 
 function asNonEmptyString(value: unknown, field: string): string {
@@ -290,6 +294,181 @@ export function registerBotTools(): ToolSpec[] {
         if (args.immediate != null) body.immediate = asBoolean(args.immediate, "immediate");
         if (args.closeSlippage != null) body.closeSlippage = String(args.closeSlippage);
         return (await client.signedPost("/api/v1/bot/orders/futuresGrid/cancel", body)).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_get_order",
+      module: "bot",
+      isWrite: false,
+      description: "Get one spot grid bot order by buOrderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string", description: "Spot grid bot order id." },
+        },
+        required: ["buOrderId"],
+      },
+      async handler(args, { client }) {
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const q: QueryParams = { buOrderId };
+        return (await client.signedGet("/api/v1/bot/orders/spotGrid/order", q)).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_get_ai_strategy",
+      module: "bot",
+      isWrite: false,
+      description: "Retrieve AI-recommended spot grid strategy parameters for a trading pair.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+        },
+        required: ["base", "quote"],
+      },
+      async handler(args, { client }) {
+        const base = asNonEmptyString(args.base, "base");
+        const quote = asNonEmptyString(args.quote, "quote");
+        return (await client.signedGet("/api/v1/bot/orders/spotGrid/aiStrategy", { base, quote })).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_create",
+      module: "bot",
+      isWrite: true,
+      description:
+        "Create a spot grid bot order (openapi_bot.yaml CreateSpotGridRequest / CreateSpotGridOrderData). " +
+        "Required: base, quote, buOrderData. Optional: note. " +
+        "buOrderData required: top, bottom, row, gridType, quoteTotalInvestment; unknown keys rejected.",
+      inputSchema: createSpotGridCreateToolInputSchema,
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid create is disabled.");
+        }
+        const base = asNonEmptyString(args.base, "base");
+        const quote = asNonEmptyString(args.quote, "quote");
+        const buOrderDataOut = parseAndValidateCreateSpotGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
+
+        const body: Record<string, unknown> = { base, quote, buOrderData: buOrderDataOut };
+        if (args.note != null) body.note = String(args.note);
+
+        if (args.__dryRun === true) {
+          return {
+            dryRun: true,
+            note: "No order was sent. Body matches openapi_bot.yaml CreateSpotGridRequest.",
+            resolvedBody: body,
+          };
+        }
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/create", body)).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_adjust_params",
+      module: "bot",
+      isWrite: true,
+      description: "Adjust spot grid bot range or investment parameters.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          top: { type: "string", description: "New upper price" },
+          bottom: { type: "string", description: "New lower price" },
+          row: { type: "number", description: "New number of grid levels" },
+          quoteInvest: { type: "string", description: "Additional quote investment amount" },
+        },
+        required: ["buOrderId"],
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid adjust_params is disabled.");
+        }
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const body: Record<string, unknown> = { buOrderId };
+        if (args.top != null) body.top = asPositiveDecimalString(args.top, "top");
+        if (args.bottom != null) body.bottom = asPositiveDecimalString(args.bottom, "bottom");
+        if (args.row != null) body.row = asPositiveInteger(args.row, "row");
+        if (args.quoteInvest != null) body.quoteInvest = asPositiveDecimalString(args.quoteInvest, "quoteInvest");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/adjustParams", body)).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_invest_in",
+      module: "bot",
+      isWrite: true,
+      description: "Add additional quote investment to a running spot grid bot.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          quoteInvest: { type: "string", description: "Quote amount to invest" },
+        },
+        required: ["buOrderId", "quoteInvest"],
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid invest_in is disabled.");
+        }
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const quoteInvest = asPositiveDecimalString(args.quoteInvest, "quoteInvest");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/investIn", { buOrderId, quoteInvest })).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_cancel",
+      module: "bot",
+      isWrite: true,
+      description: "Cancel and close a spot grid bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          closeSellModel: { type: "string", enum: ["NOT_SELL", "TO_QUOTE", "TO_USDT"] },
+          slippage: { type: "string" },
+        },
+        required: ["buOrderId"],
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid cancel is disabled.");
+        }
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const body: Record<string, unknown> = { buOrderId };
+        if (args.closeSellModel != null) {
+          const closeSellModel = asNonEmptyString(args.closeSellModel, "closeSellModel");
+          assertEnum(closeSellModel, "closeSellModel", ["NOT_SELL", "TO_QUOTE", "TO_USDT"]);
+          body.closeSellModel = closeSellModel;
+        }
+        if (args.slippage != null) body.slippage = String(args.slippage);
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/cancel", body)).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_profit",
+      module: "bot",
+      isWrite: true,
+      description: "Extract accumulated grid profit from a spot grid bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          amount: { type: "string", description: "Amount of profit to extract" },
+        },
+        required: ["buOrderId", "amount"],
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid profit is disabled.");
+        }
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const amount = asPositiveDecimalString(args.amount, "amount");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/profit", { buOrderId, amount })).data;
       },
     },
   ];
