@@ -162,7 +162,7 @@ export function registerBotTools(): ToolSpec[] {
           condition: { type: "string" },
           conditionDirection: { type: "string", enum: ["1", "-1"] },
           slippage: { type: "string" },
-          adjustParamsSence: { type: "string" },
+          adjustParamsScene: { type: "string" },
         },
         required: ["buOrderId", "type", "extraMargin"],
       },
@@ -217,7 +217,7 @@ export function registerBotTools(): ToolSpec[] {
           body.conditionDirection = conditionDirection;
         }
         if (args.slippage != null) body.slippage = String(args.slippage);
-        if (args.adjustParamsSence != null) body.adjustParamsSence = String(args.adjustParamsSence);
+        if (args.adjustParamsScene != null) body.adjustParamsScene = String(args.adjustParamsScene);
         return (await client.signedPost("/api/v1/bot/orders/futuresGrid/adjustParams", body)).data;
       },
     },
