@@ -63,7 +63,7 @@ Get historical settlement delivery prices. `base` is required.
 
 ---
 
-### Authenticated Tools — Enable Reading Permission
+### Authenticated Tools — `Enable reading` Permission
 
 #### `pionex_earn_dual_balances`
 
@@ -98,7 +98,7 @@ Get paginated investment history. `base` and `endTime` are required.
 
 ---
 
-### Authenticated Tools — Earn Permission (Write)
+### Authenticated Tools — `Earn` Permission (Write)
 
 #### `pionex_earn_dual_invest`
 

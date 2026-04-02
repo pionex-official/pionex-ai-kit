@@ -18,12 +18,12 @@ The `pionex-earn-dual` skill guides AI agents through Dual Investment operations
 | Check yield rates | `earn dual prices` | No |
 | Get index price | `earn dual index` | No |
 | Historical delivery prices | `earn dual delivery-prices` | No |
-| My balances | `earn dual balances` | Yes (Enable reading) |
-| Query my orders | `earn dual get-invests` | Yes (Enable reading) |
-| Investment history | `earn dual records` | Yes (Enable reading) |
-| Create investment | `earn dual invest` | Yes (Earn) |
-| Revoke investment | `earn dual revoke-invest` | Yes (Earn) |
-| Collect earnings | `earn dual collect` | Yes (Earn) |
+| My balances | `earn dual balances` | Yes (`Enable reading`) |
+| Query my orders | `earn dual get-invests` | Yes (`Enable reading`) |
+| Investment history | `earn dual records` | Yes (`Enable reading`) |
+| Create investment | `earn dual invest` | Yes (`Earn`) |
+| Revoke investment | `earn dual revoke-invest` | Yes (`Earn`) |
+| Collect earnings | `earn dual collect` | Yes (`Earn`) |
 
 ---
 

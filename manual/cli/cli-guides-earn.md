@@ -142,7 +142,7 @@ pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001
 
 ---
 
-### Write Commands (Earn Permission Required)
+### Write Commands (`Earn` Permission Required)
 
 All write commands support `--dry-run` to preview the request without executing.
 

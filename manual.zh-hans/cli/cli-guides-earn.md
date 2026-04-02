@@ -108,7 +108,7 @@ pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
 
 #### earn dual balances
 
-查询双币理财账户余额。需要 `View` 权限。
+查询双币理财账户余额。需要 `读取`权限。
 
 ```bash
 pionex-trade-cli earn dual balances [--merge]
@@ -118,7 +118,7 @@ pionex-trade-cli earn dual balances [--merge]
 
 #### earn dual records
 
-查询双币理财历史订单。`--base` 和 `--end-time` 为必填。需要 `View` 权限。
+查询双币理财历史订单。`--base` 和 `--end-time` 为必填。需要 `读取`权限。
 
 ```bash
 pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE>] [--currency <CURRENCY>] [--limit <N>] [--start-time <ms>]
@@ -130,7 +130,7 @@ pionex-trade-cli earn dual records --base BTC --quote USDXO --end-time 177502781
 
 #### earn dual get-invests
 
-按客户端订单 ID 批量查询投资订单。需要 `View` 权限。
+按客户端订单 ID 批量查询投资订单。需要 `读取`权限。
 
 ```bash
 pionex-trade-cli earn dual get-invests [--base <BASE>] --client-dual-ids <id1,id2,...>
