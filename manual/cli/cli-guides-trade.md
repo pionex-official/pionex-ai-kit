@@ -167,10 +167,10 @@ Cancel a specific order.
 pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]
 ```
 
-#### orders cancel-all
+#### orders cancel_all
 
 Cancel all open orders for a symbol.
 
 ```bash
-pionex-trade-cli orders cancel-all --symbol <s> [--dry-run]
+pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]
 ```
