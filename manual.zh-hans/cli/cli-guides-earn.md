@@ -26,12 +26,12 @@ pionex-trade-cli earn dual symbols
 pionex-trade-cli earn dual symbols --base BTC
 ```
 
-#### earn dual open-products
+#### earn dual open_products
 
 列出指定交易对和方向的当前开放产品。
 
 ```bash
-pionex-trade-cli earn dual open-products --base <BASE> --quote <QUOTE> --type <DUAL_BASE|DUAL_CURRENCY> [--currency <CURRENCY>]
+pionex-trade-cli earn dual open_products --base <BASE> --quote <QUOTE> --type <DUAL_BASE|DUAL_CURRENCY> [--currency <CURRENCY>]
 ```
 
 | 标志 | 必填 | 描述 |
@@ -43,10 +43,10 @@ pionex-trade-cli earn dual open-products --base <BASE> --quote <QUOTE> --type <D
 
 ```bash
 # BTC/ETH：使用 quote=USDXO
-pionex-trade-cli earn dual open-products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 
 # 其他基础货币（XRP 等）：使用 quote=USDT
-pionex-trade-cli earn dual open-products --base XRP --quote USDT --type DUAL_BASE --currency USDT
+pionex-trade-cli earn dual open_products --base XRP --quote USDT --type DUAL_BASE --currency USDT
 ```
 
 #### earn dual prices
@@ -86,20 +86,20 @@ pionex-trade-cli earn dual index --base BTC --quote USDXO
 pionex-trade-cli earn dual index --base LRC --quote USDT
 ```
 
-#### earn dual delivery-prices
+#### earn dual delivery_prices
 
 获取历史结算交割价格。`--base` 为必填。
 
 ```bash
-pionex-trade-cli earn dual delivery-prices --base <BASE> [--quote <QUOTE>] [--start-time <ms>] [--end-time <ms>]
+pionex-trade-cli earn dual delivery_prices --base <BASE> [--quote <QUOTE>] [--start-time <ms>] [--end-time <ms>]
 ```
 
 ```bash
 # BTC/USDXO
-pionex-trade-cli earn dual delivery-prices --base BTC --quote USDXO
+pionex-trade-cli earn dual delivery_prices --base BTC --quote USDXO
 
 # 其他基础货币
-pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
+pionex-trade-cli earn dual delivery_prices --base XRP --quote USDT
 ```
 
 ---
@@ -128,16 +128,16 @@ pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE
 pionex-trade-cli earn dual records --base BTC --quote USDXO --end-time 1775027817297 --limit 20
 ```
 
-#### earn dual get-invests
+#### earn dual get_invests
 
 按客户端订单 ID 批量查询投资订单。需要 `读取`权限。
 
 ```bash
-pionex-trade-cli earn dual get-invests [--base <BASE>] --client-dual-ids <id1,id2,...>
+pionex-trade-cli earn dual get_invests [--base <BASE>] --client-dual-ids <id1,id2,...>
 ```
 
 ```bash
-pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001,my-order-002
+pionex-trade-cli earn dual get_invests --base BTC --client-dual-ids my-order-001,my-order-002
 ```
 
 ---
@@ -163,7 +163,7 @@ pionex-trade-cli earn dual invest \
 | 标志 | 必填 | 描述 |
 |------|------|------|
 | `--base` | 是 | 基础货币（如 `BTC`） |
-| `--product-id` | 建议 | 产品 ID（来自 `open-products`） |
+| `--product-id` | 建议 | 产品 ID（来自 `open_products`） |
 | `--client-dual-id` | 建议 | 自定义订单 ID（幂等键） |
 | `--base-amount` | 二选一 | 以基础货币计的投资金额 |
 | `--currency-amount` | 二选一 | 以投资货币计的投资金额 |
@@ -196,12 +196,12 @@ pionex-trade-cli earn dual invest \
   --profit 0.0039
 ```
 
-#### earn dual revoke-invest
+#### earn dual revoke_invest
 
 撤销待匹配的投资订单（匹配前可撤）。三个标志均为必填。
 
 ```bash
-pionex-trade-cli earn dual revoke-invest \
+pionex-trade-cli earn dual revoke_invest \
   --base <BASE> \
   --product-id <PRODUCT_ID> \
   --client-dual-id <ID> \
@@ -209,7 +209,7 @@ pionex-trade-cli earn dual revoke-invest \
 ```
 
 ```bash
-pionex-trade-cli earn dual revoke-invest \
+pionex-trade-cli earn dual revoke_invest \
   --base BTC \
   --product-id BTC-USDXO-260402-68000-P-USDT \
   --client-dual-id my-order-001

@@ -14,15 +14,15 @@ The `pionex-earn-dual` skill guides AI agents through Dual Investment operations
 | Operation | Command | Auth |
 |-----------|---------|------|
 | Query supported pairs | `earn dual symbols` | No |
-| Browse open products | `earn dual open-products` | No |
+| Browse open products | `earn dual open_products` | No |
 | Check yield rates | `earn dual prices` | No |
 | Get index price | `earn dual index` | No |
-| Historical delivery prices | `earn dual delivery-prices` | No |
+| Historical delivery prices | `earn dual delivery_prices` | No |
 | My balances | `earn dual balances` | Yes (`Enable reading`) |
-| Query my orders | `earn dual get-invests` | Yes (`Enable reading`) |
+| Query my orders | `earn dual get_invests` | Yes (`Enable reading`) |
 | Investment history | `earn dual records` | Yes (`Enable reading`) |
 | Create investment | `earn dual invest` | Yes (`Earn`) |
-| Revoke investment | `earn dual revoke-invest` | Yes (`Earn`) |
+| Revoke investment | `earn dual revoke_invest` | Yes (`Earn`) |
 | Collect earnings | `earn dual collect` | Yes (`Earn`) |
 
 ---
@@ -36,7 +36,7 @@ The `pionex-earn-dual` skill guides AI agents through Dual Investment operations
 pionex-trade-cli earn dual symbols --base BTC
 
 # What UP products are open for BTC/USDT?
-pionex-trade-cli earn dual open-products --base BTC --quote USDT --type UP
+pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
 ```
 
 #### Step 2 — Check current yield rates
@@ -87,6 +87,6 @@ pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
 ### Risk Controls
 
 * Always check the current yield rate via `prices` before investing — the `profit` value must match.
-* Use `--dry-run` before executing `invest`, `revoke-invest`, or `collect`.
+* Use `--dry-run` before executing `invest`, `revoke_invest`, or `collect`.
 * Verify available balance with `balances` before placing an investment.
-* Check `open-products` to confirm the product has `expired: false` before investing.
+* Check `open_products` to confirm the product has `expired: false` before investing.

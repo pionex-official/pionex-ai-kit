@@ -32,7 +32,7 @@ Base URL: `https://api.pionex.com`
 | Get index price | `GET /api/v1/earn/dual/index` |
 | Get delivery prices | `GET /api/v1/earn/dual/deliveryPrices` |
 
-### Authenticated Endpoints (View permission)
+### Authenticated Endpoints (Enable reading permission)
 
 | Operation | Endpoint |
 |-----------|----------|
@@ -52,15 +52,15 @@ Base URL: `https://api.pionex.com`
 
 ```
 pionex-trade-cli earn dual symbols [--base BTC]
-pionex-trade-cli earn dual open-products --base BTC --quote USDT --type UP|DOWN [--currency USDT]
+pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP|DOWN [--currency USDT]
 pionex-trade-cli earn dual prices [--base BTC --quote USDT] [--product-ids id1,id2]
 pionex-trade-cli earn dual index [--base BTC --quote USDT]
-pionex-trade-cli earn dual delivery-prices [--base BTC --quote USDT] [--start-time ms] [--end-time ms]
+pionex-trade-cli earn dual delivery_prices [--base BTC --quote USDT] [--start-time ms] [--end-time ms]
 pionex-trade-cli earn dual balances [--merge]
 pionex-trade-cli earn dual records --base BTC [--quote USDT] [--currency USDT] [--limit 20] [--start-time ms] [--end-time ms]
-pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids id1,id2
+pionex-trade-cli earn dual get_invests --base BTC --client-dual-ids id1,id2
 pionex-trade-cli earn dual invest --base BTC --product-id <id> [--client-dual-id <id>] (--base-amount <n> | --currency-amount <n>) --profit <n>
-pionex-trade-cli earn dual revoke-invest [--base BTC] [--client-dual-id <id>] [--product-id <id>] [--dry-run]
+pionex-trade-cli earn dual revoke_invest [--base BTC] [--client-dual-id <id>] [--product-id <id>] [--dry-run]
 pionex-trade-cli earn dual collect [--base BTC] [--client-dual-id <id>] [--product-id <id>] [--dry-run]
 ```
 
@@ -68,7 +68,7 @@ pionex-trade-cli earn dual collect [--base BTC] [--client-dual-id <id>] [--produ
 
 1. All 11 MCP tools are registered and callable via MCP clients
 2. All 11 CLI commands work correctly
-3. Write operations (`invest`, `revoke-invest`, `collect`) support `--dry-run`
+3. Write operations (`invest`, `revoke_invest`, `collect`) support `--dry-run`
 4. `earn_dual` module can be enabled/disabled via `--modules` flag
 5. Public tools work without API credentials; auth tools fail gracefully with clear error
 6. Build succeeds: `npm run build`
