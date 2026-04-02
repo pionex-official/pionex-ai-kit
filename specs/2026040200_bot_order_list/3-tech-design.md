@@ -27,7 +27,7 @@ Insert before the closing `];` of `registerBotTools()`:
   description:
     "List futures grid bot orders with optional filters. " +
     "Supports pagination via pageToken. " +
-    "status: 'running' (default) or 'canceled'. " +
+    "status: 'running' (default) or 'finished'. " +
     "Endpoint: GET /api/v1/bot/orders",
   inputSchema: {
     type: "object",
@@ -35,7 +35,7 @@ Insert before the closing `];` of `registerBotTools()`:
     properties: {
       status: {
         type: "string",
-        enum: ["running", "canceled"],
+        enum: ["running", "finished"],
         description: "Filter by order status. Default: 'running'.",
       },
       base: { type: "string", description: "Base currency filter (e.g. BTC)." },
@@ -111,7 +111,7 @@ throw new Error(`Unknown futures_grid command: ${command}. Available: get, list,
 And update the help text in `printPionexHelp()`:
 
 ```
-  pionex-trade-cli bot futures_grid list [--status running|canceled] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,grid_v5]
+  pionex-trade-cli bot futures_grid list [--status running|finished] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,grid_v5]
 ```
 
 ## buOrderTypes serialization note

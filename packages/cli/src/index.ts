@@ -207,7 +207,7 @@ Examples:
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
   pionex-trade-cli orders fills_by_order_id --symbol BTC_USDT --order-id 123
-  pionex-trade-cli bot order_list [--status running|canceled] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
+  pionex-trade-cli bot order_list [--status running|finished] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
   pionex-trade-cli earn dual symbols --base BTC

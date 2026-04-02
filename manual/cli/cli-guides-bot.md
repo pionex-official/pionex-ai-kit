@@ -7,12 +7,12 @@
 List bot orders across all bot types, with optional filters and pagination.
 
 ```bash
-pionex-trade-cli bot order_list [--status running|canceled] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
+pionex-trade-cli bot order_list [--status running|finished] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
 ```
 
 | Flag | Description |
 | --- | --- |
-| `--status` | `running` (default) or `canceled` |
+| `--status` | `running` (default) or `finished` |
 | `--base` | Base currency filter (e.g. `BTC`) |
 | `--quote` | Quote currency filter (e.g. `USDT`) |
 | `--page-token` | Pagination token from a previous response |
@@ -27,8 +27,8 @@ pionex-trade-cli bot order_list
 # List only futures_grid orders
 pionex-trade-cli bot order_list --bu-order-types futures_grid
 
-# List canceled BTC spot_grid orders
-pionex-trade-cli bot order_list --status canceled --base BTC --bu-order-types spot_grid
+# List finished BTC spot_grid orders
+pionex-trade-cli bot order_list --status finished --base BTC --bu-order-types spot_grid
 
 # Paginate to next page
 pionex-trade-cli bot order_list --page-token <token>

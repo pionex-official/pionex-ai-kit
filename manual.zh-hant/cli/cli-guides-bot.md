@@ -7,12 +7,12 @@
 列出所有類型的機器人訂單，支援可選過濾條件與分頁。
 
 ```bash
-pionex-trade-cli bot order_list [--status running|canceled] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
+pionex-trade-cli bot order_list [--status running|finished] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
 ```
 
 | 參數 | 說明 |
 | --- | --- |
-| `--status` | `running`（預設）或 `canceled` |
+| `--status` | `running`（預設）或 `finished` |
 | `--base` | 基礎貨幣過濾（例如 `BTC`） |
 | `--quote` | 計價貨幣過濾（例如 `USDT`） |
 | `--page-token` | 分頁游標（來自上一次回應） |
@@ -28,7 +28,7 @@ pionex-trade-cli bot order_list
 pionex-trade-cli bot order_list --bu-order-types futures_grid
 
 # 列出已取消的 BTC 現貨網格訂單
-pionex-trade-cli bot order_list --status canceled --base BTC --bu-order-types spot_grid
+pionex-trade-cli bot order_list --status finished --base BTC --bu-order-types spot_grid
 
 # 翻到下一頁
 pionex-trade-cli bot order_list --page-token <token>
