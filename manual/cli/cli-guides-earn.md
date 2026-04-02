@@ -108,7 +108,7 @@ pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
 
 #### earn dual balances
 
-Get your Dual Investment account balances. Requires `View` permission.
+Get your Dual Investment account balances. Requires `Enable reading` permission.
 
 ```bash
 pionex-trade-cli earn dual balances [--merge]
@@ -118,7 +118,7 @@ pionex-trade-cli earn dual balances [--merge]
 
 #### earn dual records
 
-Get your Dual Investment history. `--base` and `--end-time` are required. Requires `View` permission.
+Get your Dual Investment history. `--base` and `--end-time` are required. Requires `Enable reading` permission.
 
 ```bash
 pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE>] [--currency <CURRENCY>] [--limit <N>] [--start-time <ms>]
@@ -130,7 +130,7 @@ pionex-trade-cli earn dual records --base BTC --quote USDXO --end-time 177502781
 
 #### earn dual get-invests
 
-Batch query investment orders by client order IDs. Requires `View` permission.
+Batch query investment orders by client order IDs. Requires `Enable reading` permission.
 
 ```bash
 pionex-trade-cli earn dual get-invests [--base <BASE>] --client-dual-ids <id1,id2,...>

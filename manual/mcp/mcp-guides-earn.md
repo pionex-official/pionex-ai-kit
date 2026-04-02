@@ -63,7 +63,7 @@ Get historical settlement delivery prices. `base` is required.
 
 ---
 
-### Authenticated Tools — View Permission
+### Authenticated Tools — Enable Reading Permission
 
 #### `pionex_earn_dual_balances`
 
