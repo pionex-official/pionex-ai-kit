@@ -125,7 +125,7 @@ This document records important decisions, lessons learned, and technical knowle
 4. **`--client-dual-ids` parsed as comma-separated string → string array**
    - Rationale: CLI flags are strings; splitting on comma is consistent with other multi-value flags
 
-5. **Write tools (`invest`, `revoke-invest`, `collect`) all support `--dry-run`**
+5. **Write tools (`invest`, `revoke_invest`, `collect`) all support `--dry-run`**
    - Consistent with orders/bot pattern established in iteration 1
 
 ## Iteration 4: CLI Version Flag (2026-04-02)

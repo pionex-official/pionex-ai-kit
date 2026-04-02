@@ -196,7 +196,7 @@ export function registerOrdersTools(): ToolSpec[] {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; cancel-all is disabled.");
+          throw new Error("Server is running in --read-only mode; cancel_all is disabled.");
         }
         const symbol = String(args.symbol);
         return (await client.signedDelete("/api/v1/trade/allOrders", { symbol })).data;

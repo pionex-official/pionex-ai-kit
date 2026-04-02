@@ -35,7 +35,7 @@
   - Update `printPionexHelp()`: add `earn` to Groups section and examples
   - Add `earn` group handler in `runPionexCommand()` (after `bot` block)
   - Handle `earn dual` sub-route with all 11 commands
-  - Write operations (`invest`, `revoke-invest`, `collect`) must check `dryRun`
+  - Write operations (`invest`, `revoke_invest`, `collect`) must check `dryRun`
   - Verify: `pionex-trade-cli earn dual` (no args) shows helpful error with usage hint
 
 - [x] **Task 6: Build verification**

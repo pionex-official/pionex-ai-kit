@@ -26,12 +26,12 @@ pionex-trade-cli earn dual symbols
 pionex-trade-cli earn dual symbols --base BTC
 ```
 
-#### earn dual open-products
+#### earn dual open_products
 
 List currently open Dual Investment products for a specific pair and direction.
 
 ```bash
-pionex-trade-cli earn dual open-products --base <BASE> --quote <QUOTE> --type <DUAL_BASE|DUAL_CURRENCY> [--currency <CURRENCY>]
+pionex-trade-cli earn dual open_products --base <BASE> --quote <QUOTE> --type <DUAL_BASE|DUAL_CURRENCY> [--currency <CURRENCY>]
 ```
 
 | Flag | Required | Description |
@@ -43,10 +43,10 @@ pionex-trade-cli earn dual open-products --base <BASE> --quote <QUOTE> --type <D
 
 ```bash
 # BTC/ETH: use quote=USDXO
-pionex-trade-cli earn dual open-products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 
 # Other bases (XRP, etc.): use quote=USDT
-pionex-trade-cli earn dual open-products --base XRP --quote USDT --type DUAL_BASE --currency USDT
+pionex-trade-cli earn dual open_products --base XRP --quote USDT --type DUAL_BASE --currency USDT
 ```
 
 #### earn dual prices
@@ -86,20 +86,20 @@ pionex-trade-cli earn dual index --base BTC --quote USDXO
 pionex-trade-cli earn dual index --base LRC --quote USDT
 ```
 
-#### earn dual delivery-prices
+#### earn dual delivery_prices
 
 Get historical settlement delivery prices. `--base` is required.
 
 ```bash
-pionex-trade-cli earn dual delivery-prices --base <BASE> [--quote <QUOTE>] [--start-time <ms>] [--end-time <ms>]
+pionex-trade-cli earn dual delivery_prices --base <BASE> [--quote <QUOTE>] [--start-time <ms>] [--end-time <ms>]
 ```
 
 ```bash
 # BTC/USDXO
-pionex-trade-cli earn dual delivery-prices --base BTC --quote USDXO
+pionex-trade-cli earn dual delivery_prices --base BTC --quote USDXO
 
 # Other base
-pionex-trade-cli earn dual delivery-prices --base XRP --quote USDT
+pionex-trade-cli earn dual delivery_prices --base XRP --quote USDT
 ```
 
 ---
@@ -128,16 +128,16 @@ pionex-trade-cli earn dual records --base <BASE> --end-time <ms> [--quote <QUOTE
 pionex-trade-cli earn dual records --base BTC --quote USDXO --end-time 1775027817297 --limit 20
 ```
 
-#### earn dual get-invests
+#### earn dual get_invests
 
 Batch query investment orders by client order IDs. Requires `Enable reading` permission.
 
 ```bash
-pionex-trade-cli earn dual get-invests [--base <BASE>] --client-dual-ids <id1,id2,...>
+pionex-trade-cli earn dual get_invests [--base <BASE>] --client-dual-ids <id1,id2,...>
 ```
 
 ```bash
-pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001,my-order-002
+pionex-trade-cli earn dual get_invests --base BTC --client-dual-ids my-order-001,my-order-002
 ```
 
 ---
@@ -163,7 +163,7 @@ pionex-trade-cli earn dual invest \
 | Flag | Required | Description |
 |------|----------|-------------|
 | `--base` | Yes | Base currency (e.g. `BTC`) |
-| `--product-id` | Recommended | Product ID from `open-products` |
+| `--product-id` | Recommended | Product ID from `open_products` |
 | `--client-dual-id` | Recommended | Your own order ID (idempotency key) |
 | `--base-amount` | One of these | Investment amount in base currency |
 | `--currency-amount` | One of these | Investment amount in investment currency |
@@ -196,12 +196,12 @@ pionex-trade-cli earn dual invest \
   --profit 0.0039
 ```
 
-#### earn dual revoke-invest
+#### earn dual revoke_invest
 
 Revoke a pending investment order (before it is matched). All three flags are required.
 
 ```bash
-pionex-trade-cli earn dual revoke-invest \
+pionex-trade-cli earn dual revoke_invest \
   --base <BASE> \
   --product-id <PRODUCT_ID> \
   --client-dual-id <ID> \
@@ -209,7 +209,7 @@ pionex-trade-cli earn dual revoke-invest \
 ```
 
 ```bash
-pionex-trade-cli earn dual revoke-invest \
+pionex-trade-cli earn dual revoke_invest \
   --base BTC \
   --product-id BTC-USDXO-260402-68000-P-USDT \
   --client-dual-id my-order-001

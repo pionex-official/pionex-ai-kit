@@ -1523,7 +1523,7 @@ function registerOrdersTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; cancel-all is disabled.");
+          throw new Error("Server is running in --read-only mode; cancel_all is disabled.");
         }
         const symbol = String(args.symbol);
         return (await client.signedDelete("/api/v1/trade/allOrders", { symbol })).data;
@@ -2737,7 +2737,7 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "cancel-all") {
+    if (command === "cancel_all") {
       const symbol = typeof flags.symbol === "string" ? flags.symbol : void 0;
       if (!symbol) throw new Error("Missing required flag: --symbol");
       const payload = { symbol };
@@ -2835,7 +2835,7 @@ async function runPionexCommand(argv) {
     if (!earnRoute || earnRoute !== "dual") {
       throw new Error(
         `Missing or unknown earn route: ${earnRoute ?? "(none)"}. Use: pionex-trade-cli earn dual <command>
-Commands: symbols, open-products, prices, index, delivery-prices, balances, get-invests, records, invest, revoke-invest, collect`
+Commands: symbols, open_products, prices, index, delivery_prices, balances, get_invests, records, invest, revoke_invest, collect`
       );
     }
     if (!command || command === "help" || flags.help === true || flags.h === true) {
@@ -2844,22 +2844,22 @@ Usage: pionex-trade-cli earn dual <command> [--flags]
 
 Public commands (no API key required):
   symbols            List supported trading pairs [--base BTC]
-  open-products      List open products --base BTC --quote USDXO --type DUAL_BASE|DUAL_CURRENCY [--currency USDT]
+  open_products      List open products --base BTC --quote USDXO --type DUAL_BASE|DUAL_CURRENCY [--currency USDT]
                      (BTC/ETH: --quote USDXO; others: --quote USDT)
                      Product ID format: {BASE}-{QUOTE}-{YYMMDD}-{STRIKE}-{C|P}-{CURRENCY} (C=DUAL_BASE, P=DUAL_CURRENCY)
   prices             Get yield rates --base BTC --quote USDXO --product-ids id1,id2
                      (All three flags required. Always call before invest \u2014 profit value must be passed unchanged.)
   index              Get index price --base BTC --quote USDXO
-  delivery-prices    Get delivery prices --base BTC [--quote USDXO] [--start-time ms] [--end-time ms]
+  delivery_prices    Get delivery prices --base BTC [--quote USDXO] [--start-time ms] [--end-time ms]
 
-Auth commands (View permission):
+Auth commands (Enable reading permission):
   balances           Get Dual Investment balances [--merge]
   records            Get investment history --base BTC --end-time ms [--quote USDT] [--limit 20] [--start-time ms]
-  get-invests        Batch query orders [--base BTC] --client-dual-ids id1,id2
+  get_invests        Batch query orders [--base BTC] --client-dual-ids id1,id2
 
 Auth commands (Earn permission, write):
   invest             Create investment --base BTC --product-id <id> (--base-amount N | --currency-amount N) --profit N [--client-dual-id id] [--dry-run]
-  revoke-invest      Revoke pending order --base BTC --product-id <id> --client-dual-id <id> [--dry-run]
+  revoke_invest      Revoke pending order --base BTC --product-id <id> --client-dual-id <id> [--dry-run]
   collect            Collect settled earnings --base BTC --client-dual-id <id> --product-id <id> [--dry-run]
 
 Note: For BTC/ETH: --quote USDXO --currency USDT|USDC. For other bases: --quote USDT --currency USDT.
@@ -2872,7 +2872,7 @@ Note: For BTC/ETH: --quote USDXO --currency USDT|USDC. For other bases: --quote 
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "open-products" || command === "openProducts") {
+    if (command === "open_products" || command === "openProducts") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       const quote = typeof flags.quote === "string" ? flags.quote : void 0;
       const type = typeof flags.type === "string" ? flags.type : void 0;
@@ -2900,7 +2900,7 @@ Note: For BTC/ETH: --quote USDXO --currency USDT|USDC. For other bases: --quote 
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "delivery-prices" || command === "deliveryPrices") {
+    if (command === "delivery_prices" || command === "deliveryPrices") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       if (!base) throw new Error("Missing required flag: --base");
       const quote = typeof flags.quote === "string" ? flags.quote : void 0;
@@ -2916,7 +2916,7 @@ Note: For BTC/ETH: --quote USDXO --currency USDT|USDC. For other bases: --quote 
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "get-invests" || command === "getInvests") {
+    if (command === "get_invests" || command === "getInvests") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       const clientDualIdsRaw = typeof flags["client-dual-ids"] === "string" ? flags["client-dual-ids"] : typeof flags.clientDualIds === "string" ? flags.clientDualIds : void 0;
       const clientDualIds = clientDualIdsRaw ? clientDualIdsRaw.split(",").map((s) => s.trim()) : void 0;
@@ -2954,7 +2954,7 @@ Note: For BTC/ETH: --quote USDXO --currency USDT|USDC. For other bases: --quote 
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "revoke-invest" || command === "revokeInvest") {
+    if (command === "revoke_invest" || command === "revokeInvest") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       const clientDualId = typeof flags["client-dual-id"] === "string" ? flags["client-dual-id"] : typeof flags.clientDualId === "string" ? flags.clientDualId : void 0;
       const productId = typeof flags["product-id"] === "string" ? flags["product-id"] : typeof flags.productId === "string" ? flags.productId : void 0;

@@ -14,15 +14,15 @@
 | 操作 | 命令 | 鉴权 |
 |------|------|------|
 | 查询支持的交易对 | `earn dual symbols` | 否 |
-| 浏览开放产品 | `earn dual open-products` | 否 |
+| 浏览开放产品 | `earn dual open_products` | 否 |
 | 查询收益率 | `earn dual prices` | 否 |
 | 获取指数价格 | `earn dual index` | 否 |
-| 历史交割价格 | `earn dual delivery-prices` | 否 |
+| 历史交割价格 | `earn dual delivery_prices` | 否 |
 | 查询我的余额 | `earn dual balances` | 是（`读取`） |
-| 查询我的订单 | `earn dual get-invests` | 是（`读取`） |
+| 查询我的订单 | `earn dual get_invests` | 是（`读取`） |
 | 投资历史 | `earn dual records` | 是（`读取`） |
 | 创建申购 | `earn dual invest` | 是（`理财`） |
-| 撤销申购 | `earn dual revoke-invest` | 是（`理财`） |
+| 撤销申购 | `earn dual revoke_invest` | 是（`理财`） |
 | 提取收益 | `earn dual collect` | 是（`理财`） |
 
 ---
@@ -36,7 +36,7 @@
 pionex-trade-cli earn dual symbols --base BTC
 
 # BTC/USDT 看涨方向有哪些开放产品？
-pionex-trade-cli earn dual open-products --base BTC --quote USDT --type UP
+pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
 ```
 
 #### 第二步 — 查询当前收益率
@@ -87,6 +87,6 @@ pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
 ### 风险控制
 
 * 申购前始终通过 `prices` 查询当前收益率 —— `profit` 值必须与接口返回匹配。
-* 执行 `invest`、`revoke-invest` 或 `collect` 前先用 `--dry-run` 预览。
+* 执行 `invest`、`revoke_invest` 或 `collect` 前先用 `--dry-run` 预览。
 * 申购前通过 `balances` 确认可用余额是否充足。
-* 通过 `open-products` 确认产品 `expired: false` 后再申购。
+* 通过 `open_products` 确认产品 `expired: false` 后再申购。
