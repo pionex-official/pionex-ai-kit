@@ -3,6 +3,7 @@
 // src/index.ts
 import { createInterface } from "readline";
 import { basename } from "path";
+import { createRequire } from "module";
 
 // ../core/dist/index.js
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
@@ -2373,6 +2374,8 @@ function createToolRunner(client, config) {
 }
 
 // src/index.ts
+var _require = createRequire(import.meta.url);
+var { version } = _require("../package.json");
 var DEFAULT_PROFILE_NAME = "pionx-prod";
 var DEFAULT_BASE_URL = "https://api.pionex.com";
 function ask(rl, question, defaultValue = "") {
@@ -2381,7 +2384,9 @@ function ask(rl, question, defaultValue = "") {
 }
 async function cmdOnboard() {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  process.stdout.write("\n  pionex-ai-kit v0.2.x\n");
+  process.stdout.write(`
+  pionex-ai-kit v${version}
+`);
   process.stdout.write("  \u26A0\uFE0F  Security Tips: NEVER send API keys in agent chat. Create a dedicated API Key for your agent. Please test thoroughly before connecting to large real-money accounts.\n");
   process.stdout.write("  \u26A0\uFE0F  \u5B89\u5168\u63D0\u793A\uFF1A\u5207\u52FF\u5728 Agent \u5BF9\u8BDD\u4E2D\u53D1\u9001 API Key\u3002\u8BF7\u4E3A Agent \u521B\u5EFA\u4E13\u7528API Key\u63A5\u5165\uFF0C\u5148\u7528\u5C0F\u91D1\u989D\u5145\u5206\u9A8C\u8BC1\u540E\u518D\u63A5\u5165\u5B9E\u76D8\u3002\n\n");
   process.stdout.write("Pionex CLI \u2014 Configuration Wizard\n\n");
@@ -2580,6 +2585,11 @@ function parseJsonFlag(raw, flagName) {
   }
 }
 async function runPionexCommand(argv) {
+  const firstArg = argv[0];
+  if (firstArg === "-v" || firstArg === "--version") {
+    process.stdout.write(version + "\n");
+    return;
+  }
   const { positionals, flags } = parseFlags(argv);
   const group = positionals[0];
   const command = group === "bot" || group === "earn" ? positionals[2] : positionals[1];
@@ -2980,6 +2990,10 @@ function main() {
   const invokedAs = basename(process.argv[1] || "");
   const cmd = process.argv[2];
   if (invokedAs.includes("pionex-ai-kit")) {
+    if (cmd === "-v" || cmd === "--version") {
+      process.stdout.write(version + "\n");
+      return;
+    }
     if (cmd === "onboard") {
       cmdOnboard().catch((e) => {
         process.stderr.write(String(e) + "\n");

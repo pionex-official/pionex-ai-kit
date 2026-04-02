@@ -2,6 +2,10 @@
 
 import { createInterface } from "node:readline";
 import { basename } from "node:path";
+import { createRequire } from "node:module";
+
+const _require = createRequire(import.meta.url);
+const { version } = _require("../package.json") as { version: string };
 import {
   readFullConfig,
   writeFullConfig,
@@ -29,7 +33,7 @@ function ask(rl: ReturnType<typeof createInterface>, question: string, defaultVa
 async function cmdOnboard(): Promise<void> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
 
-  process.stdout.write("\n  pionex-ai-kit v0.2.x\n");
+  process.stdout.write(`\n  pionex-ai-kit v${version}\n`);
   process.stdout.write("  ⚠️  Security Tips: NEVER send API keys in agent chat. Create a dedicated API Key for your agent. Please test thoroughly before connecting to large real-money accounts.\n");
   process.stdout.write("  ⚠️  安全提示：切勿在 Agent 对话中发送 API Key。请为 Agent 创建专用API Key接入，先用小金额充分验证后再接入实盘。\n\n");
 
@@ -253,6 +257,12 @@ function parseJsonFlag(raw: unknown, flagName: string): Record<string, unknown> 
 }
 
 async function runPionexCommand(argv: string[]): Promise<void> {
+  const firstArg = argv[0];
+  if (firstArg === "-v" || firstArg === "--version") {
+    process.stdout.write(version + "\n");
+    return;
+  }
+
   const { positionals, flags } = parseFlags(argv);
   const group = positionals[0];
   /** For \`bot\` and \`earn\` groups, positionals are: <group> <sub-route> <command> ... */
@@ -709,6 +719,10 @@ function main(): void {
 
   // Backwards-compatible: keep "pionex-ai-kit onboard/setup/help"
   if (invokedAs.includes("pionex-ai-kit")) {
+    if (cmd === "-v" || cmd === "--version") {
+      process.stdout.write(version + "\n");
+      return;
+    }
     if (cmd === "onboard") {
       cmdOnboard().catch((e) => {
         process.stderr.write(String(e) + "\n");

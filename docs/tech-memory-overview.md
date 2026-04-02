@@ -4,7 +4,7 @@ This document records important decisions, lessons learned, and technical knowle
 
 ## Last Updated
 
-**Date:** 2026-04-01
+**Date:** 2026-04-02
 
 ## Project Initialization (Before 2026-03)
 
@@ -127,6 +127,25 @@ This document records important decisions, lessons learned, and technical knowle
 
 5. **Write tools (`invest`, `revoke-invest`, `collect`) all support `--dry-run`**
    - Consistent with orders/bot pattern established in iteration 1
+
+## Iteration 4: CLI Version Flag (2026-04-02)
+
+**Iteration Directory:** `specs/2026040202_cli_version/`
+
+### Key Decisions
+
+1. **Version read via `createRequire(import.meta.url)("../package.json")`**
+   - ESM-compatible, no build config changes needed
+   - Works correctly in local dev (`dist/ → ../package.json`) and when installed globally via npm
+   - Alternative (tsup `define`) rejected: more moving parts for a trivial read
+
+2. **Version check added in both dispatch branches independently**
+   - `main()` `pionex-ai-kit` branch: checks `cmd === "-v" || cmd === "--version"` before existing command dispatch
+   - `runPionexCommand()` `pionex-trade-cli` branch: checks `argv[0]` at the very top, before `parseFlags`
+   - Rationale: the two paths are independent (different argv slices), cleanest to handle each separately
+
+3. **Fixed hardcoded `v0.2.x` in `onboard` banner**
+   - Was a known tech-debt; iteration is the right time to fix it alongside dynamic version reading
 
 ## General Technical Knowledge
 
