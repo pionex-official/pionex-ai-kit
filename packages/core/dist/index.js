@@ -1991,6 +1991,7 @@ function toMcpTool(tool) {
 }
 export {
   CREATE_FUTURES_GRID_ORDER_DATA_KEYS,
+  CREATE_SPOT_GRID_ORDER_DATA_KEYS,
   ConfigError,
   DEFAULT_MODULES,
   MODULES,
@@ -2002,10 +2003,13 @@ export {
   configFilePath,
   createFuturesGridCreateToolInputSchema,
   createFuturesGridOrderDataJsonSchema,
+  createSpotGridCreateToolInputSchema,
+  createSpotGridOrderDataJsonSchema,
   createToolRunner,
   getConfigPath,
   loadConfig,
   parseAndValidateCreateFuturesGridBuOrderData,
+  parseAndValidateCreateSpotGridBuOrderData,
   printSetupUsage,
   readFullConfig,
   readTomlProfile,

@@ -31,3 +31,9 @@ export {
   createFuturesGridCreateToolInputSchema,
   parseAndValidateCreateFuturesGridBuOrderData,
 } from "./schemas/futures-grid-create.js";
+export {
+  CREATE_SPOT_GRID_ORDER_DATA_KEYS,
+  createSpotGridOrderDataJsonSchema,
+  createSpotGridCreateToolInputSchema,
+  parseAndValidateCreateSpotGridBuOrderData,
+} from "./schemas/spot-grid-create.js";

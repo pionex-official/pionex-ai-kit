@@ -2933,6 +2933,13 @@ Examples:
   pionex-trade-cli bot order_list [--status running|finished] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
+  pionex-trade-cli bot spot_grid get --bu-order-id <id>
+  pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT
+  pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":50,"gridType":"arithmetic","quoteTotalInvestment":"100"}'
+  pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <price>] [--bottom <price>] [--row <n>] [--quote-invest <amount>]
+  pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amount>
+  pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT]
+  pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <amount>
   pionex-trade-cli earn dual symbols --base BTC
   pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
   pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-68000-P-USDT
@@ -3164,82 +3171,172 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (!botRoute || botRoute !== "futures_grid") {
+    if (!botRoute || botRoute !== "futures_grid" && botRoute !== "spot_grid") {
       throw new Error(
-        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
+        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ... or bot spot_grid <get|get_ai_strategy|create|adjust_params|invest_in|cancel|profit> ...`
       );
     }
     if (!command) {
       throw new Error(
-        "Missing bot command. Example: pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{...}'"
+        `Missing bot command. Example: pionex-trade-cli bot ${botRoute} create --base BTC --quote USDT --bu-order-data-json '{...}'`
       );
+    }
+    if (botRoute === "futures_grid") {
+      if (command === "get") {
+        const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+        const lang = typeof flags.lang === "string" ? flags.lang : void 0;
+        if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+        const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "create") {
+        const base = typeof flags.base === "string" ? flags.base : void 0;
+        const quote = typeof flags.quote === "string" ? flags.quote : void 0;
+        const copyFrom = typeof flags["copy-from"] === "string" ? flags["copy-from"] : typeof flags.copyFrom === "string" ? flags.copyFrom : void 0;
+        const copyType = typeof flags["copy-type"] === "string" ? flags["copy-type"] : typeof flags.copyType === "string" ? flags.copyType : void 0;
+        const copyBotOrderId = typeof flags["copy-bot-order-id"] === "string" ? flags["copy-bot-order-id"] : typeof flags.copyBotOrderId === "string" ? flags.copyBotOrderId : void 0;
+        const buOrderDataRaw = parseJsonFlag(flags["bu-order-data-json"] ?? flags.buOrderDataJson, "bu-order-data-json");
+        if (!base || !quote) {
+          throw new Error("Missing required flags: --base --quote --bu-order-data-json");
+        }
+        const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
+        const payload = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
+        if (dryRun) {
+          const out2 = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
+          process.stdout.write(JSON.stringify(out2.data, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_create", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "adjust_params") {
+        const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "reduce") {
+        const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_reduce", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "cancel") {
+        const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+        const closeNote = typeof flags["close-note"] === "string" ? flags["close-note"] : typeof flags.closeNote === "string" ? flags.closeNote : void 0;
+        const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
+        const immediate = typeof flags.immediate === "boolean" ? flags.immediate : void 0;
+        const closeSlippage = typeof flags["close-slippage"] === "string" ? flags["close-slippage"] : typeof flags.closeSlippage === "string" ? flags.closeSlippage : void 0;
+        if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+        const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_cancel", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
     }
     if (command === "get") {
       const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
-      const lang = typeof flags.lang === "string" ? flags.lang : void 0;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
+      const out = await runTool("pionex_bot_spot_grid_get_order", { buOrderId });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "get_ai_strategy") {
+      const base = typeof flags.base === "string" ? flags.base : void 0;
+      const quote = typeof flags.quote === "string" ? flags.quote : void 0;
+      if (!base || !quote) throw new Error("Missing required flags: --base --quote");
+      const out = await runTool("pionex_bot_spot_grid_get_ai_strategy", { base, quote });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "create") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       const quote = typeof flags.quote === "string" ? flags.quote : void 0;
-      const copyFrom = typeof flags["copy-from"] === "string" ? flags["copy-from"] : typeof flags.copyFrom === "string" ? flags.copyFrom : void 0;
-      const copyType = typeof flags["copy-type"] === "string" ? flags["copy-type"] : typeof flags.copyType === "string" ? flags.copyType : void 0;
-      const copyBotOrderId = typeof flags["copy-bot-order-id"] === "string" ? flags["copy-bot-order-id"] : typeof flags.copyBotOrderId === "string" ? flags.copyBotOrderId : void 0;
+      const note = typeof flags.note === "string" ? flags.note : void 0;
       const buOrderDataRaw = parseJsonFlag(flags["bu-order-data-json"] ?? flags.buOrderDataJson, "bu-order-data-json");
-      if (!base || !quote) {
-        throw new Error("Missing required flags: --base --quote --bu-order-data-json");
-      }
-      const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
-      const payload = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
+      if (!base || !quote) throw new Error("Missing required flags: --base --quote --bu-order-data-json");
+      const buOrderData = parseAndValidateCreateSpotGridBuOrderData(buOrderDataRaw);
+      const payload = { base, quote, note, buOrderData };
       if (dryRun) {
-        const out2 = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
-        process.stdout.write(JSON.stringify(out2.data, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_create", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_create", payload);
+      const out = await runTool("pionex_bot_spot_grid_create", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "adjust_params") {
-      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+      const top = typeof flags.top === "string" ? flags.top : void 0;
+      const bottom = typeof flags.bottom === "string" ? flags.bottom : void 0;
+      const row = flags.row != null ? Number(flags.row) : void 0;
+      const quoteInvest = typeof flags["quote-invest"] === "string" ? flags["quote-invest"] : typeof flags.quoteInvest === "string" ? flags.quoteInvest : void 0;
+      const payload = { buOrderId, top, bottom, row, quoteInvest };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_adjust_params", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
+      const out = await runTool("pionex_bot_spot_grid_adjust_params", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "reduce") {
-      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+    if (command === "invest_in") {
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      const quoteInvest = typeof flags["quote-invest"] === "string" ? flags["quote-invest"] : typeof flags.quoteInvest === "string" ? flags.quoteInvest : void 0;
+      if (!buOrderId || !quoteInvest) throw new Error("Missing required flags: --bu-order-id --quote-invest");
+      const payload = { buOrderId, quoteInvest };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_invest_in", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_reduce", payload);
+      const out = await runTool("pionex_bot_spot_grid_invest_in", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "cancel") {
       const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
-      const closeNote = typeof flags["close-note"] === "string" ? flags["close-note"] : typeof flags.closeNote === "string" ? flags.closeNote : void 0;
-      const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
-      const immediate = typeof flags.immediate === "boolean" ? flags.immediate : void 0;
-      const closeSlippage = typeof flags["close-slippage"] === "string" ? flags["close-slippage"] : typeof flags.closeSlippage === "string" ? flags.closeSlippage : void 0;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
+      const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
+      const slippage = typeof flags.slippage === "string" ? flags.slippage : void 0;
+      const payload = { buOrderId, closeSellModel, slippage };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_cancel", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_cancel", payload);
+      const out = await runTool("pionex_bot_spot_grid_cancel", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
+    if (command === "profit") {
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      const amount = typeof flags.amount === "string" ? flags.amount : void 0;
+      if (!buOrderId || !amount) throw new Error("Missing required flags: --bu-order-id --amount");
+      const payload = { buOrderId, amount };
+      if (dryRun) {
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_profit", args: payload }, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_spot_grid_profit", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    throw new Error(`Unknown spot_grid command: ${command}. Available: get, get_ai_strategy, create, adjust_params, invest_in, cancel, profit`);
   }
   if (group === "earn") {
     const earnRoute = positionals[1];
