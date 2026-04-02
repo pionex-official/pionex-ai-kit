@@ -142,7 +142,7 @@ pionex-trade-cli earn dual get-invests --base BTC --client-dual-ids my-order-001
 
 ---
 
-### 写操作命令（需要 Earn 权限）
+### 写操作命令（需要`理财`权限）
 
 所有写操作均支持 `--dry-run`，预览请求而不实际执行。
 

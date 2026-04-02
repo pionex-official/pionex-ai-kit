@@ -18,12 +18,12 @@
 | 查询收益率 | `earn dual prices` | 否 |
 | 获取指数价格 | `earn dual index` | 否 |
 | 历史交割价格 | `earn dual delivery-prices` | 否 |
-| 查询我的余额 | `earn dual balances` | 是（View） |
-| 查询我的订单 | `earn dual get-invests` | 是（View） |
-| 投资历史 | `earn dual records` | 是（View） |
-| 创建申购 | `earn dual invest` | 是（Earn） |
-| 撤销申购 | `earn dual revoke-invest` | 是（Earn） |
-| 提取收益 | `earn dual collect` | 是（Earn） |
+| 查询我的余额 | `earn dual balances` | 是（`读取`） |
+| 查询我的订单 | `earn dual get-invests` | 是（`读取`） |
+| 投资历史 | `earn dual records` | 是（`读取`） |
+| 创建申购 | `earn dual invest` | 是（`理财`） |
+| 撤销申购 | `earn dual revoke-invest` | 是（`理财`） |
+| 提取收益 | `earn dual collect` | 是（`理财`） |
 
 ---
 
