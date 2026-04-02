@@ -66,7 +66,7 @@ Spot order placement and management. **Requires API credentials**.
 | `pionex-trade-cli orders all --symbol <s> [--limit <n>]`                                                                  | Read  | Order history                       |
 | `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | Read  | Fill details                        |
 | `pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]`                                                 | Write | Cancel a specific order             |
-| `pionex-trade-cli orders cancel-all --symbol <s> [--dry-run]`                                                             | Write | Cancel all open orders for a symbol |
+| `pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]`                                                             | Write | Cancel all open orders for a symbol |
 
 #### Order Parameters
 
@@ -90,7 +90,7 @@ pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type LIMIT --price 50
 pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123456
 
 # Cancel all open orders for a symbol
-pionex-trade-cli orders cancel-all --symbol BTC_USDT
+pionex-trade-cli orders cancel_all --symbol BTC_USDT
 ```
 
 #### Behavioral Constraints
@@ -101,7 +101,7 @@ Skills encode the following safety rules that the agent must follow during tradi
 2. **Dry-run first**: For any write operation (placing or canceling orders), prefer running with `--dry-run` first, showing the user what will happen, and only executing after confirmation.
 3. **Balance check**: Before placing an order, check the available balance. If funds are insufficient, do not place the order — inform the user and suggest adjusting the amount.
 4. **Minimum order size**: If an order fails due to amount being below the minimum, the agent queries symbol rules (`market symbols`) and suggests a valid size.
-5. **Cancel preview**: Before executing `cancel-all`, list current open orders and show them to the user for confirmation.
+5. **Cancel preview**: Before executing `cancel_all`, list current open orders and show them to the user for confirmation.
 6. **No unilateral risk increase**: The agent will never increase order size or place additional orders without the user's explicit agreement.
 
 #### Trading Flow Example

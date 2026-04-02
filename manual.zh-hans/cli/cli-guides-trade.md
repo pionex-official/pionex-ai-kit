@@ -167,10 +167,10 @@ pionex-trade-cli orders fills --symbol <s> [--startTime <ms>] [--endTime <ms>]
 pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]
 ```
 
-#### orders cancel-all
+#### orders cancel_all
 
 取消交易对的所有挂单。
 
 ```bash
-pionex-trade-cli orders cancel-all --symbol <s> [--dry-run]
+pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]
 ```
