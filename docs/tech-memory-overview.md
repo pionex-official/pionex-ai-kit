@@ -6,6 +6,17 @@ This document records important decisions, lessons learned, and technical knowle
 
 **Date:** 2026-04-02
 
+## Iteration 2026040200: Bot Order List
+
+**Added:** `pionex_bot_order_list` tool in `packages/core/src/tools/bot.ts`
+**Endpoint:** `GET /api/v1/bot/orders`
+**Key decisions:**
+- This is a bot-level endpoint, NOT futures_grid-specific. `buOrderTypes` supports `futures_grid`, `spot_grid`, `smart_copy`. Omitting it returns all types.
+- `buOrderTypes` serialized as comma-joined string since `buildQueryString` uses `URLSearchParams.set` (no repeated keys support). Revisit if API rejects comma format.
+- No default for `buOrderTypes` — tool returns all types when omitted.
+- CLI: `pionex-trade-cli bot order_list` (top-level, NOT under `futures_grid` sub-route).
+- No `--dry-run` needed since this is a read-only (GET) operation.
+
 ## Project Initialization (Before 2026-03)
 
 ### Initial Architecture Decisions

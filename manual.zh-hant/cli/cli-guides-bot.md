@@ -1,5 +1,39 @@
 # 機器人命令
 
+### 機器人訂單列表（需要認證）
+
+#### bot order_list
+
+列出所有類型的機器人訂單，支援可選過濾條件與分頁。
+
+```bash
+pionex-trade-cli bot order_list [--status running|canceled] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
+```
+
+| 參數 | 說明 |
+| --- | --- |
+| `--status` | `running`（預設）或 `canceled` |
+| `--base` | 基礎貨幣過濾（例如 `BTC`） |
+| `--quote` | 計價貨幣過濾（例如 `USDT`） |
+| `--page-token` | 分頁游標（來自上一次回應） |
+| `--bu-order-types` | 逗號分隔的機器人類型：`futures_grid`、`spot_grid`、`smart_copy`。省略則回傳所有類型 |
+
+**範例：**
+
+```bash
+# 列出所有執行中的機器人訂單
+pionex-trade-cli bot order_list
+
+# 僅列出合約網格訂單
+pionex-trade-cli bot order_list --bu-order-types futures_grid
+
+# 列出已取消的 BTC 現貨網格訂單
+pionex-trade-cli bot order_list --status canceled --base BTC --bu-order-types spot_grid
+
+# 翻到下一頁
+pionex-trade-cli bot order_list --page-token <token>
+```
+
 ### 合約網格（需要認證）
 
 #### bot futures_grid get

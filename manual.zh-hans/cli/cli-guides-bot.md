@@ -1,5 +1,39 @@
 # 机器人命令
 
+### 机器人订单列表（需要认证）
+
+#### bot order_list
+
+列出所有类型的机器人订单，支持可选过滤条件和分页。
+
+```bash
+pionex-trade-cli bot order_list [--status running|canceled] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
+```
+
+| 参数 | 描述 |
+| --- | --- |
+| `--status` | `running`（默认）或 `canceled` |
+| `--base` | 基础货币过滤（例如 `BTC`） |
+| `--quote` | 计价货币过滤（例如 `USDT`） |
+| `--page-token` | 分页游标（来自上一次响应） |
+| `--bu-order-types` | 逗号分隔的机器人类型：`futures_grid`、`spot_grid`、`smart_copy`。省略则返回所有类型 |
+
+**示例：**
+
+```bash
+# 列出所有运行中的机器人订单
+pionex-trade-cli bot order_list
+
+# 仅列出合约网格订单
+pionex-trade-cli bot order_list --bu-order-types futures_grid
+
+# 列出已取消的 BTC 现货网格订单
+pionex-trade-cli bot order_list --status canceled --base BTC --bu-order-types spot_grid
+
+# 翻到下一页
+pionex-trade-cli bot order_list --page-token <token>
+```
+
 ### 合约网格（需要认证）
 
 #### bot futures_grid get
