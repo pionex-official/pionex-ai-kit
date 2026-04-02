@@ -150,3 +150,130 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456 --close-sell-model
 # 立即取消
 pionex-trade-cli bot futures_grid cancel --bu-order-id 123456 --immediate
 ```
+
+### 现货网格（需要认证）
+
+#### bot spot_grid get
+
+通过 ID 获取现货网格机器人订单。
+
+```bash
+pionex-trade-cli bot spot_grid get --bu-order-id <id>
+```
+
+```bash
+pionex-trade-cli bot spot_grid get --bu-order-id 123456
+```
+
+#### bot spot_grid get_ai_strategy
+
+获取交易对的 AI 推荐网格参数。
+
+```bash
+pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>
+```
+
+```bash
+pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT
+```
+
+#### bot spot_grid create
+
+创建现货网格机器人订单。
+
+```bash
+pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--note <备注>] [--dry-run]
+```
+
+* `--base`：基础货币（例如 `BTC`）
+* `--quote`：计价货币（例如 `USDT`）
+* `--bu-order-data-json`：包含网格订单参数的 JSON 字符串
+
+**`buOrderData` 中的必需字段：**
+
+| 字段                   | 类型    | 描述                             |
+| ---------------------- | ------- | -------------------------------- |
+| `top`                  | string  | 网格上限价格                     |
+| `bottom`               | string  | 网格下限价格                     |
+| `row`                  | integer | 网格层数（2–200）                |
+| `gridType`             | string  | `"arithmetic"` 或 `"geometric"`  |
+| `quoteTotalInvestment` | string  | 计价货币投资金额                 |
+
+**可选字段：** `lossStopType`、`lossStop`、`lossStopDelay`、`profitStopType`、`profitStop`、`profitStopDelay`、`condition`、`conditionDirection`、`slippage`、`closeSellModel`
+
+**示例：**
+
+```bash
+# 创建 BTC/USDT 现货网格机器人
+pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{
+  "top": "110000",
+  "bottom": "90000",
+  "row": 50,
+  "gridType": "arithmetic",
+  "quoteTotalInvestment": "100"
+}'
+
+# 干运行（仅预览）
+pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":50,"gridType":"arithmetic","quoteTotalInvestment":"100"}' --dry-run
+```
+
+#### bot spot_grid adjust_params
+
+调整现货网格机器人的网格区间或追加投资。
+
+```bash
+pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <价格>] [--bottom <价格>] [--row <层数>] [--quote-invest <金额>]
+```
+
+| 参数              | 描述                         |
+| ----------------- | ---------------------------- |
+| `--bu-order-id`   | 必需；现货网格机器人订单 ID  |
+| `--top`           | 新网格上限价格               |
+| `--bottom`        | 新网格下限价格               |
+| `--row`           | 新网格层数                   |
+| `--quote-invest`  | 追加计价货币投资金额         |
+
+```bash
+# 向运行中的机器人追加 50 USDT
+pionex-trade-cli bot spot_grid adjust_params --bu-order-id 123456 --quote-invest 50
+```
+
+#### bot spot_grid invest_in
+
+向运行中的现货网格机器人追加计价货币投资。
+
+```bash
+pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <金额>
+```
+
+```bash
+pionex-trade-cli bot spot_grid invest_in --bu-order-id 123456 --quote-invest 100
+```
+
+#### bot spot_grid cancel
+
+取消并关闭现货网格机器人订单。
+
+```bash
+pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT] [--slippage <值>] [--dry-run]
+```
+
+```bash
+# 取消并将基础货币卖出为计价货币
+pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+
+# 取消并保留基础货币（默认：NOT_SELL）
+pionex-trade-cli bot spot_grid cancel --bu-order-id 123456
+```
+
+#### bot spot_grid profit
+
+从现货网格机器人提取累积的网格利润。
+
+```bash
+pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <金额>
+```
+
+```bash
+pionex-trade-cli bot spot_grid profit --bu-order-id 123456 --amount 10
+```

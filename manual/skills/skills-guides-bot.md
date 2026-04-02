@@ -72,3 +72,87 @@ Agent execution flow:
 4. Ask user for grid range, number of grids, and leverage (if not specified)
 5. Dry-run preview: `pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
 6. After user confirms, execute the actual create (remove `--dry-run`)
+
+---
+
+### pionex-bot: Spot Grid Bot
+
+Spot grid bot creation and management. **Requires API credentials**.
+
+#### Command Reference
+
+| Command                                                                                                      | Type  | Description                                            |
+| ------------------------------------------------------------------------------------------------------------ | ----- | ------------------------------------------------------ |
+| `pionex-trade-cli bot spot_grid get --bu-order-id <id>`                                                      | Read  | Get a spot grid bot order by ID                        |
+| `pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>`                               | Read  | Get AI-recommended grid parameters for a trading pair  |
+| `pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`          | Write | Create a spot grid bot order                           |
+| `pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <p>] [--bottom <p>] [--row <n>] [--quote-invest <amt>]` | Write | Adjust bot range or add investment      |
+| `pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amount>`                        | Write | Add additional quote investment to a running bot       |
+| `pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]`  | Write | Cancel and close a bot order                           |
+| `pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <amount>`                                 | Write | Extract accumulated grid profit                        |
+
+#### Create Parameters
+
+**Required fields in `buOrderData`:**
+
+* `top` / `bottom`: Grid upper / lower price
+* `row`: Number of grid levels (2–200)
+* `gridType`: `"arithmetic"` or `"geometric"` (camelCase, unlike futures grid)
+* `quoteTotalInvestment`: Investment amount in quote currency
+
+**Key differences from Futures Grid:**
+- No `leverage` or `trend` fields (spot, not futures)
+- `gridType` is camelCase; futures grid uses `grid_type` (snake_case)
+- `quoteTotalInvestment` for create (not `quoteInvestment`)
+- `quoteInvest` for adjust/invest_in
+- Default `closeSellModel` is `NOT_SELL` (futures default is `TO_QUOTE`)
+
+#### Examples
+
+```bash
+# Get AI strategy recommendation
+pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT
+
+# Create a spot grid bot (dry-run first)
+pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{
+  "top": "110000", "bottom": "90000", "row": 50,
+  "gridType": "arithmetic", "quoteTotalInvestment": "100"
+}' --dry-run
+
+# Get bot status
+pionex-trade-cli bot spot_grid get --bu-order-id 123456
+
+# Add investment
+pionex-trade-cli bot spot_grid invest_in --bu-order-id 123456 --quote-invest 50
+
+# Adjust grid range
+pionex-trade-cli bot spot_grid adjust_params --bu-order-id 123456 --top 120000 --bottom 85000
+
+# Extract profit
+pionex-trade-cli bot spot_grid profit --bu-order-id 123456 --amount 10
+
+# Cancel bot
+pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+```
+
+#### Behavioral Constraints
+
+1. **Explicit parameters**: Never guess grid range or investment amount. If unclear, ask the user.
+2. **AI strategy first**: For new bots, offer to call `get_ai_strategy` to get recommended parameters before asking the user to specify manually.
+3. **Dry-run first**: For any write operation (create, adjust, invest_in, cancel, profit), prefer running with `--dry-run` first and only executing after confirmation.
+4. **Balance check**: Before creating a bot, check available quote balance.
+5. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
+6. **No unilateral risk increase**: Never increase investment or grid range without explicit user agreement.
+
+#### Spot Grid Trading Flow Example
+
+User: "Create a BTC spot grid bot with 100 USDT"
+
+Agent execution flow:
+
+1. Check balance: `pionex-trade-cli account balance` → verify available USDT
+2. Get AI strategy: `pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT`
+3. Get current price: `pionex-trade-cli market tickers --symbol BTC_USDT`
+4. Present AI-recommended parameters; ask user to confirm or adjust
+5. Dry-run preview: `pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+6. After user confirms, execute the actual create (remove `--dry-run`)
