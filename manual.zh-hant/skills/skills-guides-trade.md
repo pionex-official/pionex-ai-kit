@@ -12,6 +12,7 @@
 | `pionex-trade-cli market trades <symbol> [--limit <n>]`                             | 最近公開成交記錄；limit 1–100                              |
 | `pionex-trade-cli market symbols [--symbols <list>] [--type SPOT\|PERP]`            | 交易對中繼資料（精度、最小數量）；以逗號分隔 |
 | `pionex-trade-cli market tickers [--symbol <s>] [--type SPOT\|PERP]`                | 24 小時行情：開盤、收盤、最高、最低、成交量                     |
+| `pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT\|PERP]`           | 最優買賣價行情                                               |
 | `pionex-trade-cli market klines <symbol> <interval> [--endTime <ms>] [--limit <n>]` | OHLCV K 線；interval: 1M, 5M, 15M, 30M, 60M, 4H, 8H, 12H, 1D |
 
 #### 範例
@@ -64,9 +65,10 @@ pionex-trade-cli market klines BTC_USDT 4H --limit 24
 | `pionex-trade-cli orders get --symbol <s> --order-id <id>`                                                                | 讀取  | 依 ID 查詢訂單                     |
 | `pionex-trade-cli orders open --symbol <s>`                                                                               | 讀取  | 列出未完成訂單                    |
 | `pionex-trade-cli orders all --symbol <s> [--limit <n>]`                                                                  | 讀取  | 訂單歷史記錄                       |
-| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | 讀取  | 成交明細                        |
+| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | 讀取  | 按時間範圍查詢成交明細          |
+| `pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>`                                                  | 讀取  | 查詢特定訂單的成交明細          |
 | `pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]`                                                 | 寫入 | 取消特定訂單             |
-| `pionex-trade-cli orders cancel-all --symbol <s> [--dry-run]`                                                             | 寫入 | 取消某交易對的所有未完成訂單 |
+| `pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]`                                                             | 寫入 | 取消某交易對的所有未完成訂單 |
 
 #### 訂單參數
 
@@ -90,7 +92,7 @@ pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type LIMIT --price 50
 pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123456
 
 # 取消某交易對的所有未完成訂單
-pionex-trade-cli orders cancel-all --symbol BTC_USDT
+pionex-trade-cli orders cancel_all --symbol BTC_USDT
 ```
 
 #### 行為約束
@@ -101,7 +103,7 @@ Skills 編碼了以下安全規則，Agent 在交易操作期間必須遵守：
 2. **先模擬執行**：對於任何寫入操作（下單或取消訂單），優先以 `--dry-run` 執行，向使用者展示將會發生什麼，確認後再實際執行。
 3. **餘額檢查**：下單前檢查可用餘額。若資金不足，不下單 — 告知使用者並建議調整金額。
 4. **最小下單量**：若訂單因金額低於最小值而失敗，Agent 會查詢交易對規則（`market symbols`）並建議有效的數量。
-5. **取消預覽**：執行 `cancel-all` 前，先列出當前未完成訂單並展示給使用者確認。
+5. **取消預覽**：執行 `cancel_all` 前，先列出當前未完成訂單並展示給使用者確認。
 6. **不單方面增加風險**：Agent 絕不會在未經使用者明確同意的情況下增加訂單數量或追加訂單。
 
 #### 交易流程範例

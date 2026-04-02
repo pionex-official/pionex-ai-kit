@@ -55,9 +55,9 @@ Why: `DELETE /api/v1/earn/dual/invest` uses query params (not body), unlike the 
 | `pionex_earn_dual_prices` | publicGet | `/api/v1/earn/dual/prices` | false | No |
 | `pionex_earn_dual_index` | publicGet | `/api/v1/earn/dual/index` | false | No |
 | `pionex_earn_dual_delivery_prices` | publicGet | `/api/v1/earn/dual/deliveryPrices` | false | No |
-| `pionex_earn_dual_balances` | signedGet | `/api/v1/earn/dual/balances` | false | View |
-| `pionex_earn_dual_get_invests` | signedPost | `/api/v1/earn/dual/invests` | false | View |
-| `pionex_earn_dual_records` | signedGet | `/api/v1/earn/dual/records` | false | View |
+| `pionex_earn_dual_balances` | signedGet | `/api/v1/earn/dual/balances` | false | Enable reading |
+| `pionex_earn_dual_get_invests` | signedPost | `/api/v1/earn/dual/invests` | false | Enable reading |
+| `pionex_earn_dual_records` | signedGet | `/api/v1/earn/dual/records` | false | Enable reading |
 | `pionex_earn_dual_invest` | signedPost | `/api/v1/earn/dual/invest` | **true** | Earn |
 | `pionex_earn_dual_revoke_invest` | signedDeleteQuery | `/api/v1/earn/dual/invest` | **true** | Earn |
 | `pionex_earn_dual_collect` | signedPost | `/api/v1/earn/dual/collect` | **true** | Earn |
@@ -122,10 +122,10 @@ Two changes:
 Examples:
 ```
   pionex-trade-cli earn dual symbols --base BTC
-  pionex-trade-cli earn dual open-products --base BTC --quote USDT --type UP
+  pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
   pionex-trade-cli earn dual prices --base BTC --quote USDT
   pionex-trade-cli earn dual invest --base BTC --product-id BTC-USDT-... --currency-amount 100 --profit 0.0215
-  pionex-trade-cli earn dual revoke-invest --base BTC --client-dual-id my-order-001
+  pionex-trade-cli earn dual revoke_invest --base BTC --client-dual-id my-order-001
   pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
 ```
 
@@ -151,15 +151,15 @@ Command routing in `earn dual`:
 | CLI command | Tool called | Notes |
 |-------------|-------------|-------|
 | `symbols` | `pionex_earn_dual_symbols` | `--base` optional |
-| `open-products` | `pionex_earn_dual_open_products` | `--base`, `--quote`, `--type` required |
+| `open_products` | `pionex_earn_dual_open_products` | `--base`, `--quote`, `--type` required |
 | `prices` | `pionex_earn_dual_prices` | `--base`+`--quote` OR `--product-ids` |
 | `index` | `pionex_earn_dual_index` | `--base`, `--quote` optional |
-| `delivery-prices` | `pionex_earn_dual_delivery_prices` | `--base`, `--quote` optional; `--start-time`, `--end-time` ms |
+| `delivery_prices` | `pionex_earn_dual_delivery_prices` | `--base`, `--quote` optional; `--start-time`, `--end-time` ms |
 | `balances` | `pionex_earn_dual_balances` | `--merge` boolean optional |
-| `get-invests` | `pionex_earn_dual_get_invests` | `--base`, `--client-dual-ids` comma-separated |
+| `get_invests` | `pionex_earn_dual_get_invests` | `--base`, `--client-dual-ids` comma-separated |
 | `records` | `pionex_earn_dual_records` | `--base` required; others optional |
 | `invest` | `pionex_earn_dual_invest` | `--base`, `--product-id`, `--profit` required; `--base-amount` OR `--currency-amount` |
-| `revoke-invest` | `pionex_earn_dual_revoke_invest` | `--dry-run` supported |
+| `revoke_invest` | `pionex_earn_dual_revoke_invest` | `--dry-run` supported |
 | `collect` | `pionex_earn_dual_collect` | `--dry-run` supported |
 
 ## Key Design Decisions

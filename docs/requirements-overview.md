@@ -65,7 +65,7 @@ This document summarizes the requirement history and current status of the Pione
 **Tool Modules:**
 - `earn_dual` module (new):
   - Public: symbols, open_products, prices, index, delivery_prices
-  - View (auth): balances, get_invests, records
+  - Enable reading (auth): balances, get_invests, records
   - Earn/Write (auth): invest, revoke_invest, collect
 
 **CLI:** `pionex-trade-cli earn dual <command>`

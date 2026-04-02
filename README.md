@@ -145,7 +145,7 @@ The agent will follow the `pionex-bot` skill and use the CLI or MCP tools as doc
 
 In your AI client, ask: *"Use the Pionex skills to find BTC Dual Investment products where I invest USDT and receive BTC if the price drops below the strike at expiry — show me the available strikes and their current yields, then invest 100 USDT in the best one."*
 
-The skill will run `pionex-trade-cli earn dual open-products` → `earn dual prices` → `earn dual invest` and present a summary.
+The skill will run `pionex-trade-cli earn dual open_products` → `earn dual prices` → `earn dual invest` and present a summary.
 
 <img src="assets/images/earn-dual-open-products-skill.png" width="75%" />
 
@@ -194,7 +194,7 @@ pionex-trade-cli earn dual symbols --base BTC
 
 # 2. List open products (DUAL_BASE: invest BTC, get USDT if price rises above strike)
 #    (DUAL_CURRENCY: invest USDT, get BTC if price falls below strike)
-pionex-trade-cli earn dual open-products \
+pionex-trade-cli earn dual open_products \
   --base BTC --quote USDXO --currency USDT --type DUAL_CURRENCY
 ```
 

@@ -183,7 +183,7 @@ pionex-trade-cli bot futures_grid create \
 
 ```
 # 查看 BTC DUAL_BASE 开放产品（BTC/ETH 使用 quote=USDXO）
-pionex-trade-cli earn dual open-products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 
 # 申购 100 USDT（先 dry-run）
 pionex-trade-cli earn dual invest \

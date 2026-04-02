@@ -1,6 +1,6 @@
 {
   "name": "@pionex/pionex-ai-kit",
-  "version": "0.2.37",
+  "version": "0.2.39",
   "description": "CLI for Pionex MCP: config init and credentials (writes ~/.pionex/config.toml)",
   "type": "module",
   "license": "MIT",
