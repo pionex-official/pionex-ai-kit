@@ -1241,14 +1241,14 @@ function registerBotTools() {
       name: "pionex_bot_order_list",
       module: "bot",
       isWrite: false,
-      description: "List bot orders with optional filters and pagination. status: 'running' (default) or 'canceled'. buOrderTypes: one or more of futures_grid, spot_grid, smart_copy. Endpoint: GET /api/v1/bot/orders",
+      description: "List bot orders with optional filters and pagination. status: 'running' (default) or 'finished'. buOrderTypes: one or more of futures_grid, spot_grid, smart_copy. Endpoint: GET /api/v1/bot/orders",
       inputSchema: {
         type: "object",
         additionalProperties: false,
         properties: {
           status: {
             type: "string",
-            enum: ["running", "canceled"],
+            enum: ["running", "finished"],
             description: "Filter by order status. Default: 'running'."
           },
           base: { type: "string", description: "Base currency filter (e.g. BTC)." },

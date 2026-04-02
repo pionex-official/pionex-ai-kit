@@ -2,7 +2,7 @@
 
 ## Background
 
-The bot module currently supports single-order lookup (`pionex_bot_futures_grid_get_order`), but has no way to list or paginate through all futures grid bot orders. Users need to be able to query running/canceled orders in bulk, filter by symbol, and paginate through results.
+The bot module currently supports single-order lookup (`pionex_bot_futures_grid_get_order`), but has no way to list or paginate through all futures grid bot orders. Users need to be able to query running/finished orders in bulk, filter by symbol, and paginate through results.
 
 ## Source
 
@@ -17,13 +17,13 @@ The bot module currently supports single-order lookup (`pionex_bot_futures_grid_
 1. **New MCP tool** `pionex_bot_futures_grid_order_list` that calls `GET /api/v1/bot/orders`
 2. **New CLI command** `pionex-trade-cli bot futures_grid list` wrapping the tool
 3. **Pagination support** via `pageToken` / `nextPageToken` / `previousPageToken`
-4. **Filter support**: status (running/canceled), base, quote, buOrderTypes
+4. **Filter support**: status (running/finished), base, quote, buOrderTypes
 
 ### Parameters
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `status` | string | No | `"running"` | `"running"` or `"canceled"` |
+| `status` | string | No | `"running"` | `"running"` or `"finished"` |
 | `base` | string | No | — | Base currency filter (e.g. `BTC`) |
 | `quote` | string | No | — | Quote currency filter (e.g. `USDT`) |
 | `pageToken` | string | No | — | Pagination cursor from previous response |

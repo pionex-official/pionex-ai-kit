@@ -264,7 +264,7 @@ export function registerBotTools(): ToolSpec[] {
       isWrite: false,
       description:
         "List bot orders with optional filters and pagination. " +
-        "status: 'running' (default) or 'canceled'. " +
+        "status: 'running' (default) or 'finished'. " +
         "buOrderTypes: one or more of futures_grid, spot_grid, smart_copy. " +
         "Endpoint: GET /api/v1/bot/orders",
       inputSchema: {
@@ -273,7 +273,7 @@ export function registerBotTools(): ToolSpec[] {
         properties: {
           status: {
             type: "string",
-            enum: ["running", "canceled"],
+            enum: ["running", "finished"],
             description: "Filter by order status. Default: 'running'.",
           },
           base: { type: "string", description: "Base currency filter (e.g. BTC)." },
