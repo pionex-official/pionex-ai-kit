@@ -4,7 +4,7 @@ This document summarizes the requirement history and current status of the Pione
 
 ## Current Status
 
-**Last Updated:** 2026-04-01
+**Last Updated:** 2026-04-02
 
 ### Core Features
 
@@ -68,6 +68,10 @@ This document summarizes the requirement history and current status of the Pione
   - Earn/Write (auth): invest, revoke_invest, collect
 
 **CLI:** `pionex-trade-cli earn dual <command>`
+
+#### 6. CLI Version Flag (`pionex-ai-kit -v` / `pionex-trade-cli -v`)
+**Status:** Planning (iteration `2026040202_cli_version`)
+**Description:** Add `-v`/`--version` flag to both CLI entry points so users can quickly verify the installed version. Also fixes the hardcoded `v0.2.x` banner in the `onboard` command.
 
 ## Future Plans
 
