@@ -1,5 +1,39 @@
 # Bot Commands
 
+### Bot Order List (Auth Required)
+
+#### bot order_list
+
+List bot orders across all bot types, with optional filters and pagination.
+
+```bash
+pionex-trade-cli bot order_list [--status running|canceled] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]
+```
+
+| Flag | Description |
+| --- | --- |
+| `--status` | `running` (default) or `canceled` |
+| `--base` | Base currency filter (e.g. `BTC`) |
+| `--quote` | Quote currency filter (e.g. `USDT`) |
+| `--page-token` | Pagination token from a previous response |
+| `--bu-order-types` | Comma-separated bot types: `futures_grid`, `spot_grid`, `smart_copy`. Omit to return all types. |
+
+**Examples:**
+
+```bash
+# List all running bot orders
+pionex-trade-cli bot order_list
+
+# List only futures_grid orders
+pionex-trade-cli bot order_list --bu-order-types futures_grid
+
+# List canceled BTC spot_grid orders
+pionex-trade-cli bot order_list --status canceled --base BTC --bu-order-types spot_grid
+
+# Paginate to next page
+pionex-trade-cli bot order_list --page-token <token>
+```
+
 ### Futures Grid (Auth Required)
 
 #### bot futures_grid get

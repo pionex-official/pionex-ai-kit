@@ -1,5 +1,11 @@
 # Bot Tools
 
+### Bot Orders (API Key Required)
+
+| Tool                                         | Description                                          |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `pionex_bot_order_list`                      | List bot orders with filters and pagination (supports futures_grid / spot_grid / smart_copy) |
+
 ### Futures Grid (API Key Required)
 
 | Tool                                         | Description                                          |

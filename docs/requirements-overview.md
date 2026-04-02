@@ -20,7 +20,8 @@ This document summarizes the requirement history and current status of the Pione
 - ✅ Orders module (spot orders, authentication required)
   - new_order, get_order, cancel_order, get_fills, get_fills_by_order_id, etc.
 - ✅ Bot module (futures grid bot, authentication required)
-  - futures_grid_create, get_order, adjust_params, reduce, cancel
+  - futures_grid_create, futures_grid_get_order, adjust_params, reduce, cancel
+  - order_list (cross-type: futures_grid / spot_grid / smart_copy)
 
 #### 2. CLI Tool (`@pionex/pionex-ai-kit`)
 **Status:** Completed
@@ -68,6 +69,15 @@ This document summarizes the requirement history and current status of the Pione
   - Earn/Write (auth): invest, revoke_invest, collect
 
 **CLI:** `pionex-trade-cli earn dual <command>`
+
+#### 7. Bot Futures Grid Order List (`pionex_bot_futures_grid_order_list`)
+**Status:** Completed (iteration `2026040200_bot_order_list`)
+**Description:** Adds `order_list` tool to the bot module. Lists futures grid bot orders with filtering and pagination via `GET /api/v1/bot/orders`.
+
+**New Tool:**
+- `pionex_bot_order_list` — list bot orders (cross-type: futures_grid / spot_grid / smart_copy) with optional base/quote/pageToken/buOrderTypes filters
+
+**CLI:** `pionex-trade-cli bot order_list`
 
 #### 6. CLI Version Flag (`pionex-ai-kit -v` / `pionex-trade-cli -v`)
 **Status:** Planning (iteration `2026040202_cli_version`)

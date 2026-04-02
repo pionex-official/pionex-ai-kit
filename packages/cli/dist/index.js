@@ -2041,6 +2041,43 @@ function registerBotTools() {
       }
     },
     {
+      name: "pionex_bot_order_list",
+      module: "bot",
+      isWrite: false,
+      description: "List bot orders with optional filters and pagination. status: 'running' (default) or 'canceled'. buOrderTypes: one or more of futures_grid, spot_grid, smart_copy. Endpoint: GET /api/v1/bot/orders",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          status: {
+            type: "string",
+            enum: ["running", "canceled"],
+            description: "Filter by order status. Default: 'running'."
+          },
+          base: { type: "string", description: "Base currency filter (e.g. BTC)." },
+          quote: { type: "string", description: "Quote currency filter (e.g. USDT)." },
+          pageToken: { type: "string", description: "Pagination token from a previous response." },
+          buOrderTypes: {
+            type: "array",
+            items: { type: "string", enum: ["futures_grid", "spot_grid", "smart_copy"] },
+            description: "Bot type filter: futures_grid, spot_grid, smart_copy. Omit to return all types."
+          }
+        },
+        required: []
+      },
+      async handler(args, { client }) {
+        const q = {};
+        if (args.status != null) q.status = String(args.status);
+        if (args.base != null) q.base = String(args.base);
+        if (args.quote != null) q.quote = String(args.quote);
+        if (args.pageToken != null) q.pageToken = String(args.pageToken);
+        if (Array.isArray(args.buOrderTypes) && args.buOrderTypes.length > 0) {
+          q.buOrderTypes = args.buOrderTypes.join(",");
+        }
+        return (await client.signedGet("/api/v1/bot/orders", q)).data;
+      }
+    },
+    {
       name: "pionex_bot_futures_grid_cancel",
       module: "bot",
       isWrite: true,
@@ -2537,6 +2574,7 @@ Examples:
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
   pionex-trade-cli orders fills-by-order-id --symbol BTC_USDT --order-id 123
+  pionex-trade-cli bot order_list [--status running|canceled] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
   pionex-trade-cli earn dual symbols --base BTC
@@ -2753,9 +2791,26 @@ async function runPionexCommand(argv) {
   }
   if (group === "bot") {
     const botRoute = positionals[1];
+    if (botRoute === "order_list") {
+      const status = typeof flags.status === "string" ? flags.status : void 0;
+      const base = typeof flags.base === "string" ? flags.base : void 0;
+      const quote = typeof flags.quote === "string" ? flags.quote : void 0;
+      const pageToken = typeof flags["page-token"] === "string" ? flags["page-token"] : typeof flags.pageToken === "string" ? flags.pageToken : void 0;
+      const buOrderTypesRaw = typeof flags["bu-order-types"] === "string" ? flags["bu-order-types"] : typeof flags.buOrderTypes === "string" ? flags.buOrderTypes : void 0;
+      const buOrderTypes = buOrderTypesRaw ? buOrderTypesRaw.split(",").map((s) => s.trim()) : void 0;
+      const out = await runTool("pionex_bot_order_list", {
+        status,
+        base,
+        quote,
+        pageToken,
+        buOrderTypes
+      });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
     if (!botRoute || botRoute !== "futures_grid") {
       throw new Error(
-        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
+        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
       );
     }
     if (!command) {
@@ -2828,7 +2883,7 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    throw new Error(`Unknown futures_grid command: ${command}`);
+    throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
   }
   if (group === "earn") {
     const earnRoute = positionals[1];

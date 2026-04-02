@@ -259,6 +259,47 @@ export function registerBotTools(): ToolSpec[] {
       },
     },
     {
+      name: "pionex_bot_order_list",
+      module: "bot",
+      isWrite: false,
+      description:
+        "List bot orders with optional filters and pagination. " +
+        "status: 'running' (default) or 'canceled'. " +
+        "buOrderTypes: one or more of futures_grid, spot_grid, smart_copy. " +
+        "Endpoint: GET /api/v1/bot/orders",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          status: {
+            type: "string",
+            enum: ["running", "canceled"],
+            description: "Filter by order status. Default: 'running'.",
+          },
+          base: { type: "string", description: "Base currency filter (e.g. BTC)." },
+          quote: { type: "string", description: "Quote currency filter (e.g. USDT)." },
+          pageToken: { type: "string", description: "Pagination token from a previous response." },
+          buOrderTypes: {
+            type: "array",
+            items: { type: "string", enum: ["futures_grid", "spot_grid", "smart_copy"] },
+            description: "Bot type filter: futures_grid, spot_grid, smart_copy. Omit to return all types.",
+          },
+        },
+        required: [],
+      },
+      async handler(args, { client }) {
+        const q: QueryParams = {};
+        if (args.status != null) q.status = String(args.status);
+        if (args.base != null) q.base = String(args.base);
+        if (args.quote != null) q.quote = String(args.quote);
+        if (args.pageToken != null) q.pageToken = String(args.pageToken);
+        if (Array.isArray(args.buOrderTypes) && (args.buOrderTypes as string[]).length > 0) {
+          q.buOrderTypes = (args.buOrderTypes as string[]).join(",");
+        }
+        return (await client.signedGet("/api/v1/bot/orders", q)).data;
+      },
+    },
+    {
       name: "pionex_bot_futures_grid_cancel",
       module: "bot",
       isWrite: true,
