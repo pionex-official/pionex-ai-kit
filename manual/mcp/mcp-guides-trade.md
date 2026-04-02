@@ -8,6 +8,7 @@
 | `pionex_market_get_trades`      | Recent trade history                            |
 | `pionex_market_get_symbol_info` | Symbol metadata (precision, minimum size, etc.) |
 | `pionex_market_get_tickers`     | 24h ticker (open, close, high, low, volume)     |
+| `pionex_market_get_book_tickers` | Best bid/ask ticker(s)                         |
 | `pionex_market_get_klines`      | OHLCV candlestick data                          |
 
 ### Account Tools (API Key Required)
@@ -27,4 +28,5 @@
 | `pionex_orders_get_all_orders`               | List order history                  |
 | `pionex_orders_cancel_order`                 | Cancel a specific order             |
 | `pionex_orders_cancel_all_orders`            | Cancel all open orders for a symbol |
-| `pionex_orders_get_fills`                    | Query fill details                  |
+| `pionex_orders_get_fills`                    | Query fill details by time range    |
+| `pionex_orders_get_fills_by_order_id`        | Query fills for a specific order    |

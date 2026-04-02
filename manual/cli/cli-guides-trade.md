@@ -75,6 +75,19 @@ pionex-trade-cli market klines BTC_USDT 60M --limit 24
 pionex-trade-cli market klines BTC_USDT 1D
 ```
 
+#### market book_tickers
+
+Get best bid/ask ticker(s).
+
+```bash
+pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT|PERP]
+```
+
+```bash
+pionex-trade-cli market book_tickers --symbol BTC_USDT
+pionex-trade-cli market book_tickers --type SPOT
+```
+
 ---
 
 ### Account Commands (Auth Required)
@@ -153,10 +166,22 @@ pionex-trade-cli orders all --symbol <s> [--limit <n>]
 
 #### orders fills
 
-Query fill (execution) details.
+Query fill (execution) details by time range.
 
 ```bash
 pionex-trade-cli orders fills --symbol <s> [--startTime <ms>] [--endTime <ms>]
+```
+
+#### orders fills_by_order_id
+
+Query fills for a specific order.
+
+```bash
+pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>
+```
+
+```bash
+pionex-trade-cli orders fills_by_order_id --symbol BTC_USDT --order-id 123456
 ```
 
 #### orders cancel

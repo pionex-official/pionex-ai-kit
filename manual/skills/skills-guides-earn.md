@@ -35,18 +35,18 @@ The `pionex-earn-dual` skill guides AI agents through Dual Investment operations
 # What pairs are available?
 pionex-trade-cli earn dual symbols --base BTC
 
-# What UP products are open for BTC/USDT?
-pionex-trade-cli earn dual open_products --base BTC --quote USDT --type UP
+# What DUAL_BASE products are open for BTC? (BTC/ETH use USDXO; others use USDT)
+pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
 ```
 
 #### Step 2 — Check current yield rates
 
 ```bash
-# Check yield for all BTC/USDT products
-pionex-trade-cli earn dual prices --base BTC --quote USDT
+# Check yield for specific product IDs (--product-ids is required)
+pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-70000-C-USDT
 
-# Check the real-time BTC index price
-pionex-trade-cli earn dual index --base BTC --quote USDT
+# Check the real-time BTC index price (BTC/ETH use USDXO)
+pionex-trade-cli earn dual index --base BTC --quote USDXO
 ```
 
 #### Step 3 — Check available balance
@@ -61,7 +61,7 @@ pionex-trade-cli earn dual balances
 # Preview
 pionex-trade-cli earn dual invest \
   --base BTC \
-  --product-id BTC-USDT-260402-70000-C-USDT \
+  --product-id BTC-USDXO-260402-70000-C-USDT \
   --client-dual-id my-order-001 \
   --currency-amount 100 \
   --profit 0.0215 \
@@ -70,7 +70,7 @@ pionex-trade-cli earn dual invest \
 # Execute
 pionex-trade-cli earn dual invest \
   --base BTC \
-  --product-id BTC-USDT-260402-70000-C-USDT \
+  --product-id BTC-USDXO-260402-70000-C-USDT \
   --client-dual-id my-order-001 \
   --currency-amount 100 \
   --profit 0.0215
@@ -79,7 +79,10 @@ pionex-trade-cli earn dual invest \
 #### Step 5 — Collect settled earnings
 
 ```bash
-pionex-trade-cli earn dual collect --base BTC --client-dual-id my-order-001
+pionex-trade-cli earn dual collect \
+  --base BTC \
+  --client-dual-id my-order-001 \
+  --product-id BTC-USDXO-260402-70000-C-USDT
 ```
 
 ---

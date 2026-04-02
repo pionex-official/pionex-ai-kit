@@ -12,6 +12,7 @@
 | `pionex-trade-cli market trades <symbol> [--limit <n>]`                         | 最近的公开成交记录；limit 1–100                          |
 | `pionex-trade-cli market symbols [--symbols <list>] [--type SPOT\|PERP]`        | 交易对元数据（精度、最小下单量）；逗号分隔的交易对列表        |
 | `pionex-trade-cli market tickers [--symbol <s>] [--type SPOT\|PERP]`            | 24h 行情：开盘、收盘、最高、最低、成交量                   |
+| `pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT\|PERP]`       | 最优买卖价行情                                           |
 | `pionex-trade-cli market klines <symbol> <interval> [--endTime <ms>] [--limit <n>]` | OHLCV K线；interval: 1M, 5M, 15M, 30M, 60M, 4H, 8H, 12H, 1D |
 
 #### 示例
@@ -64,7 +65,8 @@ pionex-trade-cli market klines BTC_USDT 4H --limit 24
 | `pionex-trade-cli orders get --symbol <s> --order-id <id>`                                                            | 读操作 | 根据 ID 获取订单         |
 | `pionex-trade-cli orders open --symbol <s>`                                                                           | 读操作 | 列出未完成订单           |
 | `pionex-trade-cli orders all --symbol <s> [--limit <n>]`                                                              | 读操作 | 订单历史记录             |
-| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                | 读操作 | 成交明细                |
+| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                | 读操作 | 按时间范围查询成交明细    |
+| `pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>`                                              | 读操作 | 查询特定订单的成交明细    |
 | `pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]`                                             | 写操作 | 取消指定订单             |
 | `pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]`                                                         | 写操作 | 取消交易对的所有未完成订单 |
 

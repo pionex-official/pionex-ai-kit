@@ -12,6 +12,7 @@ All commands are read-only and **do not require API credentials**.
 | `pionex-trade-cli market trades <symbol> [--limit <n>]`                             | Recent public trades; limit 1–100                              |
 | `pionex-trade-cli market symbols [--symbols <list>] [--type SPOT\|PERP]`            | Symbol metadata (precision, min size); comma-separated symbols |
 | `pionex-trade-cli market tickers [--symbol <s>] [--type SPOT\|PERP]`                | 24h ticker: open, close, high, low, volume                     |
+| `pionex-trade-cli market book_tickers [--symbol <s>] [--type SPOT\|PERP]`           | Best bid/ask ticker(s)                                         |
 | `pionex-trade-cli market klines <symbol> <interval> [--endTime <ms>] [--limit <n>]` | OHLCV klines; interval: 1M, 5M, 15M, 30M, 60M, 4H, 8H, 12H, 1D |
 
 #### Examples
@@ -64,7 +65,8 @@ Spot order placement and management. **Requires API credentials**.
 | `pionex-trade-cli orders get --symbol <s> --order-id <id>`                                                                | Read  | Get order by ID                     |
 | `pionex-trade-cli orders open --symbol <s>`                                                                               | Read  | List open orders                    |
 | `pionex-trade-cli orders all --symbol <s> [--limit <n>]`                                                                  | Read  | Order history                       |
-| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | Read  | Fill details                        |
+| `pionex-trade-cli orders fills --symbol <s> [--startTime] [--endTime]`                                                    | Read  | Fill details by time range          |
+| `pionex-trade-cli orders fills_by_order_id --symbol <s> --order-id <id>`                                                  | Read  | Fills for a specific order          |
 | `pionex-trade-cli orders cancel --symbol <s> --order-id <id> [--dry-run]`                                                 | Write | Cancel a specific order             |
 | `pionex-trade-cli orders cancel_all --symbol <s> [--dry-run]`                                                             | Write | Cancel all open orders for a symbol |
 
