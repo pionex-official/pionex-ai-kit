@@ -207,6 +207,7 @@ Examples:
   pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 10
   pionex-trade-cli orders cancel --symbol BTC_USDT --order-id 123
   pionex-trade-cli orders fills_by_order_id --symbol BTC_USDT --order-id 123
+  pionex-trade-cli bot order_list [--status running|finished] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
   pionex-trade-cli earn dual symbols --base BTC
@@ -439,9 +440,41 @@ async function runPionexCommand(argv: string[]): Promise<void> {
   // bot
   if (group === "bot") {
     const botRoute = positionals[1];
+
+    // bot order_list — top-level bot command (not under a sub-route)
+    if (botRoute === "order_list") {
+      const status = typeof flags.status === "string" ? flags.status : undefined;
+      const base = typeof flags.base === "string" ? flags.base : undefined;
+      const quote = typeof flags.quote === "string" ? flags.quote : undefined;
+      const pageToken =
+        typeof flags["page-token"] === "string"
+          ? (flags["page-token"] as string)
+          : typeof flags.pageToken === "string"
+            ? (flags.pageToken as string)
+            : undefined;
+      const buOrderTypesRaw =
+        typeof flags["bu-order-types"] === "string"
+          ? (flags["bu-order-types"] as string)
+          : typeof flags.buOrderTypes === "string"
+            ? (flags.buOrderTypes as string)
+            : undefined;
+      const buOrderTypes = buOrderTypesRaw
+        ? buOrderTypesRaw.split(",").map((s) => s.trim())
+        : undefined;
+      const out = await runTool("pionex_bot_order_list", {
+        status,
+        base,
+        quote,
+        pageToken,
+        buOrderTypes,
+      });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+
     if (!botRoute || botRoute !== "futures_grid") {
       throw new Error(
-        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
+        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
       );
     }
     if (!command) {
@@ -539,7 +572,7 @@ async function runPionexCommand(argv: string[]): Promise<void> {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    throw new Error(`Unknown futures_grid command: ${command}`);
+    throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
   }
 
   // earn
