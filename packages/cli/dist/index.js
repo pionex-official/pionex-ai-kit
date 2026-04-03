@@ -1804,6 +1804,24 @@ var createFuturesGridCreateToolInputSchema = {
     __dryRun: { type: "boolean", description: "Internal: when true, return resolved body without POST" }
   }
 };
+var CREATE_SPOT_GRID_ORDER_DATA_KEYS = [
+  "top",
+  "bottom",
+  "row",
+  "gridType",
+  "quoteTotalInvestment",
+  "lossStopType",
+  "lossStop",
+  "lossStopDelay",
+  "profitStopType",
+  "profitStop",
+  "profitStopDelay",
+  "condition",
+  "conditionDirection",
+  "slippage",
+  "closeSellModel"
+];
+var ORDER_DATA_KEY_SET2 = new Set(CREATE_SPOT_GRID_ORDER_DATA_KEYS);
 function asNonEmptyString2(value, field) {
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new Error(`Invalid "${field}": expected non-empty string.`);
@@ -1828,13 +1846,181 @@ function asPositiveInteger2(value, field) {
   }
   return n;
 }
+function asNonNegativeInteger(value, field) {
+  const n = asFiniteNumber2(value, field);
+  if (n < 0 || !Number.isInteger(n)) {
+    throw new Error(`Invalid "${field}": expected non-negative integer.`);
+  }
+  return n;
+}
+function assertEnum2(value, field, allowed) {
+  if (!allowed.includes(value)) {
+    throw new Error(`Invalid "${field}": expected one of ${allowed.join(", ")}.`);
+  }
+}
+function asPositiveDecimalStringLoose2(value, field) {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return String(value);
+  }
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  const s = value.trim();
+  if (!/^\d+(\.\d+)?$/.test(s)) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  const n = Number(s);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`Invalid "${field}": expected positive decimal string.`);
+  }
+  return s;
+}
+function asOptionalString2(value, field) {
+  if (typeof value !== "string") {
+    throw new Error(`Invalid "${field}": expected string.`);
+  }
+  return value;
+}
+function parseAndValidateCreateSpotGridBuOrderData(raw) {
+  const data = { ...raw };
+  for (const k of Object.keys(data)) {
+    if (!ORDER_DATA_KEY_SET2.has(k)) {
+      throw new Error(`Unknown buOrderData property "${k}". Allowed keys: ${CREATE_SPOT_GRID_ORDER_DATA_KEYS.join(", ")}.`);
+    }
+  }
+  const top = asPositiveDecimalStringLoose2(data.top, "buOrderData.top");
+  const bottom = asPositiveDecimalStringLoose2(data.bottom, "buOrderData.bottom");
+  if (Number(top) <= Number(bottom)) {
+    throw new Error('Invalid "buOrderData.top": expected top > bottom.');
+  }
+  const row = asPositiveInteger2(data.row, "buOrderData.row");
+  if (row < 2 || row > 200) {
+    throw new Error('Invalid "buOrderData.row": expected integer between 2 and 200.');
+  }
+  const gridType = asNonEmptyString2(data.gridType, "buOrderData.gridType");
+  assertEnum2(gridType, "buOrderData.gridType", ["arithmetic", "geometric"]);
+  const quoteTotalInvestment = asPositiveDecimalStringLoose2(data.quoteTotalInvestment, "buOrderData.quoteTotalInvestment");
+  const out = {
+    top,
+    bottom,
+    row,
+    gridType,
+    quoteTotalInvestment
+  };
+  if (data.lossStopType != null) {
+    const v = asNonEmptyString2(data.lossStopType, "buOrderData.lossStopType");
+    assertEnum2(v, "buOrderData.lossStopType", ["price", "profit_amount", "profit_ratio"]);
+    out.lossStopType = v;
+  }
+  if (data.lossStop != null) out.lossStop = asOptionalString2(data.lossStop, "buOrderData.lossStop");
+  if (data.lossStopDelay != null) out.lossStopDelay = asNonNegativeInteger(data.lossStopDelay, "buOrderData.lossStopDelay");
+  if (data.profitStopType != null) {
+    const v = asNonEmptyString2(data.profitStopType, "buOrderData.profitStopType");
+    assertEnum2(v, "buOrderData.profitStopType", ["price", "profit_amount", "profit_ratio"]);
+    out.profitStopType = v;
+  }
+  if (data.profitStop != null) out.profitStop = asOptionalString2(data.profitStop, "buOrderData.profitStop");
+  if (data.profitStopDelay != null) out.profitStopDelay = asNonNegativeInteger(data.profitStopDelay, "buOrderData.profitStopDelay");
+  if (data.condition != null) out.condition = asOptionalString2(data.condition, "buOrderData.condition");
+  if (data.conditionDirection != null) {
+    const v = asNonEmptyString2(data.conditionDirection, "buOrderData.conditionDirection");
+    assertEnum2(v, "buOrderData.conditionDirection", ["-1", "1"]);
+    out.conditionDirection = v;
+  }
+  if (data.slippage != null) out.slippage = asOptionalString2(data.slippage, "buOrderData.slippage");
+  if (data.closeSellModel != null) {
+    const v = asNonEmptyString2(data.closeSellModel, "buOrderData.closeSellModel");
+    assertEnum2(v, "buOrderData.closeSellModel", ["NOT_SELL", "TO_QUOTE", "TO_USDT"]);
+    out.closeSellModel = v;
+  }
+  return out;
+}
+var createSpotGridOrderDataJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  description: "CreateSpotGridOrderData (openapi_bot.yaml PR #7). Required: top, bottom, row, gridType, quoteTotalInvestment.",
+  required: ["top", "bottom", "row", "gridType", "quoteTotalInvestment"],
+  properties: {
+    top: { type: "string", description: "Grid upper price" },
+    bottom: { type: "string", description: "Grid lower price" },
+    row: { type: "number", description: "Number of grid levels (2\u2013200)" },
+    gridType: {
+      type: "string",
+      enum: ["arithmetic", "geometric"],
+      description: "Grid spacing: arithmetic (equal difference) or geometric (equal ratio)"
+    },
+    quoteTotalInvestment: { type: "string", description: "Total quote currency investment amount" },
+    lossStopType: {
+      type: "string",
+      enum: ["price", "profit_amount", "profit_ratio"],
+      description: "Stop loss type"
+    },
+    lossStop: { type: "string", description: "Stop loss threshold value" },
+    lossStopDelay: { type: "number", description: "Seconds before executing stop loss (0=immediate)" },
+    profitStopType: {
+      type: "string",
+      enum: ["price", "profit_amount", "profit_ratio"],
+      description: "Take profit type"
+    },
+    profitStop: { type: "string", description: "Take profit threshold value" },
+    profitStopDelay: { type: "number", description: "Seconds before executing take profit (0=immediate)" },
+    condition: { type: "string", description: "Trigger price for conditional start" },
+    conditionDirection: {
+      type: "string",
+      enum: ["-1", "1"],
+      description: 'Trigger direction: "-1" drop below, "1" rise above'
+    },
+    slippage: { type: "string", description: "Slippage tolerance e.g. 0.01 = 1%" },
+    closeSellModel: {
+      type: "string",
+      enum: ["NOT_SELL", "TO_QUOTE", "TO_USDT"],
+      description: "Close sell model (default: NOT_SELL)"
+    }
+  }
+};
+var createSpotGridCreateToolInputSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["base", "quote", "buOrderData"],
+  properties: {
+    base: { type: "string", description: "Base currency (e.g. BTC)" },
+    quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+    note: { type: "string", description: "Optional order note" },
+    buOrderData: createSpotGridOrderDataJsonSchema,
+    __dryRun: { type: "boolean", description: "Internal: when true, return resolved body without POST" }
+  }
+};
+function asNonEmptyString3(value, field) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Invalid "${field}": expected non-empty string.`);
+  }
+  return value.trim();
+}
+function asFiniteNumber3(value, field) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`Invalid "${field}": expected finite number.`);
+  }
+  return value;
+}
+function asPositiveNumber3(value, field) {
+  const n = asFiniteNumber3(value, field);
+  if (n <= 0) throw new Error(`Invalid "${field}": expected number > 0.`);
+  return n;
+}
+function asPositiveInteger3(value, field) {
+  const n = asPositiveNumber3(value, field);
+  if (!Number.isInteger(n)) {
+    throw new Error(`Invalid "${field}": expected positive integer.`);
+  }
+  return n;
+}
 function asBoolean2(value, field) {
   if (typeof value !== "boolean") {
     throw new Error(`Invalid "${field}": expected boolean.`);
   }
   return value;
 }
-function assertEnum2(value, field, allowed) {
+function assertEnum3(value, field, allowed) {
   if (!allowed.includes(value)) {
     throw new Error(`Invalid "${field}": expected one of ${allowed.join(", ")}.`);
   }
@@ -1846,7 +2032,7 @@ function asObject(value, field) {
   return value;
 }
 function asPositiveDecimalString2(value, field) {
-  const s = asNonEmptyString2(value, field);
+  const s = asNonEmptyString3(value, field);
   if (!/^\d+(\.\d+)?$/.test(s)) {
     throw new Error(`Invalid "${field}": expected positive decimal string.`);
   }
@@ -1892,9 +2078,9 @@ function registerBotTools() {
         if (config.readOnly) {
           throw new Error("Server is running in --read-only mode; bot futures_grid create is disabled.");
         }
-        const rawBase = asNonEmptyString2(args.base, "base");
+        const rawBase = asNonEmptyString3(args.base, "base");
         const base = normalizePerpBase(rawBase);
-        const quote = asNonEmptyString2(args.quote, "quote");
+        const quote = asNonEmptyString3(args.quote, "quote");
         const buOrderDataOut = parseAndValidateCreateFuturesGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
         const row = buOrderDataOut.row;
         const gridType = buOrderDataOut.grid_type;
@@ -1954,12 +2140,12 @@ function registerBotTools() {
         if (config.readOnly) {
           throw new Error("Server is running in --read-only mode; bot futures_grid adjust_params is disabled.");
         }
-        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
-        const type = asNonEmptyString2(args.type, "type");
-        assertEnum2(type, "type", ["invest_in", "adjust_params", "invest_in_trigger"]);
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const type = asNonEmptyString3(args.type, "type");
+        assertEnum3(type, "type", ["invest_in", "adjust_params", "invest_in_trigger"]);
         const extraMargin = asBoolean2(args.extraMargin, "extraMargin");
         if (type === "invest_in" && args.quoteInvestment != null) {
-          asPositiveNumber2(args.quoteInvestment, "quoteInvestment");
+          asPositiveNumber3(args.quoteInvestment, "quoteInvestment");
         }
         if (type === "adjust_params") {
           const bottom = asPositiveDecimalString2(args.bottom, "bottom");
@@ -1967,35 +2153,35 @@ function registerBotTools() {
           if (Number(top) <= Number(bottom)) {
             throw new Error('Invalid "top": expected top > bottom.');
           }
-          asPositiveInteger2(args.row, "row");
+          asPositiveInteger3(args.row, "row");
         }
         if (type === "invest_in_trigger") {
           asPositiveDecimalString2(args.condition, "condition");
-          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
-          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+          const conditionDirection = asNonEmptyString3(args.conditionDirection, "conditionDirection");
+          assertEnum3(conditionDirection, "conditionDirection", ["1", "-1"]);
         }
         const body = {
           buOrderId,
           type,
           extraMargin
         };
-        if (args.quoteInvestment != null) body.quoteInvestment = asFiniteNumber2(args.quoteInvestment, "quoteInvestment");
+        if (args.quoteInvestment != null) body.quoteInvestment = asFiniteNumber3(args.quoteInvestment, "quoteInvestment");
         if (args.bottom != null) body.bottom = asPositiveDecimalString2(args.bottom, "bottom");
         if (args.top != null) body.top = asPositiveDecimalString2(args.top, "top");
-        if (args.row != null) body.row = asPositiveInteger2(args.row, "row");
-        if (args.extraMarginAmount != null) body.extraMarginAmount = asFiniteNumber2(args.extraMarginAmount, "extraMarginAmount");
+        if (args.row != null) body.row = asPositiveInteger3(args.row, "row");
+        if (args.extraMarginAmount != null) body.extraMarginAmount = asFiniteNumber3(args.extraMarginAmount, "extraMarginAmount");
         if (args.isRecommend != null) body.isRecommend = asBoolean2(args.isRecommend, "isRecommend");
         if (args.isReinvest != null) body.isReinvest = asBoolean2(args.isReinvest, "isReinvest");
         if (args.investCoin != null) body.investCoin = String(args.investCoin);
         if (args.investmentFrom != null) {
-          const investmentFrom = asNonEmptyString2(args.investmentFrom, "investmentFrom");
-          assertEnum2(investmentFrom, "investmentFrom", ["USER", "LOCK_ACTIVITY"]);
+          const investmentFrom = asNonEmptyString3(args.investmentFrom, "investmentFrom");
+          assertEnum3(investmentFrom, "investmentFrom", ["USER", "LOCK_ACTIVITY"]);
           body.investmentFrom = investmentFrom;
         }
         if (args.condition != null) body.condition = asPositiveDecimalString2(args.condition, "condition");
         if (args.conditionDirection != null) {
-          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
-          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+          const conditionDirection = asNonEmptyString3(args.conditionDirection, "conditionDirection");
+          assertEnum3(conditionDirection, "conditionDirection", ["1", "-1"]);
           body.conditionDirection = conditionDirection;
         }
         if (args.slippage != null) body.slippage = String(args.slippage);
@@ -2024,8 +2210,8 @@ function registerBotTools() {
         if (config.readOnly) {
           throw new Error("Server is running in --read-only mode; bot futures_grid reduce is disabled.");
         }
-        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
-        const reduceNum = asPositiveInteger2(args.reduceNum, "reduceNum");
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const reduceNum = asPositiveInteger3(args.reduceNum, "reduceNum");
         const body = {
           buOrderId,
           reduceNum
@@ -2033,8 +2219,8 @@ function registerBotTools() {
         if (args.slippage != null) body.slippage = String(args.slippage);
         if (args.condition != null) body.condition = String(args.condition);
         if (args.conditionDirection != null) {
-          const conditionDirection = asNonEmptyString2(args.conditionDirection, "conditionDirection");
-          assertEnum2(conditionDirection, "conditionDirection", ["1", "-1"]);
+          const conditionDirection = asNonEmptyString3(args.conditionDirection, "conditionDirection");
+          assertEnum3(conditionDirection, "conditionDirection", ["1", "-1"]);
           body.conditionDirection = conditionDirection;
         }
         return (await client.signedPost("/api/v1/bot/orders/futuresGrid/reduce", body)).data;
@@ -2098,17 +2284,187 @@ function registerBotTools() {
         if (config.readOnly) {
           throw new Error("Server is running in --read-only mode; bot futures_grid cancel is disabled.");
         }
-        const buOrderId = asNonEmptyString2(args.buOrderId, "buOrderId");
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
         const body = { buOrderId };
         if (args.closeNote != null) body.closeNote = String(args.closeNote);
         if (args.closeSellModel != null) {
-          const closeSellModel = asNonEmptyString2(args.closeSellModel, "closeSellModel");
-          assertEnum2(closeSellModel, "closeSellModel", ["TO_QUOTE", "TO_USDT"]);
+          const closeSellModel = asNonEmptyString3(args.closeSellModel, "closeSellModel");
+          assertEnum3(closeSellModel, "closeSellModel", ["TO_QUOTE", "TO_USDT"]);
           body.closeSellModel = closeSellModel;
         }
         if (args.immediate != null) body.immediate = asBoolean2(args.immediate, "immediate");
         if (args.closeSlippage != null) body.closeSlippage = String(args.closeSlippage);
         return (await client.signedPost("/api/v1/bot/orders/futuresGrid/cancel", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_get_order",
+      module: "bot",
+      isWrite: false,
+      description: "Get one spot grid bot order by buOrderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string", description: "Spot grid bot order id." }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client }) {
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const q = { buOrderId };
+        return (await client.signedGet("/api/v1/bot/orders/spotGrid/order", q)).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_get_ai_strategy",
+      module: "bot",
+      isWrite: false,
+      description: "Retrieve AI-recommended spot grid strategy parameters for a trading pair.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" }
+        },
+        required: ["base", "quote"]
+      },
+      async handler(args, { client }) {
+        const base = asNonEmptyString3(args.base, "base");
+        const quote = asNonEmptyString3(args.quote, "quote");
+        return (await client.signedGet("/api/v1/bot/orders/spotGrid/aiStrategy", { base, quote })).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_create",
+      module: "bot",
+      isWrite: true,
+      description: "Create a spot grid bot order (openapi_bot.yaml CreateSpotGridRequest / CreateSpotGridOrderData). Required: base, quote, buOrderData. Optional: note. buOrderData required: top, bottom, row, gridType, quoteTotalInvestment; unknown keys rejected.",
+      inputSchema: createSpotGridCreateToolInputSchema,
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid create is disabled.");
+        }
+        const base = asNonEmptyString3(args.base, "base");
+        const quote = asNonEmptyString3(args.quote, "quote");
+        const buOrderDataOut = parseAndValidateCreateSpotGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
+        const body = { base, quote, buOrderData: buOrderDataOut };
+        if (args.note != null) body.note = String(args.note);
+        if (args.__dryRun === true) {
+          return {
+            dryRun: true,
+            note: "No order was sent. Body matches openapi_bot.yaml CreateSpotGridRequest.",
+            resolvedBody: body
+          };
+        }
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/create", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_adjust_params",
+      module: "bot",
+      isWrite: true,
+      description: "Adjust spot grid bot range or investment parameters.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          top: { type: "string", description: "New upper price" },
+          bottom: { type: "string", description: "New lower price" },
+          row: { type: "number", description: "New number of grid levels" },
+          quoteInvest: { type: "string", description: "Additional quote investment amount" }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid adjust_params is disabled.");
+        }
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const body = { buOrderId };
+        if (args.top != null) body.top = asPositiveDecimalString2(args.top, "top");
+        if (args.bottom != null) body.bottom = asPositiveDecimalString2(args.bottom, "bottom");
+        if (args.row != null) body.row = asPositiveInteger3(args.row, "row");
+        if (args.quoteInvest != null) body.quoteInvest = asPositiveDecimalString2(args.quoteInvest, "quoteInvest");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/adjustParams", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_invest_in",
+      module: "bot",
+      isWrite: true,
+      description: "Add additional quote investment to a running spot grid bot.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          quoteInvest: { type: "string", description: "Quote amount to invest" }
+        },
+        required: ["buOrderId", "quoteInvest"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid invest_in is disabled.");
+        }
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const quoteInvest = asPositiveDecimalString2(args.quoteInvest, "quoteInvest");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/investIn", { buOrderId, quoteInvest })).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_cancel",
+      module: "bot",
+      isWrite: true,
+      description: "Cancel and close a spot grid bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          closeSellModel: { type: "string", enum: ["NOT_SELL", "TO_QUOTE", "TO_USDT"] },
+          slippage: { type: "string" }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid cancel is disabled.");
+        }
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const body = { buOrderId };
+        if (args.closeSellModel != null) {
+          const closeSellModel = asNonEmptyString3(args.closeSellModel, "closeSellModel");
+          assertEnum3(closeSellModel, "closeSellModel", ["NOT_SELL", "TO_QUOTE", "TO_USDT"]);
+          body.closeSellModel = closeSellModel;
+        }
+        if (args.slippage != null) body.slippage = String(args.slippage);
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/cancel", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_spot_grid_profit",
+      module: "bot",
+      isWrite: true,
+      description: "Extract accumulated grid profit from a spot grid bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string" },
+          amount: { type: "string", description: "Amount of profit to extract" }
+        },
+        required: ["buOrderId", "amount"]
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot spot_grid profit is disabled.");
+        }
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        const amount = asPositiveDecimalString2(args.amount, "amount");
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/profit", { buOrderId, amount })).data;
       }
     }
   ];
@@ -2577,6 +2933,13 @@ Examples:
   pionex-trade-cli bot order_list [--status running|finished] [--base BTC] [--quote USDT] [--page-token <token>] [--bu-order-types futures_grid,spot_grid,smart_copy]
   pionex-trade-cli bot futures_grid get --bu-order-id <id>
   pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'
+  pionex-trade-cli bot spot_grid get --bu-order-id <id>
+  pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT
+  pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":50,"gridType":"arithmetic","quoteTotalInvestment":"100"}'
+  pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <price>] [--bottom <price>] [--row <n>] [--quote-invest <amount>]
+  pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amount>
+  pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT]
+  pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <amount>
   pionex-trade-cli earn dual symbols --base BTC
   pionex-trade-cli earn dual open_products --base BTC --quote USDXO --type DUAL_BASE --currency USDT
   pionex-trade-cli earn dual prices --base BTC --quote USDXO --product-ids BTC-USDXO-260402-68000-P-USDT
@@ -2808,82 +3171,172 @@ async function runPionexCommand(argv) {
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (!botRoute || botRoute !== "futures_grid") {
+    if (!botRoute || botRoute !== "futures_grid" && botRoute !== "spot_grid") {
       throw new Error(
-        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ...`
+        `Missing or unknown bot route: ${botRoute ?? "(none)"}. Use: pionex-trade-cli bot order_list [...] or bot futures_grid <get|create|adjust_params|reduce|cancel> ... or bot spot_grid <get|get_ai_strategy|create|adjust_params|invest_in|cancel|profit> ...`
       );
     }
     if (!command) {
       throw new Error(
-        "Missing bot command. Example: pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '{...}'"
+        `Missing bot command. Example: pionex-trade-cli bot ${botRoute} create --base BTC --quote USDT --bu-order-data-json '{...}'`
       );
+    }
+    if (botRoute === "futures_grid") {
+      if (command === "get") {
+        const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+        const lang = typeof flags.lang === "string" ? flags.lang : void 0;
+        if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+        const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "create") {
+        const base = typeof flags.base === "string" ? flags.base : void 0;
+        const quote = typeof flags.quote === "string" ? flags.quote : void 0;
+        const copyFrom = typeof flags["copy-from"] === "string" ? flags["copy-from"] : typeof flags.copyFrom === "string" ? flags.copyFrom : void 0;
+        const copyType = typeof flags["copy-type"] === "string" ? flags["copy-type"] : typeof flags.copyType === "string" ? flags.copyType : void 0;
+        const copyBotOrderId = typeof flags["copy-bot-order-id"] === "string" ? flags["copy-bot-order-id"] : typeof flags.copyBotOrderId === "string" ? flags.copyBotOrderId : void 0;
+        const buOrderDataRaw = parseJsonFlag(flags["bu-order-data-json"] ?? flags.buOrderDataJson, "bu-order-data-json");
+        if (!base || !quote) {
+          throw new Error("Missing required flags: --base --quote --bu-order-data-json");
+        }
+        const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
+        const payload = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
+        if (dryRun) {
+          const out2 = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
+          process.stdout.write(JSON.stringify(out2.data, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_create", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "adjust_params") {
+        const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "reduce") {
+        const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_reduce", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      if (command === "cancel") {
+        const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+        const closeNote = typeof flags["close-note"] === "string" ? flags["close-note"] : typeof flags.closeNote === "string" ? flags.closeNote : void 0;
+        const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
+        const immediate = typeof flags.immediate === "boolean" ? flags.immediate : void 0;
+        const closeSlippage = typeof flags["close-slippage"] === "string" ? flags["close-slippage"] : typeof flags.closeSlippage === "string" ? flags.closeSlippage : void 0;
+        if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+        const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
+        if (dryRun) {
+          process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
+          return;
+        }
+        const out = await runTool("pionex_bot_futures_grid_cancel", payload);
+        process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+        return;
+      }
+      throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
     }
     if (command === "get") {
       const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
-      const lang = typeof flags.lang === "string" ? flags.lang : void 0;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const out = await runTool("pionex_bot_futures_grid_get_order", { buOrderId, lang });
+      const out = await runTool("pionex_bot_spot_grid_get_order", { buOrderId });
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    if (command === "get_ai_strategy") {
+      const base = typeof flags.base === "string" ? flags.base : void 0;
+      const quote = typeof flags.quote === "string" ? flags.quote : void 0;
+      if (!base || !quote) throw new Error("Missing required flags: --base --quote");
+      const out = await runTool("pionex_bot_spot_grid_get_ai_strategy", { base, quote });
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "create") {
       const base = typeof flags.base === "string" ? flags.base : void 0;
       const quote = typeof flags.quote === "string" ? flags.quote : void 0;
-      const copyFrom = typeof flags["copy-from"] === "string" ? flags["copy-from"] : typeof flags.copyFrom === "string" ? flags.copyFrom : void 0;
-      const copyType = typeof flags["copy-type"] === "string" ? flags["copy-type"] : typeof flags.copyType === "string" ? flags.copyType : void 0;
-      const copyBotOrderId = typeof flags["copy-bot-order-id"] === "string" ? flags["copy-bot-order-id"] : typeof flags.copyBotOrderId === "string" ? flags.copyBotOrderId : void 0;
+      const note = typeof flags.note === "string" ? flags.note : void 0;
       const buOrderDataRaw = parseJsonFlag(flags["bu-order-data-json"] ?? flags.buOrderDataJson, "bu-order-data-json");
-      if (!base || !quote) {
-        throw new Error("Missing required flags: --base --quote --bu-order-data-json");
-      }
-      const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
-      const payload = { base, quote, copyFrom, copyType, copyBotOrderId, buOrderData };
+      if (!base || !quote) throw new Error("Missing required flags: --base --quote --bu-order-data-json");
+      const buOrderData = parseAndValidateCreateSpotGridBuOrderData(buOrderDataRaw);
+      const payload = { base, quote, note, buOrderData };
       if (dryRun) {
-        const out2 = await runTool("pionex_bot_futures_grid_create", { ...payload, __dryRun: true });
-        process.stdout.write(JSON.stringify(out2.data, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_create", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_create", payload);
+      const out = await runTool("pionex_bot_spot_grid_create", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "adjust_params") {
-      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
+      const top = typeof flags.top === "string" ? flags.top : void 0;
+      const bottom = typeof flags.bottom === "string" ? flags.bottom : void 0;
+      const row = flags.row != null ? Number(flags.row) : void 0;
+      const quoteInvest = typeof flags["quote-invest"] === "string" ? flags["quote-invest"] : typeof flags.quoteInvest === "string" ? flags.quoteInvest : void 0;
+      const payload = { buOrderId, top, bottom, row, quoteInvest };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_adjust_params", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_adjust_params", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_adjust_params", payload);
+      const out = await runTool("pionex_bot_spot_grid_adjust_params", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    if (command === "reduce") {
-      const payload = parseJsonFlag(flags["body-json"] ?? flags.bodyJson, "body-json");
+    if (command === "invest_in") {
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      const quoteInvest = typeof flags["quote-invest"] === "string" ? flags["quote-invest"] : typeof flags.quoteInvest === "string" ? flags.quoteInvest : void 0;
+      if (!buOrderId || !quoteInvest) throw new Error("Missing required flags: --bu-order-id --quote-invest");
+      const payload = { buOrderId, quoteInvest };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_reduce", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_invest_in", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_reduce", payload);
+      const out = await runTool("pionex_bot_spot_grid_invest_in", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
     if (command === "cancel") {
       const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
-      const closeNote = typeof flags["close-note"] === "string" ? flags["close-note"] : typeof flags.closeNote === "string" ? flags.closeNote : void 0;
-      const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
-      const immediate = typeof flags.immediate === "boolean" ? flags.immediate : void 0;
-      const closeSlippage = typeof flags["close-slippage"] === "string" ? flags["close-slippage"] : typeof flags.closeSlippage === "string" ? flags.closeSlippage : void 0;
       if (!buOrderId) throw new Error("Missing required flag: --bu-order-id");
-      const payload = { buOrderId, closeNote, closeSellModel, immediate, closeSlippage };
+      const closeSellModel = typeof flags["close-sell-model"] === "string" ? flags["close-sell-model"] : typeof flags.closeSellModel === "string" ? flags.closeSellModel : void 0;
+      const slippage = typeof flags.slippage === "string" ? flags.slippage : void 0;
+      const payload = { buOrderId, closeSellModel, slippage };
       if (dryRun) {
-        process.stdout.write(JSON.stringify({ tool: "pionex_bot_futures_grid_cancel", args: payload }, null, 2) + "\n");
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_cancel", args: payload }, null, 2) + "\n");
         return;
       }
-      const out = await runTool("pionex_bot_futures_grid_cancel", payload);
+      const out = await runTool("pionex_bot_spot_grid_cancel", payload);
       process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
       return;
     }
-    throw new Error(`Unknown futures_grid command: ${command}. Available: get, create, adjust_params, reduce, cancel`);
+    if (command === "profit") {
+      const buOrderId = typeof flags["bu-order-id"] === "string" ? flags["bu-order-id"] : typeof flags.buOrderId === "string" ? flags.buOrderId : void 0;
+      const amount = typeof flags.amount === "string" ? flags.amount : void 0;
+      if (!buOrderId || !amount) throw new Error("Missing required flags: --bu-order-id --amount");
+      const payload = { buOrderId, amount };
+      if (dryRun) {
+        process.stdout.write(JSON.stringify({ tool: "pionex_bot_spot_grid_profit", args: payload }, null, 2) + "\n");
+        return;
+      }
+      const out = await runTool("pionex_bot_spot_grid_profit", payload);
+      process.stdout.write(JSON.stringify(out.data, null, 2) + "\n");
+      return;
+    }
+    throw new Error(`Unknown spot_grid command: ${command}. Available: get, get_ai_strategy, create, adjust_params, invest_in, cancel, profit`);
   }
   if (group === "earn") {
     const earnRoute = positionals[1];

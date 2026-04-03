@@ -150,3 +150,130 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456 --close-sell-model
 # Cancel immediately
 pionex-trade-cli bot futures_grid cancel --bu-order-id 123456 --immediate
 ```
+
+### Spot Grid (Auth Required)
+
+#### bot spot_grid get
+
+Get a spot grid bot order by ID.
+
+```bash
+pionex-trade-cli bot spot_grid get --bu-order-id <id>
+```
+
+```bash
+pionex-trade-cli bot spot_grid get --bu-order-id 123456
+```
+
+#### bot spot_grid get_ai_strategy
+
+Get AI-recommended grid parameters for a trading pair.
+
+```bash
+pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>
+```
+
+```bash
+pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT
+```
+
+#### bot spot_grid create
+
+Create a spot grid bot order.
+
+```bash
+pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--note <text>] [--dry-run]
+```
+
+* `--base`: Base currency (e.g. `BTC`)
+* `--quote`: Quote currency (e.g. `USDT`)
+* `--bu-order-data-json`: JSON string containing grid order parameters
+
+**Required fields in `buOrderData`:**
+
+| Field                  | Type    | Description                             |
+| ---------------------- | ------- | --------------------------------------- |
+| `top`                  | string  | Grid upper price                        |
+| `bottom`               | string  | Grid lower price                        |
+| `row`                  | integer | Number of grid levels (2–200)           |
+| `gridType`             | string  | `"arithmetic"` or `"geometric"`         |
+| `quoteTotalInvestment` | string  | Investment amount in quote currency     |
+
+**Optional fields:** `lossStopType`, `lossStop`, `lossStopDelay`, `profitStopType`, `profitStop`, `profitStopDelay`, `condition`, `conditionDirection`, `slippage`, `closeSellModel`
+
+**Examples:**
+
+```bash
+# Create a BTC/USDT spot grid
+pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{
+  "top": "110000",
+  "bottom": "90000",
+  "row": 50,
+  "gridType": "arithmetic",
+  "quoteTotalInvestment": "100"
+}'
+
+# Dry-run (preview only)
+pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '{"top":"110000","bottom":"90000","row":50,"gridType":"arithmetic","quoteTotalInvestment":"100"}' --dry-run
+```
+
+#### bot spot_grid adjust_params
+
+Adjust spot grid bot range or add investment.
+
+```bash
+pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <price>] [--bottom <price>] [--row <n>] [--quote-invest <amount>]
+```
+
+| Flag              | Description                              |
+| ----------------- | ---------------------------------------- |
+| `--bu-order-id`   | Required; spot grid bot order ID         |
+| `--top`           | New grid upper price                     |
+| `--bottom`        | New grid lower price                     |
+| `--row`           | New number of grid levels                |
+| `--quote-invest`  | Additional quote investment amount       |
+
+```bash
+# Add 50 USDT to a running bot
+pionex-trade-cli bot spot_grid adjust_params --bu-order-id 123456 --quote-invest 50
+```
+
+#### bot spot_grid invest_in
+
+Add additional quote investment to a running spot grid bot.
+
+```bash
+pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amount>
+```
+
+```bash
+pionex-trade-cli bot spot_grid invest_in --bu-order-id 123456 --quote-invest 100
+```
+
+#### bot spot_grid cancel
+
+Cancel and close a spot grid bot order.
+
+```bash
+pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT] [--slippage <value>] [--dry-run]
+```
+
+```bash
+# Cancel and sell base to quote
+pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+
+# Cancel and keep base (default: NOT_SELL)
+pionex-trade-cli bot spot_grid cancel --bu-order-id 123456
+```
+
+#### bot spot_grid profit
+
+Extract accumulated grid profit from a spot grid bot.
+
+```bash
+pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <amount>
+```
+
+```bash
+pionex-trade-cli bot spot_grid profit --bu-order-id 123456 --amount 10
+```

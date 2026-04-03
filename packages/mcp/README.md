@@ -39,6 +39,7 @@ Credentials are read from `~/.pionex/config.toml` when the server starts; the cl
 - **Account** (auth): `pionex_account_get_balance`
 - **Orders** (auth): `pionex_orders_new_order`, `pionex_orders_get_order`, `pionex_orders_get_order_by_client_order_id`, `pionex_orders_get_open_orders`, `pionex_orders_get_all_orders`, `pionex_orders_cancel_order`, `pionex_orders_get_fills`, `pionex_orders_get_fills_by_order_id`, `pionex_orders_cancel_all_orders`
 - **Bot / Futures Grid** (auth): `pionex_bot_futures_grid_get_order`, `pionex_bot_futures_grid_create`, `pionex_bot_futures_grid_adjust_params`, `pionex_bot_futures_grid_reduce`, `pionex_bot_futures_grid_cancel`
+- **Bot / Spot Grid** (auth): `pionex_bot_spot_grid_get_order`, `pionex_bot_spot_grid_get_ai_strategy`, `pionex_bot_spot_grid_create`, `pionex_bot_spot_grid_adjust_params`, `pionex_bot_spot_grid_invest_in`, `pionex_bot_spot_grid_cancel`, `pionex_bot_spot_grid_profit`
 
 ### `pionex_bot_futures_grid_create` (strict OpenAPI)
 

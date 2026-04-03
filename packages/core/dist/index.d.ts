@@ -165,4 +165,18 @@ declare const createFuturesGridOrderDataJsonSchema: JsonSchema;
 /** Full MCP input schema for pionex_bot_futures_grid_create (includes internal __dryRun for CLI). */
 declare const createFuturesGridCreateToolInputSchema: JsonSchema;
 
-export { CREATE_FUTURES_GRID_ORDER_DATA_KEYS, type CliOptions, type ClientId, ConfigError, DEFAULT_MODULES, MODULES, type McpTool, type ModuleId, PIONEX_API_DEFAULT_BASE_URL, PionexApiError, type PionexConfig, type PionexProfile, PionexRestClient, type PionexTomlConfig, type RequestResult, SUPPORTED_CLIENTS, type SetupOptions, type ToolArgs, type ToolContext, type ToolResult, type ToolRunner, type ToolSpec, buildTools, configFilePath, createFuturesGridCreateToolInputSchema, createFuturesGridOrderDataJsonSchema, createToolRunner, getConfigPath, loadConfig, parseAndValidateCreateFuturesGridBuOrderData, printSetupUsage, readFullConfig, readTomlProfile, runSetup, toMcpTool, toToolErrorPayload, writeFullConfig };
+/**
+ * Mirrors openapi_bot.yaml — CreateSpotGridRequest + CreateSpotGridOrderData.
+ * https://github.com/pionex-official/pionex-open-api/pull/7
+ */
+
+/** Every property under CreateSpotGridOrderData (OpenAPI); no other keys allowed. */
+declare const CREATE_SPOT_GRID_ORDER_DATA_KEYS: readonly ["top", "bottom", "row", "gridType", "quoteTotalInvestment", "lossStopType", "lossStop", "lossStopDelay", "profitStopType", "profitStop", "profitStopDelay", "condition", "conditionDirection", "slippage", "closeSellModel"];
+/** Strip + reject unknown keys; validate types per OpenAPI. Returns body-ready buOrderData. */
+declare function parseAndValidateCreateSpotGridBuOrderData(raw: Record<string, unknown>): Record<string, unknown>;
+/** JSON Schema for MCP tool `buOrderData` — matches openapi_bot.yaml CreateSpotGridOrderData.properties */
+declare const createSpotGridOrderDataJsonSchema: JsonSchema;
+/** Full MCP input schema for pionex_bot_spot_grid_create. */
+declare const createSpotGridCreateToolInputSchema: JsonSchema;
+
+export { CREATE_FUTURES_GRID_ORDER_DATA_KEYS, CREATE_SPOT_GRID_ORDER_DATA_KEYS, type CliOptions, type ClientId, ConfigError, DEFAULT_MODULES, MODULES, type McpTool, type ModuleId, PIONEX_API_DEFAULT_BASE_URL, PionexApiError, type PionexConfig, type PionexProfile, PionexRestClient, type PionexTomlConfig, type RequestResult, SUPPORTED_CLIENTS, type SetupOptions, type ToolArgs, type ToolContext, type ToolResult, type ToolRunner, type ToolSpec, buildTools, configFilePath, createFuturesGridCreateToolInputSchema, createFuturesGridOrderDataJsonSchema, createSpotGridCreateToolInputSchema, createSpotGridOrderDataJsonSchema, createToolRunner, getConfigPath, loadConfig, parseAndValidateCreateFuturesGridBuOrderData, parseAndValidateCreateSpotGridBuOrderData, printSetupUsage, readFullConfig, readTomlProfile, runSetup, toMcpTool, toToolErrorPayload, writeFullConfig };
