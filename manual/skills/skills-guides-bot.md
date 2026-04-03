@@ -1,5 +1,50 @@
 # Bot Skills
 
+### Bot Order List
+
+#### Command Reference
+
+| Command | Type | Description |
+| ------- | ---- | ----------- |
+| `pionex-trade-cli bot order_list [--status running\|finished] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]` | Read | List bot orders across all types with optional filters and pagination |
+
+#### Flags
+
+| Flag | Description |
+| ---- | ----------- |
+| `--status` | `running` (default) or `finished` |
+| `--base` | Base currency filter (e.g. `BTC`) |
+| `--quote` | Quote currency filter (e.g. `USDT`) |
+| `--page-token` | Pagination token from a previous response |
+| `--bu-order-types` | Comma-separated bot types: `futures_grid`, `spot_grid`, `smart_copy`. Omit to return all types. |
+
+#### MCP Tool
+
+| Tool | Description |
+| ---- | ----------- |
+| `pionex_bot_order_list` | List bot orders with filters and pagination (supports futures_grid / spot_grid / smart_copy) |
+
+#### Examples
+
+```bash
+# List all running bot orders
+pionex-trade-cli bot order_list
+
+# List only spot_grid orders
+pionex-trade-cli bot order_list --bu-order-types spot_grid
+
+# List finished BTC orders across all bot types
+pionex-trade-cli bot order_list --status finished --base BTC
+
+# Filter by multiple bot types
+pionex-trade-cli bot order_list --bu-order-types futures_grid,spot_grid
+
+# Paginate to next page
+pionex-trade-cli bot order_list --page-token <token>
+```
+
+---
+
 ### pionex-bot: Futures Grid Bot
 
 Futures grid bot creation and management. **Requires API credentials**.

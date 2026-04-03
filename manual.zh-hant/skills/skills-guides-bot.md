@@ -1,5 +1,50 @@
 # 機器人 Skills
 
+### 機器人訂單列表
+
+#### 命令參考
+
+| 命令 | 類型 | 說明 |
+| ---- | ---- | ---- |
+| `pionex-trade-cli bot order_list [--status running\|finished] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]` | 讀取 | 列出所有類型的機器人訂單，支援過濾與分頁 |
+
+#### 參數
+
+| 參數 | 說明 |
+| ---- | ---- |
+| `--status` | `running`（預設）或 `finished` |
+| `--base` | 基礎貨幣過濾（例如 `BTC`） |
+| `--quote` | 計價貨幣過濾（例如 `USDT`） |
+| `--page-token` | 分頁游標（來自上一次回應） |
+| `--bu-order-types` | 逗號分隔的機器人類型：`futures_grid`、`spot_grid`、`smart_copy`。省略則回傳所有類型 |
+
+#### MCP 工具
+
+| 工具 | 說明 |
+| ---- | ---- |
+| `pionex_bot_order_list` | 列出機器人訂單（支援過濾與分頁，涵蓋 futures_grid / spot_grid / smart_copy） |
+
+#### 範例
+
+```bash
+# 列出所有執行中的機器人訂單
+pionex-trade-cli bot order_list
+
+# 僅列出現貨網格訂單
+pionex-trade-cli bot order_list --bu-order-types spot_grid
+
+# 列出已完成的 BTC 所有類型機器人訂單
+pionex-trade-cli bot order_list --status finished --base BTC
+
+# 同時過濾多個機器人類型
+pionex-trade-cli bot order_list --bu-order-types futures_grid,spot_grid
+
+# 翻到下一頁
+pionex-trade-cli bot order_list --page-token <token>
+```
+
+---
+
 ### pionex-bot：合約網格機器人
 
 合約網格機器人的建立與管理。**需要 API 憑證**。

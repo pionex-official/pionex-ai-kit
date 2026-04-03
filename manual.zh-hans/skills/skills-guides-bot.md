@@ -1,5 +1,50 @@
 # Bot Skills
 
+### 机器人订单列表
+
+#### 命令参考
+
+| 命令 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| `pionex-trade-cli bot order_list [--status running\|finished] [--base <BASE>] [--quote <QUOTE>] [--page-token <token>] [--bu-order-types <types>]` | 读操作 | 列出所有类型的机器人订单，支持过滤和分页 |
+
+#### 参数
+
+| 参数 | 描述 |
+| ---- | ---- |
+| `--status` | `running`（默认）或 `finished` |
+| `--base` | 基础货币过滤（例如 `BTC`） |
+| `--quote` | 计价货币过滤（例如 `USDT`） |
+| `--page-token` | 分页游标（来自上一次响应） |
+| `--bu-order-types` | 逗号分隔的机器人类型：`futures_grid`、`spot_grid`、`smart_copy`。省略则返回所有类型 |
+
+#### MCP 工具
+
+| 工具 | 描述 |
+| ---- | ---- |
+| `pionex_bot_order_list` | 列出机器人订单（支持过滤和分页，覆盖 futures_grid / spot_grid / smart_copy） |
+
+#### 示例
+
+```bash
+# 列出所有运行中的机器人订单
+pionex-trade-cli bot order_list
+
+# 仅列出现货网格订单
+pionex-trade-cli bot order_list --bu-order-types spot_grid
+
+# 列出已完成的 BTC 所有类型机器人订单
+pionex-trade-cli bot order_list --status finished --base BTC
+
+# 同时过滤多个机器人类型
+pionex-trade-cli bot order_list --bu-order-types futures_grid,spot_grid
+
+# 翻到下一页
+pionex-trade-cli bot order_list --page-token <token>
+```
+
+---
+
 ### pionex-bot: 合约网格机器人
 
 合约网格机器人创建和管理。**需要 API 凭证**。
