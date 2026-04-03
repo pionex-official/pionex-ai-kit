@@ -56,7 +56,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | 账户余额（现货）                             | 是   |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | 现货订单：下单、撤单、查询挂单、成交记录     | 是   |
 | [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | 合约网格：查询、创建、调参、减仓、撤单       | 是   |
-| pionex-earn-dual                                                                                                  | 双币理财：查产品、申购、撤单、收益提取       | 部分 |
+| [pionex-earn-dual](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-earn-dual/SKILL.md)   | 双币理财：查产品、申购、撤单、收益提取       | 部分 |
 
 ### CLI
 

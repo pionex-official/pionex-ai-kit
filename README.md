@@ -56,7 +56,7 @@ MCP servers for trading on Pionex.
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | Account balance (spot)                                       | Yes  |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | Spot orders: place, cancel, open orders, fills               | Yes  |
 | [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | Futures Grid Bot: get, create, adjust params, reduce, cancel | Yes  |
-| pionex-earn-dual                                                                                                  | Dual Investment: query products, invest, revoke, collect     | Partial |
+| [pionex-earn-dual](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-earn-dual/SKILL.md)   | Dual Investment: query products, invest, revoke, collect     | Partial |
 
 ### CLI
 
