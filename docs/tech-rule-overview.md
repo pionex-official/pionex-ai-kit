@@ -281,6 +281,27 @@ docs: update README with new MCP client support
 
 ## Tool Standards
 
+### Adding or Modifying CLI Commands
+
+**⚠️ Completion tree must stay in sync with command definitions.**
+
+File: `packages/cli/src/completion.ts` → `COMPLETION_TREE`
+
+| 变更类型 | 需要更新的字段 |
+|----------|--------------|
+| 新增 group（如 `earn`） | `COMPLETION_TREE.groups` |
+| 新增 group 下的子命令 | `COMPLETION_TREE.<group>` |
+| 新增 bot/earn 三级命令 | `COMPLETION_TREE.<sub-group>` |
+| 删除/重命名命令 | 对应字段同步删除/更新 |
+
+如果补全树和实际命令不一致，tab 补全会出现"提示了但执行报错"的情况，对用户体验伤害极大。
+
+**Steps:**
+1. 在 `packages/cli/src/commands/*.ts` 中增改 `.command()`
+2. 同步更新 `packages/cli/src/completion.ts` 中的 `COMPLETION_TREE`
+3. `npm run build`
+4. 验证：`node packages/cli/dist/index.js <group> --help`
+
 ### Adding New Tools
 
 **Steps:**

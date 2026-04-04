@@ -29,6 +29,10 @@
     "mcp",
     "config"
   ],
+  "dependencies": {
+    "commander": "^12.0.0",
+    "omelette": "^0.4.17"
+  },
   "devDependencies": {
     "@pionex-ai/core": "*",
     "@types/node": "^22.0.0",

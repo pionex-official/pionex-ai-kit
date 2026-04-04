@@ -83,6 +83,20 @@ This document summarizes the requirement history and current status of the Pione
 **Status:** Planning (iteration `2026040202_cli_version`)
 **Description:** Add `-v`/`--version` flag to both CLI entry points so users can quickly verify the installed version. Also fixes the hardcoded `v0.2.x` banner in the `onboard` command.
 
+#### 8. CLI Commander Refactor
+**Status:** Planning (iteration `2026040400_cli_commander_refactor`)
+**Description:** Replace the hand-rolled argument parsing in `packages/cli/src/index.ts` with the
+[commander](https://www.npmjs.com/package/commander) library. Zero breaking changes — all command
+names and flags remain identical. Also addresses
+[#32](https://github.com/pionex-official/pionex-ai-kit/issues/32) by adding rich `--help` output
+and a `capabilities` discovery command.
+
+**Changes:**
+- `packages/cli/src/index.ts` becomes a thin dispatcher (~20 lines)
+- New files: `src/kit.ts`, `src/trade.ts`, `src/commands/{market,account,orders,bot,earn,capabilities}.ts`
+- `commander` added as runtime dependency
+- New command: `pionex-trade-cli capabilities` (JSON listing of all groups/commands)
+
 ## Future Plans
 
 Possible expansion directions:
