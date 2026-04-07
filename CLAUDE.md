@@ -154,6 +154,12 @@ Publish order doesn't matter (no inter-package dependency at runtime). Version n
 
 ## Common Tasks
 
+**Adding a new CLI command:**
+1. Add `.command(...)` in the appropriate `packages/cli/src/commands/*.ts`
+2. **同步更新补全树** `packages/cli/src/completion.ts` 中的 `COMPLETION_TREE` 对象
+3. Rebuild: `npm run build`
+4. Verify: `node packages/cli/dist/index.js <group> --help`
+
 **Adding a new tool:**
 1. Add to appropriate module in `packages/core/src/tools/*.ts`
 2. Rebuild: `npm run build`

@@ -1,6 +1,6 @@
 {
   "name": "@pionex/pionex-ai-kit",
-  "version": "0.2.42",
+  "version": "0.2.43",
   "description": "CLI for Pionex MCP: config init and credentials (writes ~/.pionex/config.toml)",
   "type": "module",
   "license": "MIT",
@@ -29,6 +29,10 @@
     "mcp",
     "config"
   ],
+  "dependencies": {
+    "commander": "^12.0.0",
+    "omelette": "^0.4.17"
+  },
   "devDependencies": {
     "@pionex-ai/core": "*",
     "@types/node": "^22.0.0",

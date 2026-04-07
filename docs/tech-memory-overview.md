@@ -158,6 +158,43 @@ This document records important decisions, lessons learned, and technical knowle
 3. **Fixed hardcoded `v0.2.x` in `onboard` banner**
    - Was a known tech-debt; iteration is the right time to fix it alongside dynamic version reading
 
+## Iteration 5: CLI Commander Refactor (2026-04-04)
+
+**Iteration Directory:** `specs/2026040400_cli_commander_refactor/`
+
+### Motivation
+
+The 928-line monolithic `packages/cli/src/index.ts` with hand-rolled `parseFlags()` was:
+- Fragile (no validation of flag types, easy to miss flags)
+- Impossible to extend without growing the already-large file
+- Providing no `--help` output for AI agent self-discovery (issue #32)
+
+The prior "zero-dependency" preference (recorded in Iteration 1) is superseded here —
+`commander` v12 is ~50KB, well-maintained, and the CLI startup cost is not perf-critical.
+
+### Key Decisions
+
+1. **commander v12 as the parser** (not `mri`, `yargs`, `minimist`, or hand-rolled)
+   - Commander has native ESM support, stable nested sub-commands, and automatic `--help`
+   - The size tradeoff (~50KB) is acceptable for a CLI that users install, not `npx` on every call
+
+2. **File split by domain**, not by type
+   - `src/commands/market.ts`, `src/commands/bot.ts`, etc.
+   - Entry point `src/index.ts` stays thin (~20 lines)
+   - Keeps each file under 200 lines
+
+3. **`cmd.optsWithGlobals()` for global options propagation**
+   - Commander does not automatically inherit parent options in sub-command actions
+   - `optsWithGlobals()` merges own + parent options, making `--profile`, `--dry-run`, etc. accessible in leaf commands
+
+4. **camelCase aliases made implicit by commander**
+   - `--bu-order-id` automatically becomes `opts.buOrderId` in commander
+   - Old explicit camelCase aliases (`--buOrderId`) are no longer needed but can be hidden via `.hideHelp()` for backwards compat
+
+5. **`capabilities` command added (issue #32)**
+   - Static JSON, no network call
+   - Designed for AI agent self-discovery in shell-based workflows
+
 ## General Technical Knowledge
 
 ### Pionex API Signature Mechanism
