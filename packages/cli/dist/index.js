@@ -5,10 +5,10 @@ import { basename } from "path";
 async function main() {
   const invokedAs = basename(process.argv[1] || "");
   if (invokedAs.includes("pionex-ai-kit")) {
-    const { buildKitProgram } = await import("./kit-CSDKNWAT.js");
+    const { buildKitProgram } = await import("./kit-7X7UVP4Q.js");
     await buildKitProgram().parseAsync(process.argv);
   } else {
-    const { buildTradeProgram } = await import("./trade-QEOFZDHE.js");
+    const { buildTradeProgram } = await import("./trade-EKHXN3M7.js");
     await buildTradeProgram().parseAsync(process.argv);
   }
 }

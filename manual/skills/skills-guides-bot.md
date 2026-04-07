@@ -55,6 +55,7 @@ Futures grid bot creation and management. **Requires API credentials**.
 | ------------------------------------------------------------------------------ | ----- | ---------------------------------------------------- |
 | `pionex-trade-cli bot futures_grid get --bu-order-id <id>`                                  | Read  | Get a futures grid bot order by ID                   |
 | `pionex-trade-cli bot futures_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | Write | Create a futures grid bot order          |
+| `pionex-trade-cli bot futures_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | Read | Validate parameters before creating an order |
 | `pionex-trade-cli bot futures_grid adjust_params --body-json '<JSON>'`                      | Write | Adjust bot params (invest / grid range)              |
 | `pionex-trade-cli bot futures_grid reduce --body-json '<JSON>'`                             | Write | Reduce bot positions                                 |
 | `pionex-trade-cli bot futures_grid cancel --bu-order-id <id>`                               | Write | Cancel and close a bot order                         |
@@ -99,11 +100,12 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456
 #### Behavioral Constraints
 
 1. **Explicit parameters**: Never guess grid range, leverage, or investment amount. If unclear, ask the user.
-2. **Dry-run first**: For any write operation (create, adjust, reduce, cancel), prefer running with `--dry-run` first, showing the user what will happen, and only executing after confirmation.
-3. **Balance check**: Before creating a bot, check the available balance. If funds are insufficient, inform the user and suggest adjusting the investment amount.
-4. **Leverage awareness**: Always confirm leverage with the user. Never increase leverage without explicit agreement.
-5. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
-6. **No unilateral risk increase**: The agent will never increase investment, leverage, or grid range without the user's explicit agreement.
+2. **Validate before creating**: Always call `check_params` with the intended parameters first. If the server returns a `FailedWithData` error with `min_investment` / `max_investment`, show the valid range to the user and ask them to adjust.
+3. **Dry-run first**: For any write operation (create, adjust, reduce, cancel), prefer running with `--dry-run` first, showing the user what will happen, and only executing after confirmation.
+4. **Balance check**: Before creating a bot, check the available balance. If funds are insufficient, inform the user and suggest adjusting the investment amount.
+5. **Leverage awareness**: Always confirm leverage with the user. Never increase leverage without explicit agreement.
+6. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
+7. **No unilateral risk increase**: The agent will never increase investment, leverage, or grid range without the user's explicit agreement.
 
 #### Bot Trading Flow Example
 
@@ -115,8 +117,9 @@ Agent execution flow:
 2. Get symbol info: `pionex-trade-cli market symbols --symbols BTC_USDT --type PERP`
 3. Get current price: `pionex-trade-cli market tickers --symbol BTC_USDT --type PERP`
 4. Ask user for grid range, number of grids, and leverage (if not specified)
-5. Dry-run preview: `pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. After user confirms, execute the actual create (remove `--dry-run`)
+5. Validate parameters: `pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — if `FailedWithData`, show valid range and ask user to adjust
+6. Dry-run preview: `pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. After user confirms, execute the actual create (remove `--dry-run`)
 
 ---
 
@@ -131,6 +134,7 @@ Spot grid bot creation and management. **Requires API credentials**.
 | `pionex-trade-cli bot spot_grid get --bu-order-id <id>`                                                      | Read  | Get a spot grid bot order by ID                        |
 | `pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>`                               | Read  | Get AI-recommended grid parameters for a trading pair  |
 | `pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`          | Write | Create a spot grid bot order                           |
+| `pionex-trade-cli bot spot_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`    | Read  | Validate parameters before creating an order           |
 | `pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <p>] [--bottom <p>] [--row <n>] [--quote-invest <amt>]` | Write | Adjust bot range or add investment      |
 | `pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amount>`                        | Write | Add additional quote investment to a running bot       |
 | `pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]`  | Write | Cancel and close a bot order                           |
@@ -184,10 +188,11 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 
 1. **Explicit parameters**: Never guess grid range or investment amount. If unclear, ask the user.
 2. **AI strategy first**: For new bots, offer to call `get_ai_strategy` to get recommended parameters before asking the user to specify manually.
-3. **Dry-run first**: For any write operation (create, adjust, invest_in, cancel, profit), prefer running with `--dry-run` first and only executing after confirmation.
-4. **Balance check**: Before creating a bot, check available quote balance.
-5. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
-6. **No unilateral risk increase**: Never increase investment or grid range without explicit user agreement.
+3. **Validate before creating**: Always call `check_params` with the intended parameters first. If the server returns a `FailedWithData` error with `min_investment` / `max_investment`, show the valid range to the user and ask them to adjust.
+4. **Dry-run first**: For any write operation (create, adjust, invest_in, cancel, profit), prefer running with `--dry-run` first and only executing after confirmation.
+5. **Balance check**: Before creating a bot, check available quote balance.
+6. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
+7. **No unilateral risk increase**: Never increase investment or grid range without explicit user agreement.
 
 #### Spot Grid Trading Flow Example
 
@@ -199,5 +204,6 @@ Agent execution flow:
 2. Get AI strategy: `pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT`
 3. Get current price: `pionex-trade-cli market tickers --symbol BTC_USDT`
 4. Present AI-recommended parameters; ask user to confirm or adjust
-5. Dry-run preview: `pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. After user confirms, execute the actual create (remove `--dry-run`)
+5. Validate parameters: `pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — if `FailedWithData`, show valid range and ask user to adjust
+6. Dry-run preview: `pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. After user confirms, execute the actual create (remove `--dry-run`)

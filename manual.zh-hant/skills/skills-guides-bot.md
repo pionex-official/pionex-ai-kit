@@ -55,6 +55,7 @@ pionex-trade-cli bot order_list --page-token <token>
 | ------------------------------------------------------------------------------ | ----- | ---------------------------------------------------- |
 | `pionex-trade-cli bot futures_grid get --bu-order-id <id>`                                  | 讀取  | 依 ID 查詢合約網格機器人訂單                   |
 | `pionex-trade-cli bot futures_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | 寫入 | 建立合約網格機器人訂單          |
+| `pionex-trade-cli bot futures_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | 讀取 | 下單前驗證參數 |
 | `pionex-trade-cli bot futures_grid adjust_params --body-json '<JSON>'`                      | 寫入 | 調整機器人參數（追加投入/網格範圍）              |
 | `pionex-trade-cli bot futures_grid reduce --body-json '<JSON>'`                             | 寫入 | 減少機器人倉位                                 |
 | `pionex-trade-cli bot futures_grid cancel --bu-order-id <id>`                               | 寫入 | 取消並關閉機器人訂單                         |
@@ -99,11 +100,12 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456
 #### 行為約束
 
 1. **明確參數**：絕不猜測網格範圍、槓桿或投入金額。若不明確，請詢問使用者。
-2. **先模擬執行**：對於任何寫入操作（建立、調整、減倉、取消），優先以 `--dry-run` 執行，向使用者展示將會發生什麼，確認後再實際執行。
-3. **餘額檢查**：建立機器人前檢查可用餘額。若資金不足，告知使用者並建議調整投入金額。
-4. **槓桿意識**：始終與使用者確認槓桿。絕不在未經明確同意的情況下增加槓桿。
-5. **取消預覽**：取消機器人前，先取得其當前狀態並展示給使用者確認。
-6. **不單方面增加風險**：Agent 絕不會在未經使用者明確同意的情況下增加投入、槓桿或網格範圍。
+2. **下單前驗證**：始終先呼叫 `check_params` 驗證參數。若伺服器回傳含 `min_investment` / `max_investment` 的 `FailedWithData` 錯誤，將有效範圍展示給使用者並請其調整。
+3. **先模擬執行**：對於任何寫入操作（建立、調整、減倉、取消），優先以 `--dry-run` 執行，向使用者展示將會發生什麼，確認後再實際執行。
+4. **餘額檢查**：建立機器人前檢查可用餘額。若資金不足，告知使用者並建議調整投入金額。
+5. **槓桿意識**：始終與使用者確認槓桿。絕不在未經明確同意的情況下增加槓桿。
+6. **取消預覽**：取消機器人前，先取得其當前狀態並展示給使用者確認。
+7. **不單方面增加風險**：Agent 絕不會在未經使用者明確同意的情況下增加投入、槓桿或網格範圍。
 
 #### 機器人交易流程範例
 
@@ -115,8 +117,9 @@ Agent 執行流程：
 2. 取得交易對資訊：`pionex-trade-cli market symbols --symbols BTC_USDT --type PERP`
 3. 取得當前價格：`pionex-trade-cli market tickers --symbol BTC_USDT --type PERP`
 4. 詢問使用者網格範圍、格數和槓桿（若未指定）
-5. 模擬執行預覽：`pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. 使用者確認後，執行實際建立（移除 `--dry-run`）
+5. 驗證參數：`pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — 若回傳 `FailedWithData`，展示有效範圍並請使用者調整
+6. 模擬執行預覽：`pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. 使用者確認後，執行實際建立（移除 `--dry-run`）
 
 ---
 
@@ -131,6 +134,7 @@ Agent 執行流程：
 | `pionex-trade-cli bot spot_grid get --bu-order-id <id>`                                                     | 讀取  | 依 ID 查詢現貨網格機器人訂單                   |
 | `pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>`                              | 讀取  | 取得交易對的 AI 推薦網格參數                   |
 | `pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`         | 寫入  | 建立現貨網格機器人訂單                         |
+| `pionex-trade-cli bot spot_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`   | 讀取  | 下單前驗證參數                                 |
 | `pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <p>] [--bottom <p>] [--row <n>] [--quote-invest <amt>]` | 寫入 | 調整網格範圍或追加投入            |
 | `pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <金額>`                         | 寫入  | 向執行中的機器人追加計價貨幣投入               |
 | `pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]` | 寫入  | 取消並關閉機器人訂單                           |
@@ -184,10 +188,11 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 
 1. **明確參數**：絕不猜測網格範圍或投入金額。若不明確，請詢問使用者。
 2. **優先 AI 策略**：對於新機器人，建議先呼叫 `get_ai_strategy` 取得推薦參數，再由使用者確認或調整。
-3. **先模擬執行**：對於任何寫入操作（建立、調整、追加投入、取消、提取利潤），優先以 `--dry-run` 執行，確認後再實際執行。
-4. **餘額檢查**：建立機器人前，檢查可用計價貨幣餘額。
-5. **取消預覽**：取消機器人前，先取得其當前狀態並展示給使用者確認。
-6. **不單方面增加風險**：Agent 絕不會在未經使用者明確同意的情況下增加投入或網格範圍。
+3. **下單前驗證**：始終先呼叫 `check_params` 驗證參數。若伺服器回傳含 `min_investment` / `max_investment` 的 `FailedWithData` 錯誤，將有效範圍展示給使用者並請其調整。
+4. **先模擬執行**：對於任何寫入操作（建立、調整、追加投入、取消、提取利潤），優先以 `--dry-run` 執行，確認後再實際執行。
+5. **餘額檢查**：建立機器人前，檢查可用計價貨幣餘額。
+6. **取消預覽**：取消機器人前，先取得其當前狀態並展示給使用者確認。
+7. **不單方面增加風險**：Agent 絕不會在未經使用者明確同意的情況下增加投入或網格範圍。
 
 #### 現貨網格交易流程範例
 
@@ -199,5 +204,6 @@ Agent 執行流程：
 2. 取得 AI 策略：`pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT`
 3. 取得當前價格：`pionex-trade-cli market tickers --symbol BTC_USDT`
 4. 展示 AI 推薦參數；請使用者確認或調整
-5. 模擬執行預覽：`pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. 使用者確認後，執行實際建立（移除 `--dry-run`）
+5. 驗證參數：`pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — 若回傳 `FailedWithData`，展示有效範圍並請使用者調整
+6. 模擬執行預覽：`pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. 使用者確認後，執行實際建立（移除 `--dry-run`）

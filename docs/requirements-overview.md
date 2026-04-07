@@ -97,6 +97,19 @@ and a `capabilities` discovery command.
 - `commander` added as runtime dependency
 - New command: `pionex-trade-cli capabilities` (JSON listing of all groups/commands)
 
+#### 9. Bot Grid Check Params
+**Status:** Completed (iteration `2026040700_bot_grid_check_params`)
+**Reference:** https://github.com/pionex-official/pionex-open-api/pull/13
+**Description:** Exposes the new Pionex parameter validation endpoints for futures grid and spot grid bots. Allows AI agents and CLI users to pre-validate order parameters without committing to an order. On `FailedWithData` errors, the response includes `min_investment`, `max_investment`, and `slippage` for user guidance.
+
+**New Tools:**
+- `pionex_bot_futures_grid_check_params` — `POST /api/v1/bot/orders/futuresGrid/checkParams`
+- `pionex_bot_spot_grid_check_params` — `POST /api/v1/bot/orders/spotGrid/checkParams`
+
+**New CLI Commands:**
+- `pionex-trade-cli bot futures_grid check_params`
+- `pionex-trade-cli bot spot_grid check_params`
+
 ## Future Plans
 
 Possible expansion directions:

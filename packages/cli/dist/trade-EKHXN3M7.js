@@ -7,7 +7,7 @@ import {
   print,
   toToolErrorPayload,
   version
-} from "./chunk-ZYLX3OJJ.js";
+} from "./chunk-NDTSX4HU.js";
 
 // src/trade.ts
 import { Command as Command7 } from "commander";
@@ -21,8 +21,8 @@ var COMPLETION_TREE = {
   account: ["balance"],
   orders: ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot: ["order_list", "futures_grid", "spot_grid"],
-  futures_grid: ["get", "create", "adjust_params", "reduce", "cancel"],
-  spot_grid: ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit"],
+  futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
+  spot_grid: ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit", "check_params"],
   earn: ["dual"],
   dual: [
     "symbols",
@@ -79,8 +79,8 @@ function generateFishCompletion() {
     "# orders subcommands",
     ...T.orders.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from orders' -a '${s}'`),
     "",
-    "# bot subcommands",
-    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot' -a '${s}'`),
+    "# bot subcommands (only before entering futures_grid or spot_grid)",
+    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot; and not __fish_seen_subcommand_from futures_grid spot_grid' -a '${s}'`),
     "",
     "# bot futures_grid commands",
     ...T.futures_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from futures_grid' -a '${s}'`),
@@ -88,8 +88,8 @@ function generateFishCompletion() {
     "# bot spot_grid commands",
     ...T.spot_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from spot_grid' -a '${s}'`),
     "",
-    "# earn subcommands",
-    ...T.earn.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from earn' -a '${s}'`),
+    "# earn subcommands (only before entering dual)",
+    ...T.earn.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from earn; and not __fish_seen_subcommand_from dual' -a '${s}'`),
     "",
     "# earn dual commands",
     ...T.dual.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from dual' -a '${s}'`),
@@ -372,6 +372,22 @@ function buildFuturesGridCommand() {
       process.exit(1);
     }
   });
+  fg.command("check_params").description(
+    `Validate Futures Grid bot parameters before creating an order
+  Example: pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT \\
+    --bu-order-data-json '{"top":"110000","bottom":"90000","row":100,"grid_type":"arithmetic","trend":"long","leverage":5,"quoteInvestment":"100"}'`
+  ).requiredOption("--base <base>", "Base asset (e.g. BTC)").requiredOption("--quote <quote>", "Quote asset (e.g. USDT)").requiredOption("--bu-order-data-json <json>", "JSON object with grid parameters").action(async (opts, cmd) => {
+    try {
+      const buOrderDataRaw = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+      const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_futures_grid_check_params", { base: opts.base, quote: opts.quote, buOrderData });
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
   fg.command("cancel").description("Cancel a Futures Grid bot").requiredOption("--bu-order-id <id>", "Bot order ID").option("--close-note <note>", "Close note").option("--close-sell-model <model>", "Sell model on close").option("--immediate", "Close immediately").option("--close-slippage <slippage>", "Slippage tolerance on close").action(async (opts, cmd) => {
     try {
       const payload = {
@@ -468,6 +484,22 @@ function buildSpotGridCommand() {
       }
       const run = makeRunner(cmd);
       const out = await run("pionex_bot_spot_grid_invest_in", payload);
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  sg.command("check_params").description(
+    `Validate Spot Grid bot parameters before creating an order
+  Example: pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT \\
+    --bu-order-data-json '{"top":"110000","bottom":"90000","row":50,"gridType":"arithmetic","quoteTotalInvestment":"100"}'`
+  ).requiredOption("--base <base>", "Base asset (e.g. BTC)").requiredOption("--quote <quote>", "Quote asset (e.g. USDT)").requiredOption("--bu-order-data-json <json>", "JSON object with grid parameters").action(async (opts, cmd) => {
+    try {
+      const buOrderDataRaw = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+      const buOrderData = parseAndValidateCreateSpotGridBuOrderData(buOrderDataRaw);
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_spot_grid_check_params", { base: opts.base, quote: opts.quote, buOrderData });
       print(out.data);
     } catch (e) {
       process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
@@ -751,4 +783,4 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
-//# sourceMappingURL=trade-QEOFZDHE.js.map
+//# sourceMappingURL=trade-EKHXN3M7.js.map
