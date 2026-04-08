@@ -15,6 +15,7 @@
 | `pionex_bot_futures_grid_adjust_params`      | 調整合約網格機器人參數（追加投入/網格範圍） |
 | `pionex_bot_futures_grid_reduce`             | 減少合約網格機器人倉位                     |
 | `pionex_bot_futures_grid_cancel`             | 取消並關閉合約網格機器人訂單            |
+| `pionex_bot_futures_grid_check_params`       | 下單前驗證合約網格參數                  |
 
 ### 現貨網格（需要 API Key）
 
@@ -27,3 +28,4 @@
 | `pionex_bot_spot_grid_invest_in`             | 向執行中的現貨網格機器人追加計價貨幣投入                  |
 | `pionex_bot_spot_grid_cancel`                | 取消並關閉現貨網格機器人訂單                              |
 | `pionex_bot_spot_grid_profit`                | 從現貨網格機器人提取累積的網格利潤                        |
+| `pionex_bot_spot_grid_check_params`          | 下單前驗證現貨網格參數                                    |

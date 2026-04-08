@@ -146,11 +146,18 @@ When adding a new client, update `SUPPORTED_CLIENTS` and `runSetup()` in `packag
 From repo root:
 
 ```bash
-cd packages/cli && npm publish --access public
-cd ../mcp && npm publish --access public
+npm run release
 ```
 
-Publish order doesn't matter (no inter-package dependency at runtime). Version numbers in `package.json` are managed manually.
+This single command: **build → regenerate fish completion → publish cli → publish mcp**
+
+`release` is defined in the root `package.json` and handles everything in order:
+1. `npm run build` — rebuild all packages (core → cli → mcp)
+2. `node packages/cli/dist/index.js setup-completion-fish > ~/.config/fish/completions/pionex-trade-cli.fish` — refresh local fish tab completion
+3. `npm publish --workspace=@pionex/pionex-ai-kit` — publish CLI package
+4. `npm publish --workspace=@pionex/pionex-trade-mcp` — publish MCP server package
+
+Version numbers in `package.json` are managed manually — bump them before running `npm run release`.
 
 ## Common Tasks
 
@@ -159,6 +166,7 @@ Publish order doesn't matter (no inter-package dependency at runtime). Version n
 2. **同步更新补全树** `packages/cli/src/completion.ts` 中的 `COMPLETION_TREE` 对象
 3. Rebuild: `npm run build`
 4. Verify: `node packages/cli/dist/index.js <group> --help`
+5. When ready to publish, run `npm run release` — it automatically rebuilds, regenerates the fish completion script, and publishes both packages.
 
 **Adding a new tool:**
 1. Add to appropriate module in `packages/core/src/tools/*.ts`

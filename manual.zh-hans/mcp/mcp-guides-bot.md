@@ -15,6 +15,7 @@
 | `pionex_bot_futures_grid_adjust_params`      | 调整合约网格机器人参数（投资额/网格区间） |
 | `pionex_bot_futures_grid_reduce`             | 减少合约网格机器人仓位                     |
 | `pionex_bot_futures_grid_cancel`             | 取消并关闭合约网格机器人订单            |
+| `pionex_bot_futures_grid_check_params`       | 下单前校验合约网格参数                  |
 
 ### 现货网格（需要 API Key）
 
@@ -27,3 +28,4 @@
 | `pionex_bot_spot_grid_invest_in`             | 向运行中的现货网格机器人追加计价货币投资                 |
 | `pionex_bot_spot_grid_cancel`                | 取消并关闭现货网格机器人订单                             |
 | `pionex_bot_spot_grid_profit`                | 从现货网格机器人提取累积的网格利润                       |
+| `pionex_bot_spot_grid_check_params`          | 下单前校验现货网格参数                                   |

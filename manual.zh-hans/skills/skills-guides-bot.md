@@ -55,6 +55,7 @@ pionex-trade-cli bot order_list --page-token <token>
 | -------------------------------------------------------------------------- | ----- | -------------------------------------------- |
 | `pionex-trade-cli bot futures_grid get --bu-order-id <id>`                                  | 读操作 | 根据 ID 获取合约网格机器人订单                |
 | `pionex-trade-cli bot futures_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | 写操作 | 创建合约网格机器人订单          |
+| `pionex-trade-cli bot futures_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'` | 读操作 | 下单前校验参数 |
 | `pionex-trade-cli bot futures_grid adjust_params --body-json '<JSON>'`                      | 写操作 | 调整机器人参数（投资额 / 网格区间）           |
 | `pionex-trade-cli bot futures_grid reduce --body-json '<JSON>'`                             | 写操作 | 减少机器人仓位                               |
 | `pionex-trade-cli bot futures_grid cancel --bu-order-id <id>`                               | 写操作 | 取消并关闭机器人订单                         |
@@ -99,11 +100,12 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456
 #### 行为约束
 
 1. **明确参数**：永远不要猜测网格区间、杠杆或投资金额。如果不明确，询问用户。
-2. **先试运行**：对于任何写操作（创建、调整、减仓、取消），优先使用 `--dry-run` 运行，向用户展示将要发生的操作，仅在确认后执行。
-3. **余额检查**：在创建机器人前，检查可用余额。如果资金不足，通知用户并建议调整投资金额。
-4. **杠杆意识**：始终与用户确认杠杆。永远不要在没有明确同意的情况下增加杠杆。
-5. **取消预览**：在取消机器人前，检索其当前状态并展示给用户确认。
-6. **不单方面增加风险**：智能体永远不会在没有用户明确同意的情况下增加投资、杠杆或网格区间。
+2. **下单前校验**：始终先调用 `check_params` 校验参数。如果服务端返回含 `min_investment` / `max_investment` 的 `FailedWithData` 错误，将有效范围展示给用户并请其调整。
+3. **先试运行**：对于任何写操作（创建、调整、减仓、取消），优先使用 `--dry-run` 运行，向用户展示将要发生的操作，仅在确认后执行。
+4. **余额检查**：在创建机器人前，检查可用余额。如果资金不足，通知用户并建议调整投资金额。
+5. **杠杆意识**：始终与用户确认杠杆。永远不要在没有明确同意的情况下增加杠杆。
+6. **取消预览**：在取消机器人前，检索其当前状态并展示给用户确认。
+7. **不单方面增加风险**：智能体永远不会在没有用户明确同意的情况下增加投资、杠杆或网格区间。
 
 #### 机器人交易流程示例
 
@@ -115,8 +117,9 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456
 2. 获取交易对信息：`pionex-trade-cli market symbols --symbols BTC_USDT --type PERP`
 3. 获取当前价格：`pionex-trade-cli market tickers --symbol BTC_USDT --type PERP`
 4. 询问用户网格区间、网格数量和杠杆（如果未指定）
-5. 试运行预览：`pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. 用户确认后，执行实际创建（移除 `--dry-run`）
+5. 校验参数：`pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — 若返回 `FailedWithData`，展示有效范围并请用户调整
+6. 试运行预览：`pionex-trade-cli bot futures_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. 用户确认后，执行实际创建（移除 `--dry-run`）
 
 ---
 
@@ -131,6 +134,7 @@ pionex-trade-cli bot futures_grid cancel --bu-order-id 123456
 | `pionex-trade-cli bot spot_grid get --bu-order-id <id>`                                                     | 读操作 | 根据 ID 获取现货网格机器人订单                 |
 | `pionex-trade-cli bot spot_grid get_ai_strategy --base <BASE> --quote <QUOTE>`                              | 读操作 | 获取交易对的 AI 推荐网格参数                   |
 | `pionex-trade-cli bot spot_grid create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`         | 写操作 | 创建现货网格机器人订单                         |
+| `pionex-trade-cli bot spot_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`   | 读操作 | 下单前校验参数                                 |
 | `pionex-trade-cli bot spot_grid adjust_params --bu-order-id <id> [--top <p>] [--bottom <p>] [--row <n>] [--quote-invest <amt>]` | 写操作 | 调整网格区间或追加投资              |
 | `pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <金额>`                         | 写操作 | 向运行中的机器人追加计价货币投资               |
 | `pionex-trade-cli bot spot_grid cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]` | 写操作 | 取消并关闭机器人订单                           |
@@ -184,10 +188,11 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 
 1. **明确参数**：永远不要猜测网格区间或投资金额。如果不明确，询问用户。
 2. **优先 AI 策略**：对于新机器人，建议先调用 `get_ai_strategy` 获取推荐参数，再让用户手动确认或调整。
-3. **先试运行**：对于任何写操作（创建、调整、追加投资、取消、提取利润），优先使用 `--dry-run` 运行，向用户展示将要发生的操作，仅在确认后执行。
-4. **余额检查**：在创建机器人前，检查可用计价货币余额。
-5. **取消预览**：在取消机器人前，检索其当前状态并展示给用户确认。
-6. **不单方面增加风险**：智能体永远不会在没有用户明确同意的情况下增加投资或网格区间。
+3. **下单前校验**：始终先调用 `check_params` 校验参数。如果服务端返回含 `min_investment` / `max_investment` 的 `FailedWithData` 错误，将有效范围展示给用户并请其调整。
+4. **先试运行**：对于任何写操作（创建、调整、追加投资、取消、提取利润），优先使用 `--dry-run` 运行，向用户展示将要发生的操作，仅在确认后执行。
+5. **余额检查**：在创建机器人前，检查可用计价货币余额。
+6. **取消预览**：在取消机器人前，检索其当前状态并展示给用户确认。
+7. **不单方面增加风险**：智能体永远不会在没有用户明确同意的情况下增加投资或网格区间。
 
 #### 现货网格交易流程示例
 
@@ -199,5 +204,6 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 2. 获取 AI 策略：`pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT`
 3. 获取当前价格：`pionex-trade-cli market tickers --symbol BTC_USDT`
 4. 展示 AI 推荐参数；请用户确认或调整
-5. 试运行预览：`pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
-6. 用户确认后，执行实际创建（移除 `--dry-run`）
+5. 校验参数：`pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — 若返回 `FailedWithData`，展示有效范围并请用户调整
+6. 试运行预览：`pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
+7. 用户确认后，执行实际创建（移除 `--dry-run`）

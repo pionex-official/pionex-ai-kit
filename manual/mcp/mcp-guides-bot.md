@@ -15,6 +15,7 @@
 | `pionex_bot_futures_grid_adjust_params`      | Adjust futures grid bot params (invest / grid range) |
 | `pionex_bot_futures_grid_reduce`             | Reduce futures grid bot position                     |
 | `pionex_bot_futures_grid_cancel`             | Cancel and close a futures grid bot order            |
+| `pionex_bot_futures_grid_check_params`       | Validate futures grid parameters before creating an order |
 
 ### Spot Grid (API Key Required)
 
@@ -27,3 +28,4 @@
 | `pionex_bot_spot_grid_invest_in`             | Add additional quote investment to a running spot grid bot   |
 | `pionex_bot_spot_grid_cancel`                | Cancel and close a spot grid bot order                       |
 | `pionex_bot_spot_grid_profit`                | Extract accumulated grid profit from a spot grid bot         |
+| `pionex_bot_spot_grid_check_params`          | Validate spot grid parameters before creating an order       |

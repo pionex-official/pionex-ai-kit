@@ -4,7 +4,7 @@ This document describes the detailed technical design of Pionex AI Kit, includin
 
 ## Last Updated
 
-**Date:** 2026-04-01
+**Date:** 2026-04-07
 
 ## Core Module Design
 
@@ -80,7 +80,7 @@ packages/core/src/tools/
   market.ts             → Market module tools
   account.ts            → Account module tools
   orders.ts             → Orders module tools
-  bot.ts                → Bot module tools
+  bot.ts                → Bot module tools (includes check_params for futures/spot grid)
   earn-dual.ts          → Earn Dual Investment tools (11 tools)
 ```
 
@@ -365,7 +365,7 @@ $ pionex-trade-cli market depth BTC_USDT --limit 5
 | MCP Entry | `packages/mcp/src/index.ts` |
 | CLI Entry | `packages/cli/src/index.ts` |
 | Setup Logic | `packages/core/src/setup.ts` |
-| Schema Validation | `packages/core/src/schemas/futures-grid-create.ts` |
+| Schema Validation | `packages/core/src/schemas/futures-grid-create.ts`, `packages/core/src/schemas/spot-grid-create.ts` |
 
 ## Design Principles
 

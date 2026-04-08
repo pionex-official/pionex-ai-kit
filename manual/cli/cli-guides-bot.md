@@ -135,6 +135,28 @@ pionex-trade-cli bot futures_grid reduce --body-json '<JSON>' [--dry-run]
 pionex-trade-cli bot futures_grid reduce --body-json '{"buOrderId": "123456", "reduceNum": 10}'
 ```
 
+#### bot futures_grid check_params
+
+Validate futures grid parameters before creating an order. Returns the server-side validation result. When parameters are out of range, a `FailedWithData` error response includes `min_investment`, `max_investment`, and `slippage`.
+
+```bash
+pionex-trade-cli bot futures_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
+```
+
+Uses the same `buOrderData` fields as `futures_grid create`.
+
+```bash
+pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT --bu-order-data-json '{
+  "top": "80000",
+  "bottom": "60000",
+  "row": 50,
+  "grid_type": "arithmetic",
+  "trend": "long",
+  "leverage": 5,
+  "quoteInvestment": "1000"
+}'
+```
+
 #### bot futures_grid cancel
 
 Cancel and close a futures grid bot order.
@@ -248,6 +270,26 @@ pionex-trade-cli bot spot_grid invest_in --bu-order-id <id> --quote-invest <amou
 
 ```bash
 pionex-trade-cli bot spot_grid invest_in --bu-order-id 123456 --quote-invest 100
+```
+
+#### bot spot_grid check_params
+
+Validate spot grid parameters before creating an order. Returns the server-side validation result. When parameters are out of range, a `FailedWithData` error response includes `min_investment`, `max_investment`, and `slippage`.
+
+```bash
+pionex-trade-cli bot spot_grid check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
+```
+
+Uses the same `buOrderData` fields as `spot_grid create`.
+
+```bash
+pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT --bu-order-data-json '{
+  "top": "110000",
+  "bottom": "90000",
+  "row": 50,
+  "gridType": "arithmetic",
+  "quoteTotalInvestment": "100"
+}'
 ```
 
 #### bot spot_grid cancel

@@ -97,6 +97,28 @@ function buildFuturesGridCommand(): Command {
       }
     });
 
+  fg.command("check_params")
+    .description(
+      "Validate Futures Grid bot parameters before creating an order\n" +
+      "  Example: pionex-trade-cli bot futures_grid check_params --base BTC --quote USDT \\\n" +
+      "    --bu-order-data-json '{\"top\":\"110000\",\"bottom\":\"90000\",\"row\":100,\"grid_type\":\"arithmetic\",\"trend\":\"long\",\"leverage\":5,\"quoteInvestment\":\"100\"}'"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--bu-order-data-json <json>", "JSON object with grid parameters")
+    .action(async (opts: { base: string; quote: string; buOrderDataJson: string }, cmd: Command) => {
+      try {
+        const buOrderDataRaw = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+        const buOrderData = parseAndValidateCreateFuturesGridBuOrderData(buOrderDataRaw);
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_futures_grid_check_params", { base: opts.base, quote: opts.quote, buOrderData });
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
   fg.command("cancel")
     .description("Cancel a Futures Grid bot")
     .requiredOption("--bu-order-id <id>", "Bot order ID")
@@ -231,6 +253,28 @@ function buildSpotGridCommand(): Command {
         }
         const run = makeRunner(cmd);
         const out = await run("pionex_bot_spot_grid_invest_in", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sg.command("check_params")
+    .description(
+      "Validate Spot Grid bot parameters before creating an order\n" +
+      "  Example: pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT \\\n" +
+      "    --bu-order-data-json '{\"top\":\"110000\",\"bottom\":\"90000\",\"row\":50,\"gridType\":\"arithmetic\",\"quoteTotalInvestment\":\"100\"}'"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--bu-order-data-json <json>", "JSON object with grid parameters")
+    .action(async (opts: { base: string; quote: string; buOrderDataJson: string }, cmd: Command) => {
+      try {
+        const buOrderDataRaw = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+        const buOrderData = parseAndValidateCreateSpotGridBuOrderData(buOrderDataRaw);
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_spot_grid_check_params", { base: opts.base, quote: opts.quote, buOrderData });
         print(out.data);
       } catch (e) {
         process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");

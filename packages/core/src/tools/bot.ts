@@ -1,10 +1,12 @@
 import type { ToolSpec } from "./types.js";
 import {
   createFuturesGridCreateToolInputSchema,
+  createFuturesGridOrderDataJsonSchema,
   parseAndValidateCreateFuturesGridBuOrderData,
 } from "../schemas/futures-grid-create.js";
 import {
   createSpotGridCreateToolInputSchema,
+  createSpotGridOrderDataJsonSchema,
   parseAndValidateCreateSpotGridBuOrderData,
 } from "../schemas/spot-grid-create.js";
 import type { QueryParams } from "../client/types.js";
@@ -263,6 +265,32 @@ export function registerBotTools(): ToolSpec[] {
       },
     },
     {
+      name: "pionex_bot_futures_grid_check_params",
+      module: "bot",
+      isWrite: false,
+      description:
+        "Validate futures grid bot parameters before creating an order. " +
+        "Uses the same buOrderData structure as futures_grid_create. " +
+        "On FailedWithData error the response includes min_investment, max_investment, slippage. " +
+        "Endpoint: POST /api/v1/bot/orders/futuresGrid/checkParams",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "buOrderData"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC); *.PERP normalized in handler" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          buOrderData: createFuturesGridOrderDataJsonSchema,
+        },
+      },
+      async handler(args, { client }) {
+        const base = normalizePerpBase(asNonEmptyString(args.base, "base"));
+        const quote = asNonEmptyString(args.quote, "quote");
+        const buOrderDataOut = parseAndValidateCreateFuturesGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
+        return (await client.signedPost("/api/v1/bot/orders/futuresGrid/checkParams", { base, quote, buOrderData: buOrderDataOut })).data;
+      },
+    },
+    {
       name: "pionex_bot_order_list",
       module: "bot",
       isWrite: false,
@@ -374,6 +402,32 @@ export function registerBotTools(): ToolSpec[] {
         const base = asNonEmptyString(args.base, "base");
         const quote = asNonEmptyString(args.quote, "quote");
         return (await client.signedGet("/api/v1/bot/orders/spotGrid/aiStrategy", { base, quote })).data;
+      },
+    },
+    {
+      name: "pionex_bot_spot_grid_check_params",
+      module: "bot",
+      isWrite: false,
+      description:
+        "Validate spot grid bot parameters before creating an order. " +
+        "Uses the same buOrderData structure as spot_grid_create. " +
+        "On FailedWithData error the response includes min_investment, max_investment, slippage. " +
+        "Endpoint: POST /api/v1/bot/orders/spotGrid/checkParams",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "buOrderData"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          buOrderData: createSpotGridOrderDataJsonSchema,
+        },
+      },
+      async handler(args, { client }) {
+        const base = asNonEmptyString(args.base, "base");
+        const quote = asNonEmptyString(args.quote, "quote");
+        const buOrderDataOut = parseAndValidateCreateSpotGridBuOrderData(asObject(args.buOrderData, "buOrderData"));
+        return (await client.signedPost("/api/v1/bot/orders/spotGrid/checkParams", { base, quote, buOrderData: buOrderDataOut })).data;
       },
     },
     {
