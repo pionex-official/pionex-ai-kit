@@ -75,6 +75,26 @@ function normalizePerpBase(base: string): string {
   return base.endsWith(".PERP") ? base : `${base}.PERP`;
 }
 
+function parseSmartCopyBuOrderData(raw: Record<string, unknown>): Record<string, unknown> {
+  const quoteInvestment = asPositiveDecimalString(raw.quoteInvestment, "buOrderData.quoteInvestment");
+  const leverageType = asNonEmptyString(raw.leverageType, "buOrderData.leverageType");
+  assertEnum(leverageType, "buOrderData.leverageType", ["follow", "fixed"]);
+
+  if (leverageType === "fixed" && raw.leverage == null) {
+    throw new Error('Invalid "buOrderData.leverage": required when leverageType is "fixed".');
+  }
+
+  const out: Record<string, unknown> = { quoteInvestment, leverageType };
+  if (raw.leverage != null) out.leverage = asPositiveNumber(raw.leverage, "buOrderData.leverage");
+  if (raw.maxInvestPerOrder != null) out.maxInvestPerOrder = asPositiveDecimalString(raw.maxInvestPerOrder, "buOrderData.maxInvestPerOrder");
+  if (raw.copyMode != null) {
+    const copyMode = asNonEmptyString(raw.copyMode, "buOrderData.copyMode");
+    assertEnum(copyMode, "buOrderData.copyMode", ["fixed_amount", "fixed_ratio"]);
+    out.copyMode = copyMode;
+  }
+  return out;
+}
+
 export function registerBotTools(): ToolSpec[] {
   return [
     {
@@ -564,6 +584,172 @@ export function registerBotTools(): ToolSpec[] {
         const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
         const amount = asPositiveDecimalString(args.amount, "amount");
         return (await client.signedPost("/api/v1/bot/orders/spotGrid/profit", { buOrderId, amount })).data;
+      },
+    },
+    // ── Smart Copy ────────────────────────────────────────────────────────────
+    {
+      name: "pionex_bot_smart_copy_get_order",
+      module: "bot",
+      isWrite: false,
+      description: "Get one smart copy bot order by buOrderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string", description: "Smart copy bot order ID." },
+        },
+        required: ["buOrderId"],
+      },
+      async handler(args, { client }) {
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        return (await client.signedGet("/api/v1/bot/orders/smartCopy/order", { buOrderId })).data;
+      },
+    },
+    {
+      name: "pionex_bot_smart_copy_check_params",
+      module: "bot",
+      isWrite: false,
+      description:
+        "Validate smart copy bot parameters before creating an order. " +
+        "Uses the same buOrderData structure as smart_copy_create. " +
+        "On FailedWithData error the response includes min_investment, max_investment. " +
+        "Endpoint: POST /api/v1/bot/orders/smartCopy/checkParams",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "buOrderData"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          buOrderData: {
+            type: "object",
+            additionalProperties: false,
+            required: ["quoteInvestment", "leverageType"],
+            properties: {
+              quoteInvestment: { type: "string", description: "Investment amount in quote currency." },
+              leverageType: { type: "string", enum: ["follow", "fixed"], description: "Follow signal provider's leverage or use fixed value." },
+              leverage: { type: "number", description: "Custom leverage (required when leverageType is 'fixed')." },
+              maxInvestPerOrder: { type: "string", description: "Maximum investment per replicated order." },
+              copyMode: { type: "string", enum: ["fixed_amount", "fixed_ratio"], description: "Copy mode." },
+            },
+          },
+        },
+      },
+      async handler(args, { client }) {
+        const base = asNonEmptyString(args.base, "base");
+        const quote = asNonEmptyString(args.quote, "quote");
+        const buOrderData = parseSmartCopyBuOrderData(asObject(args.buOrderData, "buOrderData"));
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/checkParams", { base, quote, buOrderData })).data;
+      },
+    },
+    {
+      name: "pionex_bot_smart_copy_create",
+      module: "bot",
+      isWrite: true,
+      description:
+        "Create a smart copy bot order. " +
+        "Required: base, quote, buOrderData (quoteInvestment, leverageType). " +
+        "Optional top-level: copyFrom (signal source ID), copyBotOrderId. " +
+        "buOrderData optional: leverage (required if leverageType=fixed), maxInvestPerOrder, copyMode.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "buOrderData"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          buOrderData: {
+            type: "object",
+            additionalProperties: false,
+            required: ["quoteInvestment", "leverageType"],
+            properties: {
+              quoteInvestment: { type: "string", description: "Investment amount in quote currency." },
+              leverageType: { type: "string", enum: ["follow", "fixed"], description: "Follow signal provider's leverage or use fixed value." },
+              leverage: { type: "number", description: "Custom leverage (required when leverageType is 'fixed')." },
+              maxInvestPerOrder: { type: "string", description: "Maximum investment per replicated order." },
+              copyMode: { type: "string", enum: ["fixed_amount", "fixed_ratio"], description: "Copy mode." },
+            },
+          },
+          copyFrom: { type: "string", description: "Signal source / trader ID to copy from." },
+          copyBotOrderId: { type: "string", description: "Reference bot order ID for copying settings." },
+          __dryRun: { type: "boolean", description: "If true, validate and return resolved body without placing an order." },
+        },
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot smart_copy create is disabled.");
+        }
+        const base = asNonEmptyString(args.base, "base");
+        const quote = asNonEmptyString(args.quote, "quote");
+        const buOrderData = parseSmartCopyBuOrderData(asObject(args.buOrderData, "buOrderData"));
+
+        const body: Record<string, unknown> = { base, quote, buOrderData };
+        if (args.copyFrom != null) body.copyFrom = String(args.copyFrom);
+        if (args.copyBotOrderId != null) body.copyBotOrderId = String(args.copyBotOrderId);
+
+        if (args.__dryRun === true) {
+          return {
+            dryRun: true,
+            note: "No order was sent. Body matches smartCopy/create request.",
+            resolvedBody: body,
+          };
+        }
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/create", body)).data;
+      },
+    },
+    {
+      name: "pionex_bot_smart_copy_cancel",
+      module: "bot",
+      isWrite: true,
+      description: "Cancel and close a smart copy bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["buOrderId"],
+        properties: {
+          buOrderId: { type: "string", description: "Smart copy bot order ID." },
+          closeSellModel: { type: "string", enum: ["NOT_SELL", "TO_QUOTE", "TO_USDT"], description: "How to handle the base asset on close." },
+        },
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot smart_copy cancel is disabled.");
+        }
+        const buOrderId = asNonEmptyString(args.buOrderId, "buOrderId");
+        const body: Record<string, unknown> = { buOrderId };
+        if (args.closeSellModel != null) {
+          const closeSellModel = asNonEmptyString(args.closeSellModel, "closeSellModel");
+          assertEnum(closeSellModel, "closeSellModel", ["NOT_SELL", "TO_QUOTE", "TO_USDT"]);
+          body.closeSellModel = closeSellModel;
+        }
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/cancel", body)).data;
+      },
+    },
+    // ── Signal ────────────────────────────────────────────────────────────────
+    {
+      name: "pionex_bot_signal_add_listener",
+      module: "bot",
+      isWrite: true,
+      description:
+        "Subscribe to a signal provider / add a signal listener. " +
+        "Endpoint: POST /api/v1/bot/signal/listener",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["signalSourceId"],
+        properties: {
+          signalSourceId: { type: "string", description: "Signal provider ID to subscribe to." },
+          listenMode: { type: "string", description: "Subscription mode." },
+        },
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot signal add_listener is disabled.");
+        }
+        const signalSourceId = asNonEmptyString(args.signalSourceId, "signalSourceId");
+        const body: Record<string, unknown> = { signalSourceId };
+        if (args.listenMode != null) body.listenMode = String(args.listenMode);
+        return (await client.signedPost("/api/v1/bot/signal/listener", body)).data;
       },
     },
   ];

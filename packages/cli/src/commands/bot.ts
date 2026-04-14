@@ -330,6 +330,135 @@ function buildSpotGridCommand(): Command {
   return sg;
 }
 
+function buildSmartCopyCommand(): Command {
+  const sc = new Command("smart_copy").description("Smart Copy bot sub-commands (requires auth)");
+
+  sc.command("get")
+    .description("Get a Smart Copy bot order by ID")
+    .requiredOption("--bu-order-id <id>", "Bot order ID")
+    .action(async (opts: { buOrderId: string }, cmd: Command) => {
+      try {
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_get_order", { buOrderId: opts.buOrderId });
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("create")
+    .description(
+      "Create a Smart Copy bot\n" +
+      "  Example: pionex-trade-cli bot smart_copy create --base BTC --quote USDT \\\n" +
+      "    --bu-order-data-json '{\"quoteInvestment\":\"100\",\"leverageType\":\"follow\"}' --copy-from <signalSourceId>"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--bu-order-data-json <json>", "JSON with quoteInvestment and leverageType")
+    .option("--copy-from <id>", "Signal source / trader ID to copy from")
+    .option("--copy-bot-order-id <id>", "Reference bot order ID for copying settings")
+    .action(async (opts: { base: string; quote: string; buOrderDataJson: string; copyFrom?: string; copyBotOrderId?: string }, cmd: Command) => {
+      try {
+        const buOrderData = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+        const payload: Record<string, unknown> = {
+          base: opts.base,
+          quote: opts.quote,
+          buOrderData,
+          copyFrom: opts.copyFrom,
+          copyBotOrderId: opts.copyBotOrderId,
+        };
+        if (isDryRun(cmd)) {
+          const run = makeRunner(cmd);
+          const out = await run("pionex_bot_smart_copy_create", { ...payload, __dryRun: true });
+          print(out.data);
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_create", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("check_params")
+    .description(
+      "Validate Smart Copy parameters before creating an order\n" +
+      "  Example: pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \\\n" +
+      "    --bu-order-data-json '{\"quoteInvestment\":\"100\",\"leverageType\":\"follow\"}'"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--bu-order-data-json <json>", "JSON with quoteInvestment and leverageType")
+    .action(async (opts: { base: string; quote: string; buOrderDataJson: string }, cmd: Command) => {
+      try {
+        const buOrderData = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_check_params", { base: opts.base, quote: opts.quote, buOrderData });
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("cancel")
+    .description("Cancel a Smart Copy bot")
+    .requiredOption("--bu-order-id <id>", "Bot order ID")
+    .option("--close-sell-model <model>", "Sell model on close: NOT_SELL | TO_QUOTE | TO_USDT")
+    .action(async (opts: { buOrderId: string; closeSellModel?: string }, cmd: Command) => {
+      try {
+        const payload: Record<string, unknown> = {
+          buOrderId: opts.buOrderId,
+          closeSellModel: opts.closeSellModel,
+        };
+        if (isDryRun(cmd)) {
+          print({ tool: "pionex_bot_smart_copy_cancel", args: payload });
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_cancel", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  return sc;
+}
+
+function buildSignalCommand(): Command {
+  const sig = new Command("signal").description("Signal provider sub-commands (requires auth)");
+
+  sig.command("add_listener")
+    .description("Subscribe to a signal provider")
+    .requiredOption("--signal-source-id <id>", "Signal provider ID")
+    .option("--listen-mode <mode>", "Subscription mode")
+    .action(async (opts: { signalSourceId: string; listenMode?: string }, cmd: Command) => {
+      try {
+        const payload: Record<string, unknown> = {
+          signalSourceId: opts.signalSourceId,
+          listenMode: opts.listenMode,
+        };
+        if (isDryRun(cmd)) {
+          print({ tool: "pionex_bot_signal_add_listener", args: payload });
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_signal_add_listener", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  return sig;
+}
+
 export function buildBotCommand(): Command {
   const bot = new Command("bot").description("Bot management (requires auth)");
 
@@ -360,6 +489,8 @@ export function buildBotCommand(): Command {
 
   bot.addCommand(buildFuturesGridCommand());
   bot.addCommand(buildSpotGridCommand());
+  bot.addCommand(buildSmartCopyCommand());
+  bot.addCommand(buildSignalCommand());
 
   return bot;
 }

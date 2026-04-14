@@ -13,9 +13,11 @@ export const COMPLETION_TREE = {
   market:       ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
   account:      ["balance"],
   orders:       ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
-  bot:          ["order_list", "futures_grid", "spot_grid"],
+  bot:          ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
   spot_grid:    ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit", "check_params"],
+  smart_copy:   ["get", "create", "cancel", "check_params"],
+  signal:       ["add_listener"],
   earn:         ["dual"],
   dual:         ["symbols", "open_products", "prices", "index", "delivery_prices",
                  "balances", "get_invests", "records", "invest", "revoke_invest", "collect"],
@@ -46,6 +48,8 @@ export function initCompletion(): OmeletteInstance {
   completion.on("bot",          ({ reply }) => reply(T.bot));
   completion.on("futures_grid", ({ reply }) => reply(T.futures_grid));
   completion.on("spot_grid",    ({ reply }) => reply(T.spot_grid));
+  completion.on("smart_copy",   ({ reply }) => reply(T.smart_copy));
+  completion.on("signal",       ({ reply }) => reply(T.signal));
   completion.on("earn",         ({ reply }) => reply(T.earn));
   completion.on("dual",         ({ reply }) => reply(T.dual));
 
@@ -83,14 +87,20 @@ export function generateFishCompletion(): string {
     "# orders subcommands",
     ...T.orders.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from orders' -a '${s}'`),
     "",
-    "# bot subcommands (only before entering futures_grid or spot_grid)",
-    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot; and not __fish_seen_subcommand_from futures_grid spot_grid' -a '${s}'`),
+    "# bot subcommands (only before entering futures_grid, spot_grid, smart_copy, or signal)",
+    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot; and not __fish_seen_subcommand_from futures_grid spot_grid smart_copy signal' -a '${s}'`),
     "",
     "# bot futures_grid commands",
     ...T.futures_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from futures_grid' -a '${s}'`),
     "",
     "# bot spot_grid commands",
     ...T.spot_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from spot_grid' -a '${s}'`),
+    "",
+    "# bot smart_copy commands",
+    ...T.smart_copy.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from smart_copy' -a '${s}'`),
+    "",
+    "# bot signal commands",
+    ...T.signal.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from signal' -a '${s}'`),
     "",
     "# earn subcommands (only before entering dual)",
     ...T.earn.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from earn; and not __fish_seen_subcommand_from dual' -a '${s}'`),

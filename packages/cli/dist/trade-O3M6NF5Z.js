@@ -7,7 +7,7 @@ import {
   print,
   toToolErrorPayload,
   version
-} from "./chunk-NDTSX4HU.js";
+} from "./chunk-6GZTCD5R.js";
 
 // src/trade.ts
 import { Command as Command7 } from "commander";
@@ -20,9 +20,11 @@ var COMPLETION_TREE = {
   market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
   account: ["balance"],
   orders: ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
-  bot: ["order_list", "futures_grid", "spot_grid"],
+  bot: ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
   spot_grid: ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit", "check_params"],
+  smart_copy: ["get", "create", "cancel", "check_params"],
+  signal: ["add_listener"],
   earn: ["dual"],
   dual: [
     "symbols",
@@ -49,6 +51,8 @@ function initCompletion() {
   completion2.on("bot", ({ reply }) => reply(T.bot));
   completion2.on("futures_grid", ({ reply }) => reply(T.futures_grid));
   completion2.on("spot_grid", ({ reply }) => reply(T.spot_grid));
+  completion2.on("smart_copy", ({ reply }) => reply(T.smart_copy));
+  completion2.on("signal", ({ reply }) => reply(T.signal));
   completion2.on("earn", ({ reply }) => reply(T.earn));
   completion2.on("dual", ({ reply }) => reply(T.dual));
   completion2.init();
@@ -79,14 +83,20 @@ function generateFishCompletion() {
     "# orders subcommands",
     ...T.orders.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from orders' -a '${s}'`),
     "",
-    "# bot subcommands (only before entering futures_grid or spot_grid)",
-    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot; and not __fish_seen_subcommand_from futures_grid spot_grid' -a '${s}'`),
+    "# bot subcommands (only before entering futures_grid, spot_grid, smart_copy, or signal)",
+    ...T.bot.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from bot; and not __fish_seen_subcommand_from futures_grid spot_grid smart_copy signal' -a '${s}'`),
     "",
     "# bot futures_grid commands",
     ...T.futures_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from futures_grid' -a '${s}'`),
     "",
     "# bot spot_grid commands",
     ...T.spot_grid.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from spot_grid' -a '${s}'`),
+    "",
+    "# bot smart_copy commands",
+    ...T.smart_copy.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from smart_copy' -a '${s}'`),
+    "",
+    "# bot signal commands",
+    ...T.signal.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from signal' -a '${s}'`),
     "",
     "# earn subcommands (only before entering dual)",
     ...T.earn.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from earn; and not __fish_seen_subcommand_from dual' -a '${s}'`),
@@ -542,6 +552,103 @@ function buildSpotGridCommand() {
   });
   return sg;
 }
+function buildSmartCopyCommand() {
+  const sc = new Command4("smart_copy").description("Smart Copy bot sub-commands (requires auth)");
+  sc.command("get").description("Get a Smart Copy bot order by ID").requiredOption("--bu-order-id <id>", "Bot order ID").action(async (opts, cmd) => {
+    try {
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_smart_copy_get_order", { buOrderId: opts.buOrderId });
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  sc.command("create").description(
+    `Create a Smart Copy bot
+  Example: pionex-trade-cli bot smart_copy create --base BTC --quote USDT \\
+    --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' --copy-from <signalSourceId>`
+  ).requiredOption("--base <base>", "Base asset (e.g. BTC)").requiredOption("--quote <quote>", "Quote asset (e.g. USDT)").requiredOption("--bu-order-data-json <json>", "JSON with quoteInvestment and leverageType").option("--copy-from <id>", "Signal source / trader ID to copy from").option("--copy-bot-order-id <id>", "Reference bot order ID for copying settings").action(async (opts, cmd) => {
+    try {
+      const buOrderData = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+      const payload = {
+        base: opts.base,
+        quote: opts.quote,
+        buOrderData,
+        copyFrom: opts.copyFrom,
+        copyBotOrderId: opts.copyBotOrderId
+      };
+      if (isDryRun(cmd)) {
+        const run2 = makeRunner(cmd);
+        const out2 = await run2("pionex_bot_smart_copy_create", { ...payload, __dryRun: true });
+        print(out2.data);
+        return;
+      }
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_smart_copy_create", payload);
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  sc.command("check_params").description(
+    `Validate Smart Copy parameters before creating an order
+  Example: pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \\
+    --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'`
+  ).requiredOption("--base <base>", "Base asset (e.g. BTC)").requiredOption("--quote <quote>", "Quote asset (e.g. USDT)").requiredOption("--bu-order-data-json <json>", "JSON with quoteInvestment and leverageType").action(async (opts, cmd) => {
+    try {
+      const buOrderData = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_smart_copy_check_params", { base: opts.base, quote: opts.quote, buOrderData });
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  sc.command("cancel").description("Cancel a Smart Copy bot").requiredOption("--bu-order-id <id>", "Bot order ID").option("--close-sell-model <model>", "Sell model on close: NOT_SELL | TO_QUOTE | TO_USDT").action(async (opts, cmd) => {
+    try {
+      const payload = {
+        buOrderId: opts.buOrderId,
+        closeSellModel: opts.closeSellModel
+      };
+      if (isDryRun(cmd)) {
+        print({ tool: "pionex_bot_smart_copy_cancel", args: payload });
+        return;
+      }
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_smart_copy_cancel", payload);
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  return sc;
+}
+function buildSignalCommand() {
+  const sig = new Command4("signal").description("Signal provider sub-commands (requires auth)");
+  sig.command("add_listener").description("Subscribe to a signal provider").requiredOption("--signal-source-id <id>", "Signal provider ID").option("--listen-mode <mode>", "Subscription mode").action(async (opts, cmd) => {
+    try {
+      const payload = {
+        signalSourceId: opts.signalSourceId,
+        listenMode: opts.listenMode
+      };
+      if (isDryRun(cmd)) {
+        print({ tool: "pionex_bot_signal_add_listener", args: payload });
+        return;
+      }
+      const run = makeRunner(cmd);
+      const out = await run("pionex_bot_signal_add_listener", payload);
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  return sig;
+}
 function buildBotCommand() {
   const bot = new Command4("bot").description("Bot management (requires auth)");
   bot.command("order_list").description("List bot orders across all bot types").option("--status <status>", "Filter by status: running | finished").option("--base <base>", "Filter by base asset (e.g. BTC)").option("--quote <quote>", "Filter by quote asset (e.g. USDT)").option("--page-token <token>", "Pagination token from previous response").option("--bu-order-types <list>", "Comma-separated types: futures_grid,spot_grid,smart_copy").action(async (opts, cmd) => {
@@ -563,6 +670,8 @@ function buildBotCommand() {
   });
   bot.addCommand(buildFuturesGridCommand());
   bot.addCommand(buildSpotGridCommand());
+  bot.addCommand(buildSmartCopyCommand());
+  bot.addCommand(buildSignalCommand());
   return bot;
 }
 
@@ -783,4 +892,4 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
-//# sourceMappingURL=trade-EKHXN3M7.js.map
+//# sourceMappingURL=trade-O3M6NF5Z.js.map

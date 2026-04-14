@@ -319,3 +319,109 @@ pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <金額>
 ```bash
 pionex-trade-cli bot spot_grid profit --bu-order-id 123456 --amount 10
 ```
+
+### 智慧跟單（需要驗證）
+
+#### bot smart_copy get
+
+依 ID 查詢智慧跟單機器人訂單。
+
+```bash
+pionex-trade-cli bot smart_copy get --bu-order-id <id>
+```
+
+```bash
+pionex-trade-cli bot smart_copy get --bu-order-id 123456
+```
+
+#### bot smart_copy create
+
+建立智慧跟單機器人訂單。
+
+```bash
+pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--dry-run]
+```
+
+* `--base`：基礎貨幣（如 `BTC`）
+* `--quote`：計價貨幣（如 `USDT`）
+* `--bu-order-data-json`：包含跟單參數的 JSON 字串
+* `--copy-from`：訊號來源 / 交易員 ID
+
+**`buOrderData` 必填欄位：**
+
+| 欄位              | 類型   | 說明                                                    |
+| ----------------- | ------ | ------------------------------------------------------- |
+| `quoteInvestment` | string | 計價貨幣投入金額                                        |
+| `leverageType`    | string | `"follow"`（跟隨訊號來源槓桿）或 `"fixed"`（固定槓桿） |
+
+**`buOrderData` 選填欄位：**
+
+| 欄位                | 類型   | 說明                                                      |
+| ------------------- | ------ | --------------------------------------------------------- |
+| `leverage`          | number | 自訂槓桿倍數（`leverageType=fixed` 時必填）               |
+| `maxInvestPerOrder` | string | 每筆複製訂單的最大投入金額                                |
+| `copyMode`          | string | `"fixed_amount"` 或 `"fixed_ratio"`                       |
+
+**範例：**
+
+```bash
+# 建立跟單機器人（跟隨訊號來源槓桿）
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
+  --copy-from <signalSourceId>
+
+# 模擬執行（預覽）
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
+  --copy-from <signalSourceId> --dry-run
+```
+
+#### bot smart_copy check_params
+
+下單前驗證智慧跟單參數。回傳伺服器端驗證結果，`FailedWithData` 錯誤時會包含 `min_investment` 和 `max_investment`。
+
+```bash
+pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
+```
+
+欄位與 `smart_copy create` 相同。
+
+```bash
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
+  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'
+```
+
+#### bot smart_copy cancel
+
+取消並關閉智慧跟單機器人訂單。
+
+```bash
+pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT] [--dry-run]
+```
+
+```bash
+# 取消並將持倉換回計價貨幣
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+
+# 取消並保留基礎貨幣（預設：NOT_SELL）
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+```
+
+### 訊號（需要驗證）
+
+#### bot signal add_listener
+
+訂閱訊號來源（跟單交易員）。
+
+```bash
+pionex-trade-cli bot signal add_listener --signal-source-id <id> [--listen-mode <mode>]
+```
+
+| 參數                 | 說明                         |
+| -------------------- | ---------------------------- |
+| `--signal-source-id` | 必填；訊號來源 ID            |
+| `--listen-mode`      | 選填；訂閱模式               |
+
+```bash
+pionex-trade-cli bot signal add_listener --signal-source-id <providerId>
+```
