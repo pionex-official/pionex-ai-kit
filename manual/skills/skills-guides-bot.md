@@ -222,8 +222,6 @@ Smart copy bot creation and management. Replicates a signal provider's trades au
 | `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                     | Write | Create a smart copy bot order                            |
 | `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]` | Read  | Validate parameters before creating an order             |
 | `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                              | Write | Cancel and close a smart copy bot order                  |
-| `pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> --base <BASE> --quote <QUOTE> --time <iso> --price <price> --action <buy\|sell> --position-size <size> --contracts <n>` | Write | Push a trading signal (signal provider use) |
-
 #### Create Parameters
 
 **Required fields in `bu_order_data`:**
@@ -255,19 +253,6 @@ Validates investment limits for a given leverage and signal type. Use `--quote-i
 | `--close-note`            | Optional close note                             |
 | `--convert-into-earn-coin`| Convert remaining funds into earn coin          |
 
-#### signal add_listener Parameters (signal provider use)
-
-| Flag               | Description                                                       |
-| ------------------ | ----------------------------------------------------------------- |
-| `--signal-type`    | Signal provider UUID                                              |
-| `--signal-param`   | Signal parameters as a JSON string (e.g. `'{}'`)                 |
-| `--base` / `--quote` | Trading pair (e.g. `BTC` / `USDT`)                             |
-| `--time`           | Signal timestamp in RFC 3339 (e.g. `2024-01-01T12:00:00Z`)      |
-| `--price`          | Current price at time of signal                                   |
-| `--action`         | `buy` to open a position, `sell` to close                        |
-| `--position-size`  | Target position size as a fraction (`"1"` = 100%)                |
-| `--contracts`      | Number of contracts                                               |
-
 #### Examples
 
 ```bash
@@ -292,11 +277,6 @@ pionex-trade-cli bot smart_copy get --bu-order-id 123456
 
 # Cancel bot
 pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
-
-# Push a buy signal (signal provider)
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
-  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
-  --action buy --position-size 1 --contracts 1
 ```
 
 #### Behavioral Constraints
@@ -319,3 +299,42 @@ Agent execution flow:
 2. Validate parameters: `pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — show allowed range
 3. Dry-run preview: add `--dry-run` to the create command, show resolved body to user
 4. After user confirms, execute without `--dry-run`
+
+---
+
+### pionex-bot: Signal
+
+Signal pushing for signal providers. **Requires API credentials**.
+
+#### Command Reference
+
+| Command                                                                                                                                                                      | Type  | Description                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------- |
+| `pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param <json> --base <BASE> --quote <QUOTE> --time <iso> --price <price> --action <buy\|sell> --position-size <size> --contracts <n>` | Write | Push a trading signal to the platform |
+
+#### Parameters
+
+| Flag               | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `--signal-type`    | Signal provider UUID                                              |
+| `--signal-param`   | Signal parameters as a JSON string (e.g. `'{}'`)                 |
+| `--base` / `--quote` | Trading pair (e.g. `BTC` / `USDT`)                             |
+| `--time`           | Signal timestamp in RFC 3339 (e.g. `2024-01-01T12:00:00Z`)      |
+| `--price`          | Current price at time of signal                                   |
+| `--action`         | `buy` to open a position, `sell` to close                        |
+| `--position-size`  | Target position size as a fraction (`"1"` = 100%)                |
+| `--contracts`      | Number of contracts                                               |
+
+#### Examples
+
+```bash
+# Push a buy signal
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# Push a sell signal
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
+```

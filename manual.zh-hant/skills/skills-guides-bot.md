@@ -222,7 +222,6 @@ Agent 執行流程：
 | `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                         | 寫入   | 建立智慧跟單機器人訂單                            |
 | `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]`   | 讀取   | 下單前驗證參數                                    |
 | `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                                  | 寫入   | 取消並關閉智慧跟單機器人訂單                      |
-| `pionex-trade-cli bot signal add_listener --signal-type <uuid> ... --action <buy\|sell> --position-size <size> --contracts <n>`              | 寫入   | 推送交易訊號（供訊號來源使用）                    |
 
 #### 建立參數
 
@@ -255,19 +254,6 @@ Agent 執行流程：
 | `--close-note`             | 選填；關閉備註                        |
 | `--convert-into-earn-coin` | 將剩餘資金轉換為理財幣                |
 
-#### signal add_listener 參數（訊號來源使用）
-
-| 參數               | 說明                                                          |
-| ------------------ | ------------------------------------------------------------- |
-| `--signal-type`    | 訊號來源 UUID                                                 |
-| `--signal-param`   | 訊號參數（JSON 字串，如 `'{}'`）                              |
-| `--base` / `--quote` | 交易對（如 `BTC` / `USDT`）                                 |
-| `--time`           | RFC 3339 格式時間戳（如 `2024-01-01T12:00:00Z`）              |
-| `--price`          | 訊號觸發時的當前價格                                          |
-| `--action`         | `buy` 開倉，`sell` 平倉                                       |
-| `--position-size`  | 目標持倉比例（`"1"` = 100%）                                  |
-| `--contracts`      | 合約數量                                                      |
-
 #### 範例
 
 ```bash
@@ -292,11 +278,6 @@ pionex-trade-cli bot smart_copy get --bu-order-id 123456
 
 # 取消機器人
 pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
-
-# 推送買入訊號（訊號來源）
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
-  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
-  --action buy --position-size 1 --contracts 1
 ```
 
 #### 行為限制
@@ -319,3 +300,42 @@ Agent 執行流程：
 2. 驗證參數：`pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — 展示允許範圍
 3. 模擬執行預覽：在建立命令中加 `--dry-run`，將解析後的請求內容展示給使用者
 4. 使用者確認後，移除 `--dry-run` 執行實際建立
+
+---
+
+### pionex-bot：訊號
+
+訊號推送（供訊號來源使用）。**需要 API 憑證**。
+
+#### 命令參考
+
+| 命令                                                                                                                                                                            | 類型   | 說明                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------- |
+| `pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param <json> --base <BASE> --quote <QUOTE> --time <iso> --price <price> --action <buy\|sell> --position-size <size> --contracts <n>` | 寫入 | 向平台推送交易訊號 |
+
+#### 參數說明
+
+| 參數               | 說明                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 訊號來源 UUID                                                 |
+| `--signal-param`   | 訊號參數（JSON 字串，如 `'{}'`）                              |
+| `--base` / `--quote` | 交易對（如 `BTC` / `USDT`）                                 |
+| `--time`           | RFC 3339 格式時間戳（如 `2024-01-01T12:00:00Z`）              |
+| `--price`          | 訊號觸發時的當前價格                                          |
+| `--action`         | `buy` 開倉，`sell` 平倉                                       |
+| `--position-size`  | 目標持倉比例（`"1"` = 100%）                                  |
+| `--contracts`      | 合約數量                                                      |
+
+#### 範例
+
+```bash
+# 推送買入訊號
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# 推送賣出訊號
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
+```

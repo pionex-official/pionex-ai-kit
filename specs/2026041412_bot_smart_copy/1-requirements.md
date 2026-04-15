@@ -32,7 +32,7 @@ Add 5 new MCP tools to the `bot` module in `packages/core/src/tools/bot.ts`:
 | `pionex_bot_smart_copy_get_order` | GET /api/v1/bot/orders/smartCopy/order | false |
 | `pionex_bot_smart_copy_cancel` | POST /api/v1/bot/orders/smartCopy/cancel | true |
 | `pionex_bot_smart_copy_check_params` | POST /api/v1/bot/orders/smartCopy/checkParams | false |
-| `pionex_bot_signal_add_listener` | POST /api/v1/bot/signal/listener | true |
+| `pionex_bot_signal_listener` | POST /api/v1/bot/signal/listener | true |
 
 ### FR-2: CLI Commands (cli)
 
@@ -43,7 +43,7 @@ pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-
 pionex-trade-cli bot smart_copy get --bu-order-id <id>
 pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model ...] [--dry-run]
 pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
-pionex-trade-cli bot signal add_listener --body-json '<JSON>'
+pionex-trade-cli bot signal listener --body-json '<JSON>'
 ```
 
 ### FR-3: Tab Completion
@@ -52,7 +52,7 @@ Update `COMPLETION_TREE` in `packages/cli/src/completion.ts`:
 - Add `smart_copy` to `bot` group
 - Add `smart_copy` sub-commands: `get`, `create`, `cancel`, `check_params`
 - Add `signal` group to `bot` sub-commands
-- Add `signal` sub-commands: `add_listener`
+- Add `signal` sub-commands: `listener`
 
 ### FR-4: Documentation — Manual (English + zh-hans + zh-hant)
 

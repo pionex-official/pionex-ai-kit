@@ -5,7 +5,11 @@ import {
   runSetup,
   version,
   writeFullConfig
+<<<<<<<< HEAD:packages/cli/dist/kit-LUI2MN26.js
+} from "./chunk-NGPWUQ2A.js";
+========
 } from "./chunk-NAOQJBW5.js";
+>>>>>>>> main:packages/cli/dist/kit-6KS3OFXY.js
 
 // src/kit.ts
 import { createInterface } from "readline";
@@ -98,4 +102,8 @@ function buildKitProgram() {
 export {
   buildKitProgram
 };
+<<<<<<<< HEAD:packages/cli/dist/kit-LUI2MN26.js
+//# sourceMappingURL=kit-LUI2MN26.js.map
+========
 //# sourceMappingURL=kit-6KS3OFXY.js.map
+>>>>>>>> main:packages/cli/dist/kit-6KS3OFXY.js

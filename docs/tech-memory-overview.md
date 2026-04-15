@@ -294,8 +294,8 @@ signature = HMAC-SHA256(message, secret_key)
 
 ## Iteration 2026041412: Smart Copy Trading
 
-**Added:** 5 new tools in `packages/core/src/tools/bot.ts` — `pionex_bot_smart_copy_get_order`, `pionex_bot_smart_copy_create`, `pionex_bot_smart_copy_cancel`, `pionex_bot_smart_copy_check_params`, `pionex_bot_signal_add_listener`
-**CLI:** `bot smart_copy` sub-group + `bot signal add_listener`
+**Added:** 5 new tools in `packages/core/src/tools/bot.ts` — `pionex_bot_smart_copy_get_order`, `pionex_bot_smart_copy_create`, `pionex_bot_smart_copy_cancel`, `pionex_bot_smart_copy_check_params`, `pionex_bot_signal_listener`
+**CLI:** `bot smart_copy` sub-group + `bot signal listener`
 **Endpoints:**
 - `GET /api/v1/bot/orders/smartCopy/order`
 - `POST /api/v1/bot/orders/smartCopy/create`

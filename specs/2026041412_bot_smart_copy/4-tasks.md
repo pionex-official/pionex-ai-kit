@@ -17,7 +17,7 @@
    - `pionex_bot_smart_copy_check_params`
    - `pionex_bot_smart_copy_create`
    - `pionex_bot_smart_copy_cancel`
-   - `pionex_bot_signal_add_listener`
+   - `pionex_bot_signal_listener`
 
 **Verify:** `npm run build` succeeds; no TypeScript errors
 
@@ -31,7 +31,7 @@
 **Steps:**
 1. Add import for `parseJsonFlag`, `isDryRun`, `makeRunner`, `print` (already imported)
 2. Add `buildSmartCopyCommand()` function (4 sub-commands: `get`, `create`, `check_params`, `cancel`)
-3. Add `buildSignalCommand()` function (1 sub-command: `add_listener`)
+3. Add `buildSignalCommand()` function (1 sub-command: `listener`)
 4. Wire both into `buildBotCommand()` via `bot.addCommand(...)`
 
 **Verify:** 
@@ -50,7 +50,7 @@ node packages/cli/dist/index.js bot signal --help
 **Steps:**
 1. Add `smart_copy` and `signal` to `bot` array in `COMPLETION_TREE`
 2. Add `smart_copy: ["get", "create", "cancel", "check_params"]` entry
-3. Add `signal: ["add_listener"]` entry
+3. Add `signal: ["listener"]` entry
 4. Add `completion.on("smart_copy", ...)` and `completion.on("signal", ...)` in `initCompletion()`
 5. Update `generateFishCompletion()`:
    - Update bot sub-command exclusion condition to include `smart_copy signal`
@@ -81,7 +81,7 @@ Add new `### Smart Copy (API Key Required)` section after Spot Grid section:
 | `pionex_bot_smart_copy_create` | Create a smart copy bot order |
 | `pionex_bot_smart_copy_cancel` | Cancel and close a smart copy bot order |
 | `pionex_bot_smart_copy_check_params` | Validate smart copy parameters before creating an order |
-| `pionex_bot_signal_add_listener` | Subscribe to a signal provider |
+| `pionex_bot_signal_listener` | Subscribe to a signal provider |
 ```
 
 ---
@@ -97,7 +97,7 @@ Add `### Smart Copy (Auth Required)` section after Spot Grid section, documentin
 - `bot smart_copy create` (with buOrderData parameter table)
 - `bot smart_copy check_params`
 - `bot smart_copy cancel`
-- `bot signal add_listener`
+- `bot signal listener`
 
 ---
 
@@ -177,7 +177,7 @@ Add `### pionex-bot: Smart Copy Bot` section after Spot Grid Bot section, contai
    ```bash
    node packages/cli/dist/index.js bot smart_copy --help
    node packages/cli/dist/index.js bot smart_copy create --help
-   node packages/cli/dist/index.js bot signal add_listener --help
+   node packages/cli/dist/index.js bot signal listener --help
    ```
 4. Verify fish completion lines generated correctly:
    ```bash

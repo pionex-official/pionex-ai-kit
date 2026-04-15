@@ -38,4 +38,9 @@
 | `pionex_bot_smart_copy_create`               | Create a smart copy bot order                                |
 | `pionex_bot_smart_copy_cancel`               | Cancel and close a smart copy bot order                      |
 | `pionex_bot_smart_copy_check_params`         | Validate smart copy parameters before creating an order      |
-| `pionex_bot_signal_add_listener`             | Push a trading signal to the Pionex signal platform          |
+
+### Signal (API Key Required)
+
+| Tool                                         | Description                                                  |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| `pionex_bot_signal_listener`                 | Push a trading signal to the Pionex signal platform          |
