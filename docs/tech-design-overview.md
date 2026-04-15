@@ -80,7 +80,7 @@ packages/core/src/tools/
   market.ts             → Market module tools
   account.ts            → Account module tools
   orders.ts             → Orders module tools
-  bot.ts                → Bot module tools (includes check_params for futures/spot grid)
+  bot.ts                → Bot module tools (futures_grid, spot_grid, smart_copy, signal)
   earn-dual.ts          → Earn Dual Investment tools (11 tools)
 ```
 
@@ -357,7 +357,7 @@ $ pionex-trade-cli market depth BTC_USDT --limit 5
 | REST Client | `packages/core/src/client/rest-client.ts` |
 | Tool Registry | `packages/core/src/tools/index.ts` |
 | Market Tools | `packages/core/src/tools/market.ts` |
-| Bot Tools | `packages/core/src/tools/bot.ts` |
+| Bot Tools (futures_grid, spot_grid, smart_copy, signal) | `packages/core/src/tools/bot.ts` |
 | Earn Dual Tools | `packages/core/src/tools/earn-dual.ts` |
 | TOML Config | `packages/core/src/config/toml.ts` |
 | Runtime Config | `packages/core/src/config.ts` |

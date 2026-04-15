@@ -319,3 +319,142 @@ pionex-trade-cli bot spot_grid profit --bu-order-id <id> --amount <金额>
 ```bash
 pionex-trade-cli bot spot_grid profit --bu-order-id 123456 --amount 10
 ```
+
+### 智能跟单（需要认证）
+
+#### bot smart_copy get
+
+通过 ID 获取智能跟单机器人订单。
+
+```bash
+pionex-trade-cli bot smart_copy get --bu-order-id <id>
+```
+
+```bash
+pionex-trade-cli bot smart_copy get --bu-order-id 123456
+```
+
+#### bot smart_copy create
+
+创建智能跟单机器人订单。
+
+```bash
+pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--note <text>] [--dry-run]
+```
+
+* `--base`：基础货币（如 `BTC`）
+* `--quote`：计价货币（如 `USDT`）
+* `--bu-order-data-json`：含 `quote_total_investment` 和 `portfolio` 数组的 JSON 字符串
+* `--copy-from`：复制来源的机器人订单 ID
+
+**`bu_order_data` 必填字段：**
+
+| 字段                     | 类型   | 描述                       |
+| ------------------------ | ------ | -------------------------- |
+| `quote_total_investment` | string | 计价货币总投资金额         |
+| `portfolio`              | array  | 要跟单的信号源列表         |
+
+**`portfolio` 每项必填字段：**
+
+| 字段          | 类型    | 描述                                                  |
+| ------------- | ------- | ----------------------------------------------------- |
+| `base`        | string  | 该信号的基础货币（如 `BTC`）                          |
+| `signal_type` | string  | 信号源 UUID                                           |
+| `leverage`    | integer | 杠杆倍数                                              |
+| `percent`     | string  | 占总投资额的比例（如 `"1"` = 100%）                   |
+
+**示例：**
+
+```bash
+# 模拟运行（预览）
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
+
+# 创建机器人（确认后执行）
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
+```
+
+#### bot smart_copy check_params
+
+下单前校验智能跟单参数。传入 `--quote-investment 0` 仅获取允许范围。返回 `max_investment`、`max_leverage` 和 `available_limit`。
+
+```bash
+pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amount> [--signal-type <uuid>]
+```
+
+| 参数                 | 描述                                              |
+| -------------------- | ------------------------------------------------- |
+| `--base`             | 必填；基础货币（如 `BTC`）                        |
+| `--quote`            | 必填；计价货币（如 `USDT`）                       |
+| `--leverage`         | 必填；杠杆倍数（如 `2`）                          |
+| `--quote-investment` | 必填；投资金额；传入 `0` 仅获取范围               |
+| `--signal-type`      | 选填；信号源 UUID，用于限定校验范围               |
+
+```bash
+# 仅获取允许范围
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0
+
+# 带信号类型的校验
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 5 \
+  --quote-investment 100 --signal-type <uuid>
+```
+
+#### bot smart_copy cancel
+
+取消并关闭智能跟单机器人订单。
+
+```bash
+pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-note <note>] [--convert-into-earn-coin] [--dry-run]
+```
+
+| 参数                       | 描述                                  |
+| -------------------------- | ------------------------------------- |
+| `--bu-order-id`            | 必填；智能跟单机器人订单 ID           |
+| `--close-note`             | 选填；关闭备注                        |
+| `--convert-into-earn-coin` | 将剩余资金转换为理财币                |
+
+```bash
+# 取消机器人
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# 取消并将资金转换为理财币
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --convert-into-earn-coin
+```
+
+### 信号（需要认证）
+
+#### bot signal add_listener
+
+向 Pionex 信号平台推送交易信号（供信号源使用）。平台会将该信号转发给所有订阅了指定 `--signal-type` 的智能跟单机器人。
+
+```bash
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> \
+  --base <BASE> --quote <QUOTE> --time <iso> --price <price> \
+  --action <buy|sell> --position-size <size> --contracts <n>
+```
+
+| 参数               | 描述                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 必填；信号源 UUID                                             |
+| `--signal-param`   | 必填；信号参数（JSON 字符串，如 `'{}'`）                      |
+| `--base`           | 必填；基础货币（如 `BTC`）                                    |
+| `--quote`          | 必填；计价货币（如 `USDT`）                                   |
+| `--time`           | 必填；RFC 3339 格式时间戳（如 `2024-01-01T12:00:00Z`）        |
+| `--price`          | 必填；信号触发时的当前价格（如 `85000`）                      |
+| `--action`         | 必填；`buy` 开仓，`sell` 平仓                                 |
+| `--position-size`  | 必填；目标持仓比例（如 `1` = 100%）                           |
+| `--contracts`      | 必填；合约数量                                                |
+
+```bash
+# 推送买入信号
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# 推送卖出信号
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
+```

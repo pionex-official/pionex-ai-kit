@@ -110,6 +110,25 @@ and a `capabilities` discovery command.
 - `pionex-trade-cli bot futures_grid check_params`
 - `pionex-trade-cli bot spot_grid check_params`
 
+#### 10. Smart Copy Trading
+**Status:** Completed (iteration `2026041412_bot_smart_copy`)
+**Reference:** https://github.com/pionex-official/pionex-open-api/blob/main/openapi_bot.yaml
+**Description:** Full CLI and MCP support for Pionex Smart Copy Trading. Enables AI agents and CLI users to subscribe to signal providers, create copy trading bots, validate parameters, and cancel orders.
+
+**New Tools:**
+- `pionex_bot_smart_copy_get_order` — `GET /api/v1/bot/orders/smartCopy/order`
+- `pionex_bot_smart_copy_create` — `POST /api/v1/bot/orders/smartCopy/create`
+- `pionex_bot_smart_copy_cancel` — `POST /api/v1/bot/orders/smartCopy/cancel`
+- `pionex_bot_smart_copy_check_params` — `POST /api/v1/bot/orders/smartCopy/checkParams`
+- `pionex_bot_signal_add_listener` — `POST /api/v1/bot/signal/listener`
+
+**New CLI Commands:**
+- `pionex-trade-cli bot smart_copy get`
+- `pionex-trade-cli bot smart_copy create`
+- `pionex-trade-cli bot smart_copy cancel`
+- `pionex-trade-cli bot smart_copy check_params`
+- `pionex-trade-cli bot signal add_listener`
+
 ## Future Plans
 
 Possible expansion directions:

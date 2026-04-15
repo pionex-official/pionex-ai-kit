@@ -330,6 +330,172 @@ function buildSpotGridCommand(): Command {
   return sg;
 }
 
+function buildSmartCopyCommand(): Command {
+  const sc = new Command("smart_copy").description("Smart Copy bot sub-commands (requires auth)");
+
+  sc.command("get")
+    .description("Get a Smart Copy bot order by ID")
+    .requiredOption("--bu-order-id <id>", "Bot order ID")
+    .action(async (opts: { buOrderId: string }, cmd: Command) => {
+      try {
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_get_order", { buOrderId: opts.buOrderId });
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("create")
+    .description(
+      "Create a Smart Copy bot\n" +
+      "  Example: pionex-trade-cli bot smart_copy create --base BTC --quote USDT \\\n" +
+      "    --bu-order-data-json '{\"quote_total_investment\":\"100\",\"portfolio\":[{\"base\":\"BTC\",\"signal_type\":\"<uuid>\",\"leverage\":2,\"percent\":\"1\"}]}'"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--bu-order-data-json <json>", "JSON with quote_total_investment and portfolio array")
+    .option("--copy-from <id>", "Source bot order ID to copy settings from")
+    .option("--copy-type <type>", "Copy type")
+    .option("--note <note>", "Optional note")
+    .action(async (opts: { base: string; quote: string; buOrderDataJson: string; copyFrom?: string; copyType?: string; note?: string }, cmd: Command) => {
+      try {
+        const bu_order_data = parseJsonFlag(opts.buOrderDataJson, "bu-order-data-json");
+        const payload: Record<string, unknown> = {
+          base: opts.base,
+          quote: opts.quote,
+          bu_order_data,
+          copy_from: opts.copyFrom,
+          copy_type: opts.copyType,
+          note: opts.note,
+        };
+        if (isDryRun(cmd)) {
+          const run = makeRunner(cmd);
+          const out = await run("pionex_bot_smart_copy_create", { ...payload, __dryRun: true });
+          print(out.data);
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_create", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("check_params")
+    .description(
+      "Validate Smart Copy parameters before creating an order\n" +
+      "  Example: pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \\\n" +
+      "    --leverage 2 --quote-investment 0 --signal-type <uuid>"
+    )
+    .requiredOption("--base <base>", "Base asset (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote asset (e.g. USDT)")
+    .requiredOption("--leverage <n>", "Leverage multiplier", parseInt)
+    .requiredOption("--quote-investment <amount>", "Investment amount; use '0' to get range only")
+    .option("--signal-type <uuid>", "Optional signal provider UUID")
+    .option("--signal-param <json>", "Optional signal parameters as a JSON string")
+    .action(async (opts: { base: string; quote: string; leverage: number; quoteInvestment: string; signalType?: string; signalParam?: string }, cmd: Command) => {
+      try {
+        const payload: Record<string, unknown> = {
+          base: opts.base,
+          quote: opts.quote,
+          leverage: opts.leverage,
+          quote_investment: opts.quoteInvestment,
+          signal_type: opts.signalType,
+          signal_param: opts.signalParam,
+        };
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_check_params", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  sc.command("cancel")
+    .description("Cancel a Smart Copy bot")
+    .requiredOption("--bu-order-id <id>", "Bot order ID")
+    .option("--close-note <note>", "Optional close note")
+    .option("--convert-into-earn-coin", "Convert remaining funds into earn coin")
+    .action(async (opts: { buOrderId: string; closeNote?: string; convertIntoEarnCoin?: boolean }, cmd: Command) => {
+      try {
+        const payload: Record<string, unknown> = {
+          bu_order_id: opts.buOrderId,
+          close_note: opts.closeNote,
+          convert_into_earn_coin: opts.convertIntoEarnCoin,
+        };
+        if (isDryRun(cmd)) {
+          print({ tool: "pionex_bot_smart_copy_cancel", args: payload });
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_smart_copy_cancel", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  return sc;
+}
+
+function buildSignalCommand(): Command {
+  const sig = new Command("signal").description("Signal provider sub-commands (requires auth)");
+
+  sig.command("add_listener")
+    .description(
+      "Push a trading signal to the Pionex signal platform (signal provider use)\n" +
+      "  Example: pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \\\n" +
+      "    --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \\\n" +
+      "    --action buy --position-size 1 --contracts 1"
+    )
+    .requiredOption("--signal-type <uuid>", "Signal provider UUID")
+    .requiredOption("--signal-param <json>", "Signal parameters as a JSON string (e.g. '{}')")
+    .requiredOption("--base <base>", "Base currency (e.g. BTC)")
+    .requiredOption("--quote <quote>", "Quote currency (e.g. USDT)")
+    .requiredOption("--time <iso>", "Signal timestamp in RFC 3339 format (e.g. 2024-01-01T12:00:00Z)")
+    .requiredOption("--price <price>", "Current price at time of signal (e.g. 85000)")
+    .requiredOption("--action <action>", "'buy' to open a position, 'sell' to close")
+    .requiredOption("--position-size <size>", "Target position size as a fraction (e.g. '1' for 100%)")
+    .requiredOption("--contracts <n>", "Number of contracts")
+    .option("--direction <dir>", "Optional trade direction")
+    .action(async (opts: { signalType: string; signalParam: string; base: string; quote: string; time: string; price: string; action: string; positionSize: string; contracts: string; direction?: string }, cmd: Command) => {
+      try {
+        const payload: Record<string, unknown> = {
+          signalType: opts.signalType,
+          signalParam: opts.signalParam,
+          base: opts.base,
+          quote: opts.quote,
+          time: opts.time,
+          price: opts.price,
+          data: {
+            action: opts.action,
+            position_size: opts.positionSize,
+            contracts: opts.contracts,
+            direction: opts.direction,
+          },
+        };
+        if (isDryRun(cmd)) {
+          print({ tool: "pionex_bot_signal_add_listener", args: payload });
+          return;
+        }
+        const run = makeRunner(cmd);
+        const out = await run("pionex_bot_signal_add_listener", payload);
+        print(out.data);
+      } catch (e) {
+        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+        process.exit(1);
+      }
+    });
+
+  return sig;
+}
+
 export function buildBotCommand(): Command {
   const bot = new Command("bot").description("Bot management (requires auth)");
 
@@ -360,6 +526,8 @@ export function buildBotCommand(): Command {
 
   bot.addCommand(buildFuturesGridCommand());
   bot.addCommand(buildSpotGridCommand());
+  bot.addCommand(buildSmartCopyCommand());
+  bot.addCommand(buildSignalCommand());
 
   return bot;
 }

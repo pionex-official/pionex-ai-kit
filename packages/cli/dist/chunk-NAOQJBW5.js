@@ -2503,6 +2503,214 @@ function registerBotTools() {
         const amount = asPositiveDecimalString2(args.amount, "amount");
         return (await client.signedPost("/api/v1/bot/orders/spotGrid/profit", { buOrderId, amount })).data;
       }
+    },
+    // ── Smart Copy ────────────────────────────────────────────────────────────
+    {
+      name: "pionex_bot_smart_copy_get_order",
+      module: "bot",
+      isWrite: false,
+      description: "Get one smart copy bot order by buOrderId.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          buOrderId: { type: "string", description: "Smart copy bot order ID." }
+        },
+        required: ["buOrderId"]
+      },
+      async handler(args, { client }) {
+        const buOrderId = asNonEmptyString3(args.buOrderId, "buOrderId");
+        return (await client.signedGet("/api/v1/bot/orders/smartCopy/order", { buOrderId })).data;
+      }
+    },
+    {
+      name: "pionex_bot_smart_copy_check_params",
+      module: "bot",
+      isWrite: false,
+      description: "Validate smart copy bot parameters before creating an order. Pass quote_investment='0' to get the allowed range only (no investment estimate). Returns max_investment, max_leverage, available_limit (and notional_limit when invest>0). Endpoint: POST /api/v1/bot/orders/smartCopy/checkParams",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "leverage", "quote_investment"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          leverage: { type: "integer", description: "Leverage multiplier (e.g. 2)" },
+          quote_investment: { type: "string", description: "Investment amount in quote currency; use '0' to get range only" },
+          signal_type: { type: "string", description: "Optional; signal provider UUID to scope the check" },
+          signal_param: { type: "string", description: "Optional; signal parameters as a JSON string" }
+        }
+      },
+      async handler(args, { client }) {
+        const base = asNonEmptyString3(args.base, "base");
+        const quote = asNonEmptyString3(args.quote, "quote");
+        const leverage = asPositiveInteger3(args.leverage, "leverage");
+        const quote_investment = asNonEmptyString3(args.quote_investment, "quote_investment");
+        const body = { base, quote, leverage, quote_investment };
+        if (args.signal_type != null) body.signal_type = String(args.signal_type);
+        if (args.signal_param != null) body.signal_param = String(args.signal_param);
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/checkParams", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_smart_copy_create",
+      module: "bot",
+      isWrite: true,
+      description: "Create a smart copy bot order. Required: base, quote, bu_order_data.quote_total_investment, bu_order_data.portfolio (each portfolio item needs base, signal_type, leverage). Returns buOrderId on success. Endpoint: POST /api/v1/bot/orders/smartCopy/create",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["base", "quote", "bu_order_data"],
+        properties: {
+          base: { type: "string", description: "Base currency (e.g. BTC)" },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)" },
+          bu_order_data: {
+            type: "object",
+            additionalProperties: false,
+            required: ["quote_total_investment", "portfolio"],
+            properties: {
+              quote_total_investment: { type: "string", description: "Total investment in quote currency" },
+              portfolio: {
+                type: "array",
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["base", "signal_type", "leverage"],
+                  properties: {
+                    base: { type: "string", description: "Base currency for this signal" },
+                    signal_type: { type: "string", description: "Signal provider UUID" },
+                    leverage: { type: "integer", description: "Leverage multiplier" },
+                    percent: { type: "string", description: "Allocation fraction of total investment (e.g. '1' for 100%)" },
+                    signal_param: { type: "string", description: "Signal parameters as a JSON string" },
+                    profit_stop_ratio: { type: "string", description: "Take-profit ratio" },
+                    loss_stop_ratio: { type: "string", description: "Stop-loss ratio" }
+                  }
+                },
+                description: "Portfolio of signals to copy"
+              },
+              compound: { type: "boolean", description: "Enable compound reinvestment" },
+              profit_stop_maker: { type: "boolean", description: "Enable profit stop maker" }
+            }
+          },
+          key_id: { type: "string", description: "Optional key ID" },
+          note: { type: "string", description: "Optional note" },
+          copy_from: { type: "string", description: "Source bot order ID to copy settings from" },
+          copy_type: { type: "string", description: "Copy type" },
+          __dryRun: { type: "boolean", description: "If true, return resolved body without placing an order." }
+        }
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot smart_copy create is disabled.");
+        }
+        const base = asNonEmptyString3(args.base, "base");
+        const quote = asNonEmptyString3(args.quote, "quote");
+        const rawBuOrderData = asObject(args.bu_order_data, "bu_order_data");
+        const quote_total_investment = asNonEmptyString3(rawBuOrderData.quote_total_investment, "bu_order_data.quote_total_investment");
+        if (!Array.isArray(rawBuOrderData.portfolio) || rawBuOrderData.portfolio.length === 0) {
+          throw new Error('Invalid "bu_order_data.portfolio": expected non-empty array.');
+        }
+        const portfolio = rawBuOrderData.portfolio.map((item, i) => {
+          const p = {
+            base: asNonEmptyString3(item.base, `portfolio[${i}].base`),
+            signal_type: asNonEmptyString3(item.signal_type, `portfolio[${i}].signal_type`),
+            leverage: asPositiveInteger3(item.leverage, `portfolio[${i}].leverage`)
+          };
+          if (item.percent != null) p.percent = asNonEmptyString3(item.percent, `portfolio[${i}].percent`);
+          if (item.signal_param != null) p.signal_param = String(item.signal_param);
+          if (item.profit_stop_ratio != null) p.profit_stop_ratio = String(item.profit_stop_ratio);
+          if (item.loss_stop_ratio != null) p.loss_stop_ratio = String(item.loss_stop_ratio);
+          return p;
+        });
+        const buOrderData = { quote_total_investment, portfolio };
+        if (rawBuOrderData.compound != null) buOrderData.compound = asBoolean2(rawBuOrderData.compound, "bu_order_data.compound");
+        if (rawBuOrderData.profit_stop_maker != null) buOrderData.profit_stop_maker = asBoolean2(rawBuOrderData.profit_stop_maker, "bu_order_data.profit_stop_maker");
+        const body = { base, quote, bu_order_data: buOrderData };
+        if (args.key_id != null) body.key_id = String(args.key_id);
+        if (args.note != null) body.note = String(args.note);
+        if (args.copy_from != null) body.copy_from = String(args.copy_from);
+        if (args.copy_type != null) body.copy_type = String(args.copy_type);
+        if (args.__dryRun === true) {
+          return { dryRun: true, note: "No order was sent.", resolvedBody: body };
+        }
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/create", body)).data;
+      }
+    },
+    {
+      name: "pionex_bot_smart_copy_cancel",
+      module: "bot",
+      isWrite: true,
+      description: "Cancel and close a smart copy bot order.",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["bu_order_id"],
+        properties: {
+          bu_order_id: { type: "string", description: "Smart copy bot order ID." },
+          close_note: { type: "string", description: "Optional close note." },
+          convert_into_earn_coin: { type: "boolean", description: "Whether to convert remaining funds into earn coin." }
+        }
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot smart_copy cancel is disabled.");
+        }
+        const bu_order_id = asNonEmptyString3(args.bu_order_id, "bu_order_id");
+        const body = { bu_order_id };
+        if (args.close_note != null) body.close_note = String(args.close_note);
+        if (args.convert_into_earn_coin != null) body.convert_into_earn_coin = asBoolean2(args.convert_into_earn_coin, "convert_into_earn_coin");
+        return (await client.signedPost("/api/v1/bot/orders/smartCopy/cancel", body)).data;
+      }
+    },
+    // ── Signal ────────────────────────────────────────────────────────────────
+    {
+      name: "pionex_bot_signal_add_listener",
+      module: "bot",
+      isWrite: true,
+      description: "Push a trading signal to the Pionex signal platform (signal provider use). The platform forwards the signal to all smart copy bots subscribed to the given signalType. Use action='buy' to open a position and action='sell' to close it. Endpoint: POST /api/v1/bot/signal/listener",
+      inputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["signalType", "signalParam", "base", "quote", "time", "price", "data"],
+        properties: {
+          signalType: { type: "string", description: "Signal provider UUID." },
+          signalParam: { type: "string", description: "Signal parameters as a JSON string (use '{}' for no extra params)." },
+          base: { type: "string", description: "Base currency (e.g. BTC)." },
+          quote: { type: "string", description: "Quote currency (e.g. USDT)." },
+          time: { type: "string", description: "Signal timestamp in RFC 3339 format (e.g. '2024-01-01T12:00:00Z')." },
+          price: { type: "string", description: "Current price at time of signal (e.g. '85000')." },
+          data: {
+            type: "object",
+            additionalProperties: false,
+            required: ["action", "position_size", "contracts"],
+            properties: {
+              action: { type: "string", enum: ["buy", "sell"], description: "'buy' to open a position, 'sell' to close." },
+              position_size: { type: "string", description: "Target position size as a fraction (e.g. '1' = 100%)." },
+              contracts: { type: "string", description: "Number of contracts." },
+              direction: { type: "string", description: "Optional trade direction." }
+            }
+          }
+        }
+      },
+      async handler(args, { client, config }) {
+        if (config.readOnly) {
+          throw new Error("Server is running in --read-only mode; bot signal add_listener is disabled.");
+        }
+        const signalType = asNonEmptyString3(args.signalType, "signalType");
+        const signalParam = asNonEmptyString3(args.signalParam, "signalParam");
+        const base = asNonEmptyString3(args.base, "base");
+        const quote = asNonEmptyString3(args.quote, "quote");
+        const time = asNonEmptyString3(args.time, "time");
+        const price = asNonEmptyString3(args.price, "price");
+        const rawData = asObject(args.data, "data");
+        const action = asNonEmptyString3(rawData.action, "data.action");
+        assertEnum3(action, "data.action", ["buy", "sell"]);
+        const position_size = asNonEmptyString3(rawData.position_size, "data.position_size");
+        const contracts = asNonEmptyString3(rawData.contracts, "data.contracts");
+        const data = { action, position_size, contracts };
+        if (rawData.direction != null) data.direction = String(rawData.direction);
+        return (await client.signedPost("/api/v1/bot/signal/listener", { signalType, signalParam, base, quote, time, price, data })).data;
+      }
     }
   ];
 }
@@ -2897,4 +3105,4 @@ smol-toml/dist/index.js:
    * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    *)
 */
-//# sourceMappingURL=chunk-NDTSX4HU.js.map
+//# sourceMappingURL=chunk-NAOQJBW5.js.map

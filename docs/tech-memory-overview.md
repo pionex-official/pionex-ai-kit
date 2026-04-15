@@ -292,6 +292,24 @@ signature = HMAC-SHA256(message, secret_key)
 
 **Lesson:** Don't assume all clients behave the same, actually test each client
 
+## Iteration 2026041412: Smart Copy Trading
+
+**Added:** 5 new tools in `packages/core/src/tools/bot.ts` — `pionex_bot_smart_copy_get_order`, `pionex_bot_smart_copy_create`, `pionex_bot_smart_copy_cancel`, `pionex_bot_smart_copy_check_params`, `pionex_bot_signal_add_listener`
+**CLI:** `bot smart_copy` sub-group + `bot signal add_listener`
+**Endpoints:**
+- `GET /api/v1/bot/orders/smartCopy/order`
+- `POST /api/v1/bot/orders/smartCopy/create`
+- `POST /api/v1/bot/orders/smartCopy/cancel`
+- `POST /api/v1/bot/orders/smartCopy/checkParams`
+- `POST /api/v1/bot/signal/listener`
+
+**Key decisions:**
+- No separate schema file — `buOrderData` validation handled inline via `parseSmartCopyBuOrderData()` helper (same file as other bot tools). Smart copy parameters are simpler than grid params (no grid range, no row count).
+- `leverageType === "fixed"` requires `leverage` — validated in helper before API call.
+- `signal` placed as peer of `smart_copy` under `bot` (not nested), because `/bot/signal/listener` is a separate API resource that may serve multiple bot types in future.
+- `closeSellModel` enum for cancel: `["NOT_SELL", "TO_QUOTE", "TO_USDT"]` — mirrors spot_grid cancel (not futures_grid which omits `NOT_SELL`).
+- Tab completion: `COMPLETION_TREE` extended with `smart_copy` and `signal` groups; fish script updated with new condition guards.
+
 ## Open Issues
 
 ### 1. Test Coverage

@@ -29,3 +29,13 @@
 | `pionex_bot_spot_grid_cancel`                | 取消並關閉現貨網格機器人訂單                              |
 | `pionex_bot_spot_grid_profit`                | 從現貨網格機器人提取累積的網格利潤                        |
 | `pionex_bot_spot_grid_check_params`          | 下單前驗證現貨網格參數                                    |
+
+### 智慧跟單（需要 API Key）
+
+| 工具                                         | 說明                                                      |
+| -------------------------------------------- | --------------------------------------------------------- |
+| `pionex_bot_smart_copy_get_order`            | 依 buOrderId 查詢智慧跟單機器人訂單                       |
+| `pionex_bot_smart_copy_create`               | 建立智慧跟單機器人訂單                                    |
+| `pionex_bot_smart_copy_cancel`               | 取消並關閉智慧跟單機器人訂單                              |
+| `pionex_bot_smart_copy_check_params`         | 下單前驗證智慧跟單參數                                    |
+| `pionex_bot_signal_add_listener`             | 向 Pionex 訊號平台推送交易訊號（供訊號來源使用）          |

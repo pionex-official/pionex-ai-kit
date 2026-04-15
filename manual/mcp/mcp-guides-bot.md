@@ -29,3 +29,13 @@
 | `pionex_bot_spot_grid_cancel`                | Cancel and close a spot grid bot order                       |
 | `pionex_bot_spot_grid_profit`                | Extract accumulated grid profit from a spot grid bot         |
 | `pionex_bot_spot_grid_check_params`          | Validate spot grid parameters before creating an order       |
+
+### Smart Copy (API Key Required)
+
+| Tool                                         | Description                                                  |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| `pionex_bot_smart_copy_get_order`            | Get a smart copy bot order by buOrderId                      |
+| `pionex_bot_smart_copy_create`               | Create a smart copy bot order                                |
+| `pionex_bot_smart_copy_cancel`               | Cancel and close a smart copy bot order                      |
+| `pionex_bot_smart_copy_check_params`         | Validate smart copy parameters before creating an order      |
+| `pionex_bot_signal_add_listener`             | Push a trading signal to the Pionex signal platform          |

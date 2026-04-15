@@ -207,3 +207,115 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 5. 校验参数：`pionex-trade-cli bot spot_grid check_params --base BTC --quote USDT --bu-order-data-json '...'` — 若返回 `FailedWithData`，展示有效范围并请用户调整
 6. 试运行预览：`pionex-trade-cli bot spot_grid create --base BTC --quote USDT --bu-order-data-json '...' --dry-run`
 7. 用户确认后，执行实际创建（移除 `--dry-run`）
+
+---
+
+### pionex-bot：智能跟单机器人
+
+智能跟单机器人的创建与管理。自动复制信号源的交易操作。**需要 API 凭据**。
+
+#### 命令参考
+
+| 命令                                                                                                                                         | 类型   | 描述                                              |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------- |
+| `pionex-trade-cli bot smart_copy get --bu-order-id <id>`                                                                                     | 读操作 | 通过 ID 获取智能跟单机器人订单                    |
+| `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                         | 写操作 | 创建智能跟单机器人订单                            |
+| `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]`   | 读操作 | 下单前校验参数                                    |
+| `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                                  | 写操作 | 取消并关闭智能跟单机器人订单                      |
+| `pionex-trade-cli bot signal add_listener --signal-type <uuid> ... --action <buy\|sell> --position-size <size> --contracts <n>`              | 写操作 | 推送交易信号（供信号源使用）                      |
+
+#### 创建参数
+
+**`bu_order_data` 必填字段：**
+
+* `quote_total_investment`：计价货币总投资金额（字符串）
+* `portfolio`：要跟单的信号源列表，每项必填：
+  * `base`：基础货币（如 `"BTC"`）
+  * `signal_type`：信号源 UUID
+  * `leverage`：杠杆倍数（整数）
+  * `percent`：占总投资额的比例（如 `"1"` = 100%）
+
+**与网格机器人的主要区别：** 无 `top`/`bottom`/`row` 字段 — 智能跟单无需设置网格区间，直接复制信号源的仓位大小。
+
+#### check_params 参数
+
+传入 `--quote-investment 0` 仅获取允许范围，不进行投资估算。
+
+| 参数                 | 描述                                              |
+| -------------------- | ------------------------------------------------- |
+| `--leverage`         | 杠杆倍数（如 `2`）                                |
+| `--quote-investment` | 投资金额；`0` = 仅获取范围                        |
+| `--signal-type`      | 选填；信号源 UUID，用于限定校验范围               |
+
+#### cancel 参数
+
+| 参数                       | 描述                                  |
+| -------------------------- | ------------------------------------- |
+| `--bu-order-id`            | 必填；智能跟单机器人订单 ID           |
+| `--close-note`             | 选填；关闭备注                        |
+| `--convert-into-earn-coin` | 将剩余资金转换为理财币                |
+
+#### signal add_listener 参数（信号源使用）
+
+| 参数               | 描述                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 信号源 UUID                                                   |
+| `--signal-param`   | 信号参数（JSON 字符串，如 `'{}'`）                            |
+| `--base` / `--quote` | 交易对（如 `BTC` / `USDT`）                                 |
+| `--time`           | RFC 3339 格式时间戳（如 `2024-01-01T12:00:00Z`）              |
+| `--price`          | 信号触发时的当前价格                                          |
+| `--action`         | `buy` 开仓，`sell` 平仓                                       |
+| `--position-size`  | 目标持仓比例（`"1"` = 100%）                                  |
+| `--contracts`      | 合约数量                                                      |
+
+#### 示例
+
+```bash
+# 检查余额
+pionex-trade-cli account balance
+
+# 校验参数（仅获取范围）
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
+  --leverage 2 --quote-investment 0 --signal-type <uuid>
+
+# 试运行预览
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
+
+# 确认后创建机器人
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
+
+# 获取机器人状态
+pionex-trade-cli bot smart_copy get --bu-order-id 123456
+
+# 取消机器人
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# 推送买入信号（信号源）
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+```
+
+#### 行为约束
+
+1. **明确参数**：不猜测 `quote_total_investment` 或 `leverage`。如不明确，向用户询问。
+2. **必须确认信号源**：创建前必须与用户确认 `signal_type`（信号源 UUID）。不得在没有用户明确指令的情况下自行选择信号源。
+3. **下单前校验**：始终先调用 `check_params`。若 `FailedWithData` 返回限额，展示有效范围并请用户调整。
+4. **先试运行**：对于所有写操作（创建、取消），优先使用 `--dry-run`，仅在用户确认后执行。
+5. **余额检查**：创建机器人前检查可用计价货币余额。
+6. **取消预览**：取消前检索机器人当前状态，展示给用户确认。
+7. **不单方面改变风险**：不在用户明确同意的情况下更改 `leverage` 或投资金额。
+
+#### 智能跟单交易流程示例
+
+用户："用 100 USDT 以 2 倍杠杆跟单交易员 X 的 BTC 交易"
+
+智能体执行流程：
+
+1. 检查余额：`pionex-trade-cli account balance` → 验证可用 USDT ≥ 100
+2. 校验参数：`pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — 展示允许范围
+3. 试运行预览：在创建命令中加 `--dry-run`，将解析后的请求体展示给用户
+4. 用户确认后，移除 `--dry-run` 执行实际创建
