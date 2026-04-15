@@ -216,77 +216,106 @@ Smart copy bot creation and management. Replicates a signal provider's trades au
 
 #### Command Reference
 
-| Command                                                                                                          | Type  | Description                                              |
-| ---------------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------- |
-| `pionex-trade-cli bot smart_copy get --bu-order-id <id>`                                                        | Read  | Get a smart copy bot order by ID                         |
-| `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`            | Write | Create a smart copy bot order                            |
-| `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`      | Read  | Validate parameters before creating an order             |
-| `pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]`   | Write | Cancel and close a smart copy bot order                  |
-| `pionex-trade-cli bot signal add_listener --signal-source-id <id>`                                              | Write | Subscribe to a signal provider                           |
+| Command                                                                                                                                  | Type  | Description                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------- |
+| `pionex-trade-cli bot smart_copy get --bu-order-id <id>`                                                                                 | Read  | Get a smart copy bot order by ID                         |
+| `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                     | Write | Create a smart copy bot order                            |
+| `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]` | Read  | Validate parameters before creating an order             |
+| `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                              | Write | Cancel and close a smart copy bot order                  |
+| `pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> --base <BASE> --quote <QUOTE> --time <iso> --price <price> --action <buy\|sell> --position-size <size> --contracts <n>` | Write | Push a trading signal (signal provider use) |
 
 #### Create Parameters
 
-**Required fields in `buOrderData`:**
+**Required fields in `bu_order_data`:**
 
-* `quoteInvestment`: Investment amount in quote currency (string)
-* `leverageType`: `"follow"` (mirror provider's leverage) or `"fixed"` (custom leverage)
-
-**Optional fields in `buOrderData`:**
-
-* `leverage`: Custom leverage multiplier — required when `leverageType="fixed"`
-* `maxInvestPerOrder`: Maximum quote amount per replicated order
-* `copyMode`: `"fixed_amount"` or `"fixed_ratio"`
+* `quote_total_investment`: Total investment in quote currency (string)
+* `portfolio`: Array of signal sources to copy — each item requires:
+  * `base`: Base currency (e.g. `"BTC"`)
+  * `signal_type`: Signal provider UUID
+  * `leverage`: Leverage multiplier (integer)
+  * `percent`: Allocation fraction of total investment (e.g. `"1"` = 100%)
 
 **Key difference from grid bots:** No `top`/`bottom`/`row` — smart copy has no grid range; it mirrors the signal provider's position sizing.
+
+#### check_params Parameters
+
+Validates investment limits for a given leverage and signal type. Use `--quote-investment 0` to get the allowed range without a full investment check.
+
+| Flag                 | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `--leverage`         | Leverage multiplier (e.g. `2`)                          |
+| `--quote-investment` | Investment amount; `0` = range only                     |
+| `--signal-type`      | Optional signal provider UUID to scope the check         |
+
+#### cancel Parameters
+
+| Flag                      | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `--bu-order-id`           | Required; smart copy bot order ID               |
+| `--close-note`            | Optional close note                             |
+| `--convert-into-earn-coin`| Convert remaining funds into earn coin          |
+
+#### signal add_listener Parameters (signal provider use)
+
+| Flag               | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `--signal-type`    | Signal provider UUID                                              |
+| `--signal-param`   | Signal parameters as a JSON string (e.g. `'{}'`)                 |
+| `--base` / `--quote` | Trading pair (e.g. `BTC` / `USDT`)                             |
+| `--time`           | Signal timestamp in RFC 3339 (e.g. `2024-01-01T12:00:00Z`)      |
+| `--price`          | Current price at time of signal                                   |
+| `--action`         | `buy` to open a position, `sell` to close                        |
+| `--position-size`  | Target position size as a fraction (`"1"` = 100%)                |
+| `--contracts`      | Number of contracts                                               |
 
 #### Examples
 
 ```bash
-# Subscribe to a signal provider first
-pionex-trade-cli bot signal add_listener --signal-source-id <providerId>
-
 # Check balance
 pionex-trade-cli account balance
 
-# Validate parameters
+# Validate parameters (get allowed range)
 pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'
+  --leverage 2 --quote-investment 0 --signal-type <uuid>
 
 # Dry-run before creating
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId> --dry-run
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
 
 # Create the bot (after confirmation)
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId>
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
 
 # Get bot status
 pionex-trade-cli bot smart_copy get --bu-order-id 123456
 
 # Cancel bot
-pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# Push a buy signal (signal provider)
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
 ```
 
 #### Behavioral Constraints
 
-1. **Explicit parameters**: Never guess `quoteInvestment` or `leverageType`. If unclear, ask the user.
-2. **Signal source required**: Always confirm the `signalSourceId` (signal provider) with the user before creating. Never pick a provider without explicit user instruction.
-3. **Validate before creating**: Always call `check_params` first. If `FailedWithData` returns `min_investment`/`max_investment`, show the valid range and ask the user to adjust.
-4. **Dry-run first**: For any write operation (create, cancel, add_listener), prefer `--dry-run` first and only execute after user confirmation.
+1. **Explicit parameters**: Never guess `quote_total_investment` or `leverage`. If unclear, ask the user.
+2. **Signal type required**: Always confirm the `signal_type` (signal provider UUID) with the user before creating. Never pick a provider without explicit user instruction.
+3. **Validate before creating**: Always call `check_params` first. If `FailedWithData` returns limits, show the valid range and ask the user to adjust.
+4. **Dry-run first**: For any write operation (create, cancel), prefer `--dry-run` first and only execute after user confirmation.
 5. **Balance check**: Before creating a bot, check the available quote balance.
 6. **Cancel preview**: Before canceling a bot, retrieve its current status and show it to the user for confirmation.
-7. **No unilateral risk change**: Never change `leverage` or `quoteInvestment` without explicit user agreement.
+7. **No unilateral risk change**: Never change `leverage` or investment amount without explicit user agreement.
 
 #### Smart Copy Trading Flow Example
 
-User: "Copy trader X's BTC trades with 100 USDT"
+User: "Copy trader X's BTC trades with 100 USDT at 2x leverage"
 
 Agent execution flow:
 
-1. Subscribe to signal provider: `pionex-trade-cli bot signal add_listener --signal-source-id <providerIdForTraderX>`
-2. Check balance: `pionex-trade-cli account balance` → verify available USDT ≥ 100
-3. Validate parameters: `pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'` — if `FailedWithData`, show valid range
-4. Dry-run preview: add `--dry-run` to the create command, show resolved body to user
-5. After user confirms, execute without `--dry-run`
+1. Check balance: `pionex-trade-cli account balance` → verify available USDT ≥ 100
+2. Validate parameters: `pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — show allowed range
+3. Dry-run preview: add `--dry-run` to the create command, show resolved body to user
+4. After user confirms, execute without `--dry-run`

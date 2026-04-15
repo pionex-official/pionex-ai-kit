@@ -339,56 +339,66 @@ pionex-trade-cli bot smart_copy get --bu-order-id 123456
 Create a smart copy bot order.
 
 ```bash
-pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--dry-run]
+pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--note <text>] [--dry-run]
 ```
 
 * `--base`: Base currency (e.g. `BTC`)
 * `--quote`: Quote currency (e.g. `USDT`)
-* `--bu-order-data-json`: JSON string containing smart copy order parameters
-* `--copy-from`: Signal source / trader ID to copy from
+* `--bu-order-data-json`: JSON with `quote_total_investment` and `portfolio` array
+* `--copy-from`: Source bot order ID to copy settings from
 
-**Required fields in `buOrderData`:**
+**Required fields in `bu_order_data`:**
 
-| Field             | Type   | Description                                                     |
-| ----------------- | ------ | --------------------------------------------------------------- |
-| `quoteInvestment` | string | Investment amount in quote currency                             |
-| `leverageType`    | string | `"follow"` (follow signal provider's leverage) or `"fixed"`    |
+| Field                    | Type   | Description                              |
+| ------------------------ | ------ | ---------------------------------------- |
+| `quote_total_investment` | string | Total investment in quote currency       |
+| `portfolio`              | array  | List of signal sources to copy           |
 
-**Optional fields in `buOrderData`:**
+**Each `portfolio` item:**
 
-| Field               | Type   | Description                                                     |
-| ------------------- | ------ | --------------------------------------------------------------- |
-| `leverage`          | number | Custom leverage multiplier (required when `leverageType=fixed`) |
-| `maxInvestPerOrder` | string | Maximum investment per replicated order                         |
-| `copyMode`          | string | `"fixed_amount"` or `"fixed_ratio"`                             |
+| Field         | Type    | Description                                          |
+| ------------- | ------- | ---------------------------------------------------- |
+| `base`        | string  | Base currency for this signal (e.g. `BTC`)           |
+| `signal_type` | string  | Signal provider UUID                                 |
+| `leverage`    | integer | Leverage multiplier                                  |
+| `percent`     | string  | Allocation fraction of total investment (e.g. `"1"` = 100%) |
 
 **Examples:**
 
 ```bash
-# Create a smart copy bot following a signal provider (auto-follow leverage)
+# Create a smart copy bot (dry-run first)
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId>
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
 
-# Create with fixed leverage (dry-run first)
+# Create the bot (after confirmation)
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"fixed","leverage":5}' \
-  --copy-from <signalSourceId> --dry-run
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
 ```
 
 #### bot smart_copy check_params
 
-Validate smart copy parameters before creating an order. Returns server-side validation result. On `FailedWithData` errors the response includes `min_investment` and `max_investment`.
+Validate smart copy parameters before creating an order. Pass `--quote-investment 0` to get the allowed range only. Returns `max_investment`, `max_leverage`, and `available_limit`.
 
 ```bash
-pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
+pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amount> [--signal-type <uuid>]
 ```
 
-Uses the same `buOrderData` fields as `smart_copy create`.
+| Flag                 | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `--base`             | Required; base currency (e.g. `BTC`)                    |
+| `--quote`            | Required; quote currency (e.g. `USDT`)                  |
+| `--leverage`         | Required; leverage multiplier (e.g. `2`)                |
+| `--quote-investment` | Required; investment amount; use `0` to get range only  |
+| `--signal-type`      | Optional; signal provider UUID to scope the check       |
 
 ```bash
-pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'
+# Get allowed range only
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0
+
+# Validate specific investment with signal type
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 5 \
+  --quote-investment 100 --signal-type <uuid>
 ```
 
 #### bot smart_copy cancel
@@ -396,32 +406,55 @@ pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
 Cancel and close a smart copy bot order.
 
 ```bash
-pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT] [--dry-run]
+pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-note <note>] [--convert-into-earn-coin] [--dry-run]
 ```
 
-```bash
-# Cancel and sell base to quote
-pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+| Flag                      | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `--bu-order-id`           | Required; smart copy bot order ID               |
+| `--close-note`            | Optional close note                             |
+| `--convert-into-earn-coin`| Convert remaining funds into earn coin          |
 
-# Cancel and keep base (default: NOT_SELL)
+```bash
+# Cancel a smart copy bot
 pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# Cancel and convert funds to earn coin
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --convert-into-earn-coin
 ```
 
 ### Signal (Auth Required)
 
 #### bot signal add_listener
 
-Subscribe to a signal provider.
+Push a trading signal to the Pionex signal platform (for signal providers). The platform forwards the signal to all smart copy bots subscribed to the given `--signal-type`.
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-source-id <id> [--listen-mode <mode>]
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> \
+  --base <BASE> --quote <QUOTE> --time <iso> --price <price> \
+  --action <buy|sell> --position-size <size> --contracts <n>
 ```
 
-| Flag                 | Description                          |
-| -------------------- | ------------------------------------ |
-| `--signal-source-id` | Required; signal provider ID         |
-| `--listen-mode`      | Optional; subscription mode          |
+| Flag               | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `--signal-type`    | Required; signal provider UUID                                    |
+| `--signal-param`   | Required; signal parameters as a JSON string (e.g. `'{}'`)       |
+| `--base`           | Required; base currency (e.g. `BTC`)                             |
+| `--quote`          | Required; quote currency (e.g. `USDT`)                           |
+| `--time`           | Required; signal timestamp in RFC 3339 (e.g. `2024-01-01T12:00:00Z`) |
+| `--price`          | Required; current price at time of signal (e.g. `85000`)         |
+| `--action`         | Required; `buy` to open a position, `sell` to close              |
+| `--position-size`  | Required; target position size as a fraction (e.g. `1` = 100%)   |
+| `--contracts`      | Required; number of contracts                                     |
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-source-id <providerId>
+# Push a buy signal
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# Push a sell signal
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
 ```

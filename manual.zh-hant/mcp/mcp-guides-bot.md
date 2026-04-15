@@ -38,4 +38,4 @@
 | `pionex_bot_smart_copy_create`               | 建立智慧跟單機器人訂單                                    |
 | `pionex_bot_smart_copy_cancel`               | 取消並關閉智慧跟單機器人訂單                              |
 | `pionex_bot_smart_copy_check_params`         | 下單前驗證智慧跟單參數                                    |
-| `pionex_bot_signal_add_listener`             | 訂閱訊號來源（跟單交易員）                                |
+| `pionex_bot_signal_add_listener`             | 向 Pionex 訊號平台推送交易訊號（供訊號來源使用）          |

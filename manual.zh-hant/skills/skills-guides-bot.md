@@ -216,77 +216,106 @@ Agent 執行流程：
 
 #### 命令參考
 
-| 命令                                                                                                              | 類型   | 說明                                              |
-| ----------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------- |
-| `pionex-trade-cli bot smart_copy get --bu-order-id <id>`                                                         | 讀取   | 依 ID 查詢智慧跟單機器人訂單                      |
-| `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`             | 寫入   | 建立智慧跟單機器人訂單                            |
-| `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`       | 讀取   | 下單前驗證參數                                    |
-| `pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model NOT_SELL\|TO_QUOTE\|TO_USDT]`    | 寫入   | 取消並關閉智慧跟單機器人訂單                      |
-| `pionex-trade-cli bot signal add_listener --signal-source-id <id>`                                               | 寫入   | 訂閱訊號來源                                      |
+| 命令                                                                                                                                         | 類型   | 說明                                              |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------- |
+| `pionex-trade-cli bot smart_copy get --bu-order-id <id>`                                                                                     | 讀取   | 依 ID 查詢智慧跟單機器人訂單                      |
+| `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                         | 寫入   | 建立智慧跟單機器人訂單                            |
+| `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]`   | 讀取   | 下單前驗證參數                                    |
+| `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                                  | 寫入   | 取消並關閉智慧跟單機器人訂單                      |
+| `pionex-trade-cli bot signal add_listener --signal-type <uuid> ... --action <buy\|sell> --position-size <size> --contracts <n>`              | 寫入   | 推送交易訊號（供訊號來源使用）                    |
 
 #### 建立參數
 
-**`buOrderData` 必填欄位：**
+**`bu_order_data` 必填欄位：**
 
-* `quoteInvestment`：計價貨幣投入金額（字串）
-* `leverageType`：`"follow"`（跟隨訊號來源槓桿）或 `"fixed"`（固定槓桿）
-
-**`buOrderData` 選填欄位：**
-
-* `leverage`：自訂槓桿倍數 — `leverageType="fixed"` 時必填
-* `maxInvestPerOrder`：每筆複製訂單的最大報價金額
-* `copyMode`：`"fixed_amount"` 或 `"fixed_ratio"`
+* `quote_total_investment`：計價貨幣總投入金額（字串）
+* `portfolio`：要跟單的訊號來源清單，每項必填：
+  * `base`：基礎貨幣（如 `"BTC"`）
+  * `signal_type`：訊號來源 UUID
+  * `leverage`：槓桿倍數（整數）
+  * `percent`：佔總投入金額的比例（如 `"1"` = 100%）
 
 **與網格機器人的主要差異：** 無 `top`/`bottom`/`row` 欄位 — 智慧跟單無需設定網格範圍，直接複製訊號來源的倉位大小。
+
+#### check_params 參數
+
+傳入 `--quote-investment 0` 僅取得允許範圍，不進行投入估算。
+
+| 參數                 | 說明                                              |
+| -------------------- | ------------------------------------------------- |
+| `--leverage`         | 槓桿倍數（如 `2`）                                |
+| `--quote-investment` | 投入金額；`0` = 僅取得範圍                        |
+| `--signal-type`      | 選填；訊號來源 UUID，用於限定驗證範圍             |
+
+#### cancel 參數
+
+| 參數                       | 說明                                  |
+| -------------------------- | ------------------------------------- |
+| `--bu-order-id`            | 必填；智慧跟單機器人訂單 ID           |
+| `--close-note`             | 選填；關閉備註                        |
+| `--convert-into-earn-coin` | 將剩餘資金轉換為理財幣                |
+
+#### signal add_listener 參數（訊號來源使用）
+
+| 參數               | 說明                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 訊號來源 UUID                                                 |
+| `--signal-param`   | 訊號參數（JSON 字串，如 `'{}'`）                              |
+| `--base` / `--quote` | 交易對（如 `BTC` / `USDT`）                                 |
+| `--time`           | RFC 3339 格式時間戳（如 `2024-01-01T12:00:00Z`）              |
+| `--price`          | 訊號觸發時的當前價格                                          |
+| `--action`         | `buy` 開倉，`sell` 平倉                                       |
+| `--position-size`  | 目標持倉比例（`"1"` = 100%）                                  |
+| `--contracts`      | 合約數量                                                      |
 
 #### 範例
 
 ```bash
-# 先訂閱訊號來源
-pionex-trade-cli bot signal add_listener --signal-source-id <providerId>
-
 # 檢查餘額
 pionex-trade-cli account balance
 
-# 驗證參數
+# 驗證參數（僅取得範圍）
 pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'
+  --leverage 2 --quote-investment 0 --signal-type <uuid>
 
 # 模擬執行預覽
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId> --dry-run
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
 
 # 確認後建立機器人
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId>
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
 
 # 查詢機器人狀態
 pionex-trade-cli bot smart_copy get --bu-order-id 123456
 
 # 取消機器人
-pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# 推送買入訊號（訊號來源）
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
 ```
 
 #### 行為限制
 
-1. **明確參數**：不猜測 `quoteInvestment` 或 `leverageType`。如不明確，向使用者詢問。
-2. **必須確認訊號來源**：建立前必須與使用者確認 `signalSourceId`（訊號來源）。不得在沒有使用者明確指示的情況下自行選擇訊號來源。
-3. **下單前驗證**：始終先呼叫 `check_params`。若 `FailedWithData` 回傳 `min_investment`/`max_investment`，展示有效範圍並請使用者調整。
-4. **先模擬執行**：對於所有寫入操作（建立、取消、add_listener），優先使用 `--dry-run`，僅在使用者確認後執行。
+1. **明確參數**：不猜測 `quote_total_investment` 或 `leverage`。如不明確，向使用者詢問。
+2. **必須確認訊號來源**：建立前必須與使用者確認 `signal_type`（訊號來源 UUID）。不得在沒有使用者明確指示的情況下自行選擇訊號來源。
+3. **下單前驗證**：始終先呼叫 `check_params`。若 `FailedWithData` 回傳限額，展示有效範圍並請使用者調整。
+4. **先模擬執行**：對於所有寫入操作（建立、取消），優先使用 `--dry-run`，僅在使用者確認後執行。
 5. **餘額確認**：建立機器人前確認可用計價貨幣餘額。
 6. **取消前預覽**：取消前先查詢機器人當前狀態，展示給使用者確認。
-7. **不單方面改變風險**：不在使用者明確同意的情況下更改 `leverage` 或 `quoteInvestment`。
+7. **不單方面改變風險**：不在使用者明確同意的情況下更改 `leverage` 或投入金額。
 
 #### 智慧跟單交易流程範例
 
-使用者：「用 100 USDT 跟單交易員 X 的 BTC 交易」
+使用者：「用 100 USDT 以 2 倍槓桿跟單交易員 X 的 BTC 交易」
 
 Agent 執行流程：
 
-1. 訂閱訊號來源：`pionex-trade-cli bot signal add_listener --signal-source-id <交易員X的providerId>`
-2. 檢查餘額：`pionex-trade-cli account balance` → 驗證可用 USDT ≥ 100
-3. 驗證參數：`pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'` — 若 `FailedWithData`，展示有效範圍
-4. 模擬執行預覽：在建立命令中加 `--dry-run`，將解析後的請求內容展示給使用者
-5. 使用者確認後，移除 `--dry-run` 執行實際建立
+1. 檢查餘額：`pionex-trade-cli account balance` → 驗證可用 USDT ≥ 100
+2. 驗證參數：`pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — 展示允許範圍
+3. 模擬執行預覽：在建立命令中加 `--dry-run`，將解析後的請求內容展示給使用者
+4. 使用者確認後，移除 `--dry-run` 執行實際建立

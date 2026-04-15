@@ -339,56 +339,66 @@ pionex-trade-cli bot smart_copy get --bu-order-id 123456
 建立智慧跟單機器人訂單。
 
 ```bash
-pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--dry-run]
+pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>' [--copy-from <id>] [--note <text>] [--dry-run]
 ```
 
 * `--base`：基礎貨幣（如 `BTC`）
 * `--quote`：計價貨幣（如 `USDT`）
-* `--bu-order-data-json`：包含跟單參數的 JSON 字串
-* `--copy-from`：訊號來源 / 交易員 ID
+* `--bu-order-data-json`：含 `quote_total_investment` 和 `portfolio` 陣列的 JSON 字串
+* `--copy-from`：複製來源的機器人訂單 ID
 
-**`buOrderData` 必填欄位：**
+**`bu_order_data` 必填欄位：**
 
-| 欄位              | 類型   | 說明                                                    |
-| ----------------- | ------ | ------------------------------------------------------- |
-| `quoteInvestment` | string | 計價貨幣投入金額                                        |
-| `leverageType`    | string | `"follow"`（跟隨訊號來源槓桿）或 `"fixed"`（固定槓桿） |
+| 欄位                     | 類型   | 說明                       |
+| ------------------------ | ------ | -------------------------- |
+| `quote_total_investment` | string | 計價貨幣總投入金額         |
+| `portfolio`              | array  | 要跟單的訊號來源清單       |
 
-**`buOrderData` 選填欄位：**
+**`portfolio` 每項必填欄位：**
 
-| 欄位                | 類型   | 說明                                                      |
-| ------------------- | ------ | --------------------------------------------------------- |
-| `leverage`          | number | 自訂槓桿倍數（`leverageType=fixed` 時必填）               |
-| `maxInvestPerOrder` | string | 每筆複製訂單的最大投入金額                                |
-| `copyMode`          | string | `"fixed_amount"` 或 `"fixed_ratio"`                       |
+| 欄位          | 類型    | 說明                                                  |
+| ------------- | ------- | ----------------------------------------------------- |
+| `base`        | string  | 此訊號的基礎貨幣（如 `BTC`）                          |
+| `signal_type` | string  | 訊號來源 UUID                                         |
+| `leverage`    | integer | 槓桿倍數                                              |
+| `percent`     | string  | 佔總投入金額的比例（如 `"1"` = 100%）                 |
 
 **範例：**
 
 ```bash
-# 建立跟單機器人（跟隨訊號來源槓桿）
-pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId>
-
 # 模擬執行（預覽）
 pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}' \
-  --copy-from <signalSourceId> --dry-run
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}' \
+  --dry-run
+
+# 建立機器人（確認後執行）
+pionex-trade-cli bot smart_copy create --base BTC --quote USDT \
+  --bu-order-data-json '{"quote_total_investment":"100","portfolio":[{"base":"BTC","signal_type":"<uuid>","leverage":2,"percent":"1"}]}'
 ```
 
 #### bot smart_copy check_params
 
-下單前驗證智慧跟單參數。回傳伺服器端驗證結果，`FailedWithData` 錯誤時會包含 `min_investment` 和 `max_investment`。
+下單前驗證智慧跟單參數。傳入 `--quote-investment 0` 僅取得允許範圍。回傳 `max_investment`、`max_leverage` 與 `available_limit`。
 
 ```bash
-pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'
+pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amount> [--signal-type <uuid>]
 ```
 
-欄位與 `smart_copy create` 相同。
+| 參數                 | 說明                                              |
+| -------------------- | ------------------------------------------------- |
+| `--base`             | 必填；基礎貨幣（如 `BTC`）                        |
+| `--quote`            | 必填；計價貨幣（如 `USDT`）                       |
+| `--leverage`         | 必填；槓桿倍數（如 `2`）                          |
+| `--quote-investment` | 必填；投入金額；傳入 `0` 僅取得範圍               |
+| `--signal-type`      | 選填；訊號來源 UUID，用於限定驗證範圍             |
 
 ```bash
-pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
-  --bu-order-data-json '{"quoteInvestment":"100","leverageType":"follow"}'
+# 僅取得允許範圍
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0
+
+# 帶訊號類型的驗證
+pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 5 \
+  --quote-investment 100 --signal-type <uuid>
 ```
 
 #### bot smart_copy cancel
@@ -396,32 +406,55 @@ pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
 取消並關閉智慧跟單機器人訂單。
 
 ```bash
-pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-sell-model NOT_SELL|TO_QUOTE|TO_USDT] [--dry-run]
+pionex-trade-cli bot smart_copy cancel --bu-order-id <id> [--close-note <note>] [--convert-into-earn-coin] [--dry-run]
 ```
 
-```bash
-# 取消並將持倉換回計價貨幣
-pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --close-sell-model TO_QUOTE
+| 參數                       | 說明                                  |
+| -------------------------- | ------------------------------------- |
+| `--bu-order-id`            | 必填；智慧跟單機器人訂單 ID           |
+| `--close-note`             | 選填；關閉備註                        |
+| `--convert-into-earn-coin` | 將剩餘資金轉換為理財幣                |
 
-# 取消並保留基礎貨幣（預設：NOT_SELL）
+```bash
+# 取消機器人
 pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
+
+# 取消並將資金轉換為理財幣
+pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --convert-into-earn-coin
 ```
 
 ### 訊號（需要驗證）
 
 #### bot signal add_listener
 
-訂閱訊號來源（跟單交易員）。
+向 Pionex 訊號平台推送交易訊號（供訊號來源使用）。平台會將該訊號轉發給所有訂閱了指定 `--signal-type` 的智慧跟單機器人。
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-source-id <id> [--listen-mode <mode>]
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> \
+  --base <BASE> --quote <QUOTE> --time <iso> --price <price> \
+  --action <buy|sell> --position-size <size> --contracts <n>
 ```
 
-| 參數                 | 說明                         |
-| -------------------- | ---------------------------- |
-| `--signal-source-id` | 必填；訊號來源 ID            |
-| `--listen-mode`      | 選填；訂閱模式               |
+| 參數               | 說明                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 必填；訊號來源 UUID                                           |
+| `--signal-param`   | 必填；訊號參數（JSON 字串，如 `'{}'`）                        |
+| `--base`           | 必填；基礎貨幣（如 `BTC`）                                    |
+| `--quote`          | 必填；計價貨幣（如 `USDT`）                                   |
+| `--time`           | 必填；RFC 3339 格式時間戳（如 `2024-01-01T12:00:00Z`）        |
+| `--price`          | 必填；訊號觸發時的當前價格（如 `85000`）                      |
+| `--action`         | 必填；`buy` 開倉，`sell` 平倉                                 |
+| `--position-size`  | 必填；目標持倉比例（如 `1` = 100%）                           |
+| `--contracts`      | 必填；合約數量                                                |
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-source-id <providerId>
+# 推送買入訊號
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# 推送賣出訊號
+pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
 ```
