@@ -2664,7 +2664,7 @@ function registerBotTools() {
     },
     // ── Signal ────────────────────────────────────────────────────────────────
     {
-      name: "pionex_bot_signal_add_listener",
+      name: "pionex_bot_signal_listener",
       module: "bot",
       isWrite: true,
       description: "Push a trading signal to the Pionex signal platform (signal provider use). The platform forwards the signal to all smart copy bots subscribed to the given signalType. Use action='buy' to open a position and action='sell' to close it. Endpoint: POST /api/v1/bot/signal/listener",
@@ -2694,7 +2694,7 @@ function registerBotTools() {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot signal add_listener is disabled.");
+          throw new Error("Server is running in --read-only mode; bot signal listener is disabled.");
         }
         const signalType = asNonEmptyString3(args.signalType, "signalType");
         const signalParam = asNonEmptyString3(args.signalParam, "signalParam");
@@ -3105,4 +3105,4 @@ smol-toml/dist/index.js:
    * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    *)
 */
-//# sourceMappingURL=chunk-NAOQJBW5.js.map
+//# sourceMappingURL=chunk-NGPWUQ2A.js.map

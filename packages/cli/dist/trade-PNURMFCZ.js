@@ -7,7 +7,7 @@ import {
   print,
   toToolErrorPayload,
   version
-} from "./chunk-NAOQJBW5.js";
+} from "./chunk-NGPWUQ2A.js";
 
 // src/trade.ts
 import { Command as Command7 } from "commander";
@@ -24,7 +24,7 @@ var COMPLETION_TREE = {
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
   spot_grid: ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit", "check_params"],
   smart_copy: ["get", "create", "cancel", "check_params"],
-  signal: ["add_listener"],
+  signal: ["listener"],
   earn: ["dual"],
   dual: [
     "symbols",
@@ -636,8 +636,8 @@ function buildSmartCopyCommand() {
 }
 function buildSignalCommand() {
   const sig = new Command4("signal").description("Signal provider sub-commands (requires auth)");
-  sig.command("add_listener").description(
-    "Push a trading signal to the Pionex signal platform (signal provider use)\n  Example: pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \\\n    --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \\\n    --action buy --position-size 1 --contracts 1"
+  sig.command("listener").description(
+    "Push a trading signal to the Pionex signal platform (signal provider use)\n  Example: pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \\\n    --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \\\n    --action buy --position-size 1 --contracts 1"
   ).requiredOption("--signal-type <uuid>", "Signal provider UUID").requiredOption("--signal-param <json>", "Signal parameters as a JSON string (e.g. '{}')").requiredOption("--base <base>", "Base currency (e.g. BTC)").requiredOption("--quote <quote>", "Quote currency (e.g. USDT)").requiredOption("--time <iso>", "Signal timestamp in RFC 3339 format (e.g. 2024-01-01T12:00:00Z)").requiredOption("--price <price>", "Current price at time of signal (e.g. 85000)").requiredOption("--action <action>", "'buy' to open a position, 'sell' to close").requiredOption("--position-size <size>", "Target position size as a fraction (e.g. '1' for 100%)").requiredOption("--contracts <n>", "Number of contracts").option("--direction <dir>", "Optional trade direction").action(async (opts, cmd) => {
     try {
       const payload = {
@@ -655,11 +655,11 @@ function buildSignalCommand() {
         }
       };
       if (isDryRun(cmd)) {
-        print({ tool: "pionex_bot_signal_add_listener", args: payload });
+        print({ tool: "pionex_bot_signal_listener", args: payload });
         return;
       }
       const run = makeRunner(cmd);
-      const out = await run("pionex_bot_signal_add_listener", payload);
+      const out = await run("pionex_bot_signal_listener", payload);
       print(out.data);
     } catch (e) {
       process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
@@ -911,4 +911,4 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
-//# sourceMappingURL=trade-L47PHCCV.js.map
+//# sourceMappingURL=trade-PNURMFCZ.js.map

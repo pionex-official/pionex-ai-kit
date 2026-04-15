@@ -425,12 +425,12 @@ pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --convert-into-earn-
 
 ### 訊號（需要驗證）
 
-#### bot signal add_listener
+#### bot signal listener
 
 向 Pionex 訊號平台推送交易訊號（供訊號來源使用）。平台會將該訊號轉發給所有訂閱了指定 `--signal-type` 的智慧跟單機器人。
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param <json> \
   --base <BASE> --quote <QUOTE> --time <iso> --price <price> \
   --action <buy|sell> --position-size <size> --contracts <n>
 ```
@@ -449,12 +449,12 @@ pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <js
 
 ```bash
 # 推送買入訊號
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
   --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
   --action buy --position-size 1 --contracts 1
 
 # 推送賣出訊號
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
   --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
   --action sell --position-size 0 --contracts 0
 ```

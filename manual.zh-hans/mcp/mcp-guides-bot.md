@@ -38,4 +38,9 @@
 | `pionex_bot_smart_copy_create`               | 创建智能跟单机器人订单                                   |
 | `pionex_bot_smart_copy_cancel`               | 取消并关闭智能跟单机器人订单                             |
 | `pionex_bot_smart_copy_check_params`         | 下单前校验智能跟单参数                                   |
-| `pionex_bot_signal_add_listener`             | 向 Pionex 信号平台推送交易信号（供信号源使用）           |
+
+### 信号（需要 API Key）
+
+| 工具                                         | 描述                                                     |
+| -------------------------------------------- | -------------------------------------------------------- |
+| `pionex_bot_signal_listener`                 | 向 Pionex 信号平台推送交易信号（供信号源使用）           |

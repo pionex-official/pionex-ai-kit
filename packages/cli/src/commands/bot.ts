@@ -447,10 +447,10 @@ function buildSmartCopyCommand(): Command {
 function buildSignalCommand(): Command {
   const sig = new Command("signal").description("Signal provider sub-commands (requires auth)");
 
-  sig.command("add_listener")
+  sig.command("listener")
     .description(
       "Push a trading signal to the Pionex signal platform (signal provider use)\n" +
-      "  Example: pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \\\n" +
+      "  Example: pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \\\n" +
       "    --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \\\n" +
       "    --action buy --position-size 1 --contracts 1"
     )
@@ -481,11 +481,11 @@ function buildSignalCommand(): Command {
           },
         };
         if (isDryRun(cmd)) {
-          print({ tool: "pionex_bot_signal_add_listener", args: payload });
+          print({ tool: "pionex_bot_signal_listener", args: payload });
           return;
         }
         const run = makeRunner(cmd);
-        const out = await run("pionex_bot_signal_add_listener", payload);
+        const out = await run("pionex_bot_signal_listener", payload);
         print(out.data);
       } catch (e) {
         process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");

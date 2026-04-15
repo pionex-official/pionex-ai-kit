@@ -425,12 +425,12 @@ pionex-trade-cli bot smart_copy cancel --bu-order-id 123456 --convert-into-earn-
 
 ### Signal (Auth Required)
 
-#### bot signal add_listener
+#### bot signal listener
 
 Push a trading signal to the Pionex signal platform (for signal providers). The platform forwards the signal to all smart copy bots subscribed to the given `--signal-type`.
 
 ```bash
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <json> \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param <json> \
   --base <BASE> --quote <QUOTE> --time <iso> --price <price> \
   --action <buy|sell> --position-size <size> --contracts <n>
 ```
@@ -449,12 +449,12 @@ pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param <js
 
 ```bash
 # Push a buy signal
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
   --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
   --action buy --position-size 1 --contracts 1
 
 # Push a sell signal
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
   --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
   --action sell --position-size 0 --contracts 0
 ```

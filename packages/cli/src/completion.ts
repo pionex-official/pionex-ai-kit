@@ -17,7 +17,7 @@ export const COMPLETION_TREE = {
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
   spot_grid:    ["get", "get_ai_strategy", "create", "adjust_params", "invest_in", "cancel", "profit", "check_params"],
   smart_copy:   ["get", "create", "cancel", "check_params"],
-  signal:       ["add_listener"],
+  signal:       ["listener"],
   earn:         ["dual"],
   dual:         ["symbols", "open_products", "prices", "index", "delivery_prices",
                  "balances", "get_invests", "records", "invest", "revoke_invest", "collect"],

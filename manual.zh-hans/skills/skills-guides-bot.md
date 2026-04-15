@@ -222,7 +222,6 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 | `pionex-trade-cli bot smart_copy create --base <BASE> --quote <QUOTE> --bu-order-data-json '<JSON>'`                                         | 写操作 | 创建智能跟单机器人订单                            |
 | `pionex-trade-cli bot smart_copy check_params --base <BASE> --quote <QUOTE> --leverage <n> --quote-investment <amt> [--signal-type <uuid>]`   | 读操作 | 下单前校验参数                                    |
 | `pionex-trade-cli bot smart_copy cancel --bu-order-id <id>`                                                                                  | 写操作 | 取消并关闭智能跟单机器人订单                      |
-| `pionex-trade-cli bot signal add_listener --signal-type <uuid> ... --action <buy\|sell> --position-size <size> --contracts <n>`              | 写操作 | 推送交易信号（供信号源使用）                      |
 
 #### 创建参数
 
@@ -255,19 +254,6 @@ pionex-trade-cli bot spot_grid cancel --bu-order-id 123456 --close-sell-model TO
 | `--close-note`             | 选填；关闭备注                        |
 | `--convert-into-earn-coin` | 将剩余资金转换为理财币                |
 
-#### signal add_listener 参数（信号源使用）
-
-| 参数               | 描述                                                          |
-| ------------------ | ------------------------------------------------------------- |
-| `--signal-type`    | 信号源 UUID                                                   |
-| `--signal-param`   | 信号参数（JSON 字符串，如 `'{}'`）                            |
-| `--base` / `--quote` | 交易对（如 `BTC` / `USDT`）                                 |
-| `--time`           | RFC 3339 格式时间戳（如 `2024-01-01T12:00:00Z`）              |
-| `--price`          | 信号触发时的当前价格                                          |
-| `--action`         | `buy` 开仓，`sell` 平仓                                       |
-| `--position-size`  | 目标持仓比例（`"1"` = 100%）                                  |
-| `--contracts`      | 合约数量                                                      |
-
 #### 示例
 
 ```bash
@@ -292,11 +278,6 @@ pionex-trade-cli bot smart_copy get --bu-order-id 123456
 
 # 取消机器人
 pionex-trade-cli bot smart_copy cancel --bu-order-id 123456
-
-# 推送买入信号（信号源）
-pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}' \
-  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
-  --action buy --position-size 1 --contracts 1
 ```
 
 #### 行为约束
@@ -319,3 +300,42 @@ pionex-trade-cli bot signal add_listener --signal-type <uuid> --signal-param '{}
 2. 校验参数：`pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — 展示允许范围
 3. 试运行预览：在创建命令中加 `--dry-run`，将解析后的请求体展示给用户
 4. 用户确认后，移除 `--dry-run` 执行实际创建
+
+---
+
+### pionex-bot：信号
+
+信号推送（供信号源使用）。**需要 API 凭据**。
+
+#### 命令参考
+
+| 命令                                                                                                                                                                           | 类型   | 描述                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | -------------------------------- |
+| `pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param <json> --base <BASE> --quote <QUOTE> --time <iso> --price <price> --action <buy\|sell> --position-size <size> --contracts <n>` | 写操作 | 向平台推送交易信号 |
+
+#### 参数说明
+
+| 参数               | 描述                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| `--signal-type`    | 信号源 UUID                                                   |
+| `--signal-param`   | 信号参数（JSON 字符串，如 `'{}'`）                            |
+| `--base` / `--quote` | 交易对（如 `BTC` / `USDT`）                                 |
+| `--time`           | RFC 3339 格式时间戳（如 `2024-01-01T12:00:00Z`）              |
+| `--price`          | 信号触发时的当前价格                                          |
+| `--action`         | `buy` 开仓，`sell` 平仓                                       |
+| `--position-size`  | 目标持仓比例（`"1"` = 100%）                                  |
+| `--contracts`      | 合约数量                                                      |
+
+#### 示例
+
+```bash
+# 推送买入信号
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \
+  --action buy --position-size 1 --contracts 1
+
+# 推送卖出信号
+pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \
+  --base BTC --quote USDT --time 2024-01-01T13:00:00Z --price 86000 \
+  --action sell --position-size 0 --contracts 0
+```

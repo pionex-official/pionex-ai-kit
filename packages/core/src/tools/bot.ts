@@ -740,7 +740,7 @@ export function registerBotTools(): ToolSpec[] {
     },
     // ── Signal ────────────────────────────────────────────────────────────────
     {
-      name: "pionex_bot_signal_add_listener",
+      name: "pionex_bot_signal_listener",
       module: "bot",
       isWrite: true,
       description:
@@ -774,7 +774,7 @@ export function registerBotTools(): ToolSpec[] {
       },
       async handler(args, { client, config }) {
         if (config.readOnly) {
-          throw new Error("Server is running in --read-only mode; bot signal add_listener is disabled.");
+          throw new Error("Server is running in --read-only mode; bot signal listener is disabled.");
         }
         const signalType = asNonEmptyString(args.signalType, "signalType");
         const signalParam = asNonEmptyString(args.signalParam, "signalParam");
