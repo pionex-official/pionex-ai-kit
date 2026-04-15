@@ -120,14 +120,14 @@ and a `capabilities` discovery command.
 - `pionex_bot_smart_copy_create` — `POST /api/v1/bot/orders/smartCopy/create`
 - `pionex_bot_smart_copy_cancel` — `POST /api/v1/bot/orders/smartCopy/cancel`
 - `pionex_bot_smart_copy_check_params` — `POST /api/v1/bot/orders/smartCopy/checkParams`
-- `pionex_bot_signal_add_listener` — `POST /api/v1/bot/signal/listener`
+- `pionex_bot_signal_listener` — `POST /api/v1/bot/signal/listener`
 
 **New CLI Commands:**
 - `pionex-trade-cli bot smart_copy get`
 - `pionex-trade-cli bot smart_copy create`
 - `pionex-trade-cli bot smart_copy cancel`
 - `pionex-trade-cli bot smart_copy check_params`
-- `pionex-trade-cli bot signal add_listener`
+- `pionex-trade-cli bot signal listener`
 
 ## Future Plans
 

@@ -183,11 +183,11 @@ Add 5 MCP tools and corresponding CLI commands for Pionex Smart Copy Trading. Al
 }
 ```
 
-### Tool 5: `pionex_bot_signal_add_listener`
+### Tool 5: `pionex_bot_signal_listener`
 
 ```typescript
 {
-  name: "pionex_bot_signal_add_listener",
+  name: "pionex_bot_signal_listener",
   module: "bot",
   isWrite: true,
   description:
@@ -204,7 +204,7 @@ Add 5 MCP tools and corresponding CLI commands for Pionex Smart Copy Trading. Al
   },
   async handler(args, { client, config }) {
     if (config.readOnly) {
-      throw new Error("Server is running in --read-only mode; bot signal add_listener is disabled.");
+      throw new Error("Server is running in --read-only mode; bot signal listener is disabled.");
     }
     const signalSourceId = asNonEmptyString(args.signalSourceId, "signalSourceId");
     const body: Record<string, unknown> = { signalSourceId };
@@ -285,7 +285,7 @@ function buildSmartCopyCommand(): Command {
 function buildSignalCommand(): Command {
   const sig = new Command("signal").description("Signal provider sub-commands (requires auth)");
 
-  sig.command("add_listener")
+  sig.command("listener")
     .description("Subscribe to a signal provider")
     .requiredOption("--signal-source-id <id>", "Signal provider ID")
     .option("--listen-mode <mode>", "Subscription mode")
@@ -312,7 +312,7 @@ export const COMPLETION_TREE = {
   bot:          ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   // ...existing entries...
   smart_copy:   ["get", "create", "cancel", "check_params"],
-  signal:       ["add_listener"],
+  signal:       ["listener"],
 } as const;
 ```
 
@@ -338,7 +338,7 @@ And update `generateFishCompletion()`:
 | `pionex_bot_smart_copy_create` | ... |
 | `pionex_bot_smart_copy_cancel` | ... |
 | `pionex_bot_smart_copy_check_params` | ... |
-| `pionex_bot_signal_add_listener` | ... |
+| `pionex_bot_signal_listener` | ... |
 ```
 
 **cli-guides-bot.md** — add `### Smart Copy (Auth Required)` section with all commands
@@ -364,6 +364,6 @@ Same structure translated to Simplified Chinese (zh-hans) and Traditional Chines
 
 ## Read-only Mode
 
-Tools `smart_copy_create`, `smart_copy_cancel`, `signal_add_listener` all check `config.readOnly` and throw early.
+Tools `smart_copy_create`, `smart_copy_cancel`, `signal_listener` all check `config.readOnly` and throw early.
 
 `smart_copy_get_order` and `smart_copy_check_params` are read-only (`isWrite: false`) — no readOnly guard needed.

@@ -116,7 +116,7 @@ bot
     cancel
     check_params
   signal
-    add_listener
+    listener
 ```
 
 `signal` is placed as a peer of `smart_copy` under `bot` rather than nested under `smart_copy`, because:
@@ -129,7 +129,7 @@ bot
 ```typescript
 bot: ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
 smart_copy: ["get", "create", "cancel", "check_params"],
-signal: ["add_listener"],
+signal: ["listener"],
 ```
 
 The fish completion script also needs `smart_copy` and `signal` as new condition groups.
