@@ -28,7 +28,7 @@ async function cmdOnboard(): Promise<void> {
   process.stdout.write("  ⚠️  安全提示：切勿在 Agent 对话中发送 API Key。请为 Agent 创建专用API Key接入，先用小金额充分验证后再接入实盘。\n\n");
 
   process.stdout.write("Pionex CLI — Configuration Wizard\n\n");
-  process.stdout.write("Go to https://www.pionex.com/zh-CN/my-account/api to create an API Key (trade permission required)\n\n");
+  process.stdout.write("Go to https://www.pionex.com/my-account/api to create an API Key (trade permission required)\n\n");
   process.stdout.write("Credentials will be saved to " + configFilePath() + "\n\n");
 
   const apiKey = await ask(rl, "Pionex API Key");

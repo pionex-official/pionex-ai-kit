@@ -5,11 +5,7 @@ import {
   runSetup,
   version,
   writeFullConfig
-<<<<<<<< HEAD:packages/cli/dist/kit-LUI2MN26.js
 } from "./chunk-NGPWUQ2A.js";
-========
-} from "./chunk-NAOQJBW5.js";
->>>>>>>> main:packages/cli/dist/kit-6KS3OFXY.js
 
 // src/kit.ts
 import { createInterface } from "readline";
@@ -28,7 +24,7 @@ async function cmdOnboard() {
   process.stdout.write("  \u26A0\uFE0F  Security Tips: NEVER send API keys in agent chat. Create a dedicated API Key for your agent. Please test thoroughly before connecting to large real-money accounts.\n");
   process.stdout.write("  \u26A0\uFE0F  \u5B89\u5168\u63D0\u793A\uFF1A\u5207\u52FF\u5728 Agent \u5BF9\u8BDD\u4E2D\u53D1\u9001 API Key\u3002\u8BF7\u4E3A Agent \u521B\u5EFA\u4E13\u7528API Key\u63A5\u5165\uFF0C\u5148\u7528\u5C0F\u91D1\u989D\u5145\u5206\u9A8C\u8BC1\u540E\u518D\u63A5\u5165\u5B9E\u76D8\u3002\n\n");
   process.stdout.write("Pionex CLI \u2014 Configuration Wizard\n\n");
-  process.stdout.write("Go to https://www.pionex.com/zh-CN/my-account/api to create an API Key (trade permission required)\n\n");
+  process.stdout.write("Go to https://www.pionex.com/my-account/api to create an API Key (trade permission required)\n\n");
   process.stdout.write("Credentials will be saved to " + configFilePath() + "\n\n");
   const apiKey = await ask(rl, "Pionex API Key");
   if (!apiKey) {
@@ -102,8 +98,4 @@ function buildKitProgram() {
 export {
   buildKitProgram
 };
-<<<<<<<< HEAD:packages/cli/dist/kit-LUI2MN26.js
-//# sourceMappingURL=kit-LUI2MN26.js.map
-========
-//# sourceMappingURL=kit-6KS3OFXY.js.map
->>>>>>>> main:packages/cli/dist/kit-6KS3OFXY.js
+//# sourceMappingURL=kit-3ZW3S5RB.js.map
