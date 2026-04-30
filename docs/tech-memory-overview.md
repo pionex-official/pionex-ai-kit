@@ -310,6 +310,19 @@ signature = HMAC-SHA256(message, secret_key)
 - `closeSellModel` enum for cancel: `["NOT_SELL", "TO_QUOTE", "TO_USDT"]` — mirrors spot_grid cancel (not futures_grid which omits `NOT_SELL`).
 - Tab completion: `COMPLETION_TREE` extended with `smart_copy` and `signal` groups; fish script updated with new condition guards.
 
+## Iteration 2026042900: Balances Full
+
+**Added:** `pionex_account_get_balance_full` tool in `packages/core/src/tools/account.ts`
+**Endpoint:** `GET /api/v1/wallet/balancesFull`
+**CLI:** `pionex-trade-cli account balance_full [--app-lang <lang>] [--sys-lang <lang>]`
+
+**Key decisions:**
+- No new module — reuses existing `account` module (same auth tier as `GET /api/v1/account/balances`).
+- `appLang` / `sysLang` are optional query params passed through directly to the API via `signedGet`.
+- Args are typed `Record<string, string>` at call-site and filtered (undefined keys excluded by `buildQueryString`).
+- No schema file needed — response is pass-through JSON, not validated by the kit.
+- Fish/bash completion: `COMPLETION_TREE.account` extended from `["balance"]` to `["balance", "balance_full"]`.
+
 ## Open Issues
 
 ### 1. Test Coverage

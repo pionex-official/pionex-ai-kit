@@ -11,7 +11,7 @@ const _require = createRequire(import.meta.url);
 export const COMPLETION_TREE = {
   groups:       ["market", "account", "orders", "bot", "earn", "capabilities"],
   market:       ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
-  account:      ["balance"],
+  account:      ["balance", "balance_full"],
   orders:       ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot:          ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],

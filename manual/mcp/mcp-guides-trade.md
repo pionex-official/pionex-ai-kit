@@ -15,7 +15,8 @@
 
 | Tool                         | Description           |
 | ---------------------------- | --------------------- |
-| `pionex_account_get_balance` | Spot account balances |
+| `pionex_account_get_balance`      | Spot account balances                                          |
+| `pionex_account_get_balance_full` | Full account overview — spot + futures, coin prices, USDT/BTC totals |
 
 ### Order Tools (API Key Required)
 

@@ -15,7 +15,8 @@
 
 | 工具                         | 說明           |
 | ---------------------------- | --------------------- |
-| `pionex_account_get_balance` | 現貨帳戶餘額 |
+| `pionex_account_get_balance`      | 現貨帳戶餘額                                       |
+| `pionex_account_get_balance_full` | 完整帳戶概覽——現貨＋合約餘額、幣種價格、USDT/BTC 估值總額 |
 
 ### 訂單工具（需要 API Key）
 

@@ -129,6 +129,18 @@ and a `capabilities` discovery command.
 - `pionex-trade-cli bot smart_copy check_params`
 - `pionex-trade-cli bot signal listener`
 
+#### 11. Balances Full (`/api/v1/balancesFull`)
+**Status:** Completed (iteration `2026042900_balances_full`)
+**Description:** Adds `pionex_account_get_balance_full` to the `account` module. Returns a comprehensive
+account overview: spot (Bot Account) + futures (Trader Account) balances, per-coin price info, and
+USDT/BTC total valuations in one call. Same auth tier as `account/balances`.
+
+**New Tool:**
+- `pionex_account_get_balance_full` — `GET /api/v1/wallet/balancesFull` (optional `appLang`, `sysLang` query params)
+
+**New CLI Command:**
+- `pionex-trade-cli account balance_full [--app-lang <lang>] [--sys-lang <lang>]`
+
 ## Future Plans
 
 Possible expansion directions:
