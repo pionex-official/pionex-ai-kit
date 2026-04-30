@@ -7,7 +7,7 @@ import {
   print,
   toToolErrorPayload,
   version
-} from "./chunk-NGPWUQ2A.js";
+} from "./chunk-O45XCZNU.js";
 
 // src/trade.ts
 import { Command as Command7 } from "commander";
@@ -18,7 +18,7 @@ var _require = createRequire(import.meta.url);
 var COMPLETION_TREE = {
   groups: ["market", "account", "orders", "bot", "earn", "capabilities"],
   market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
-  account: ["balance"],
+  account: ["balance", "balance_full"],
   orders: ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot: ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
@@ -188,6 +188,19 @@ function buildAccountCommand() {
     try {
       const run = makeRunner(cmd);
       const out = await run("pionex_account_get_balance", {});
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  account.command("balance_full").description("Get full account balance overview (spot + futures, with coin prices and USDT/BTC totals)").option("--app-lang <lang>", "App language, e.g. en or zh (overrides sys-lang)").option("--sys-lang <lang>", "System language fallback").action(async (opts, cmd) => {
+    try {
+      const run = makeRunner(cmd);
+      const args = {};
+      if (opts.appLang) args["appLang"] = opts.appLang;
+      if (opts.sysLang) args["sysLang"] = opts.sysLang;
+      const out = await run("pionex_account_get_balance_full", args);
       print(out.data);
     } catch (e) {
       process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
@@ -911,4 +924,4 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
-//# sourceMappingURL=trade-PNURMFCZ.js.map
+//# sourceMappingURL=trade-ARTTYJHM.js.map
