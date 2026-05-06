@@ -8,5 +8,5 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   dts: false,
-  noExternal: ["@pionex-ai/core"],
+  noExternal: ["@pionex-ai/core", "@modelcontextprotocol/sdk"],
 });
