@@ -4,7 +4,18 @@ This document records important decisions, lessons learned, and technical knowle
 
 ## Last Updated
 
-**Date:** 2026-04-02
+**Date:** 2026-05-06
+
+## Iteration 2026050611: .mcpb Claude Desktop One-Click Installer
+
+**Added:** `packages/mcpb/` — Claude Desktop native MCP plugin distribution
+**Key decisions:**
+- `.mcpb` is a ZIP produced by `@anthropic-ai/mcpb`. `mcpb pack . pionex-mcp.mcpb` must specify the output filename explicitly, otherwise it defaults to the directory name (`mcpb.mcpb`).
+- Source files in `packages/mcpb/src/` are copies of `packages/mcp/src/` (not re-exports). Relative imports across packages break tsup bundling.
+- `SERVER_NAME` changed to `"pionex-mcp"` in the mcpb copy (was `"pionex-trade-mcp"`).
+- `user_config` fields with `sensitive: true` are masked in Claude Desktop's UI and injected as `PIONEX_API_KEY`/`PIONEX_API_SECRET` env vars. No changes to `loadConfig()` needed.
+- `packages/mcpb` is `"private": true` — never published to npm; distributed only via GitHub Releases.
+- GitHub Actions workflow (`.github/workflows/release-mcpb.yml`) triggers on `v*` tags and uploads `pionex-mcp.mcpb` as a release asset.
 
 ## Iteration 2026040200: Bot Order List
 

@@ -2,7 +2,11 @@
 
 MCP server for Pionex. Reads credentials from **~/.pionex/config.toml** (no env vars needed in client config).
 
-## Install & Setup
+## Claude Desktop — One-Click Install
+
+For Claude Desktop, a `.mcpb` one-click installer is available. Download `pionex-mcp.mcpb` from the [GitHub Releases page](https://github.com/pionex-official/pionex-ai-kit/releases/latest) and double-click to install.
+
+## Install & Setup (npm — Cursor, Windsurf, VS Code, etc.)
 
 1. Create config (if not done yet):  
    `pionex-ai-kit onboard` (from **@pionex/pionex-ai-kit**).

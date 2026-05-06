@@ -1,0 +1,9 @@
+src/
+.github/
+.claude/
+tsconfig.json
+tsup.config.ts
+.gitignore
+.mcpbignore
+*.ts
+*.map

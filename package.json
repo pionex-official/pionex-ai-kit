@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=@pionex/pionex-ai-kit && npm run build --workspace=@pionex/pionex-trade-mcp",
+    "build": "npm run build --workspace=@pionex-ai/core && npm run build --workspace=@pionex/pionex-ai-kit && npm run build --workspace=@pionex/pionex-trade-mcp && npm run build --workspace=@pionex/pionex-mcp",
     "clean": "npm run clean --workspaces",
     "release": "npm version patch --no-git-tag-version --workspace=@pionex/pionex-ai-kit --workspace=@pionex/pionex-trade-mcp && npm run build && node packages/cli/dist/index.js setup-completion-fish > ~/.config/fish/completions/pionex-trade-cli.fish && npm publish --workspace=@pionex/pionex-ai-kit && npm publish --workspace=@pionex/pionex-trade-mcp"
   },
