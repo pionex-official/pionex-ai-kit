@@ -66,7 +66,20 @@ MCP servers for trading on Pionex.
 
 ## Quick Start
 
-### **Install**
+### Claude Desktop — One-Click Install (.mcpb)
+
+The easiest way to use Pionex MCP with Claude Desktop is the `.mcpb` installer:
+
+1. Download `pionex-mcp.mcpb` from the [latest GitHub Release](https://github.com/pionex-official/pionex-ai-kit/releases/latest)
+2. Double-click the file — Claude Desktop will open an install dialog
+3. Enter your Pionex API Key and Secret when prompted (stored securely by Claude Desktop)
+4. Done — Pionex tools are now available in Claude Desktop
+
+> **What is `.mcpb`?** It's Claude Desktop's native MCP plugin format. No Node.js installation or command-line setup required.
+
+---
+
+### **Install via npm (Cursor, Windsurf, VS Code, Claude Code, OpenClaw)**
 
 **Prerequisites:** Node.js ≥ 18
 

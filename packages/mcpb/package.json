@@ -1,0 +1,25 @@
+{
+  "name": "@pionex/pionex-mcp",
+  "version": "0.2.51",
+  "description": "Pionex MCP Server (.mcpb distribution for Claude Desktop)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "pack:mcpb": "npm run build && npx --no-install mcpb pack . pionex-mcp.mcpb"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@pionex-ai/core": "*",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
