@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.3",
   "name": "pionex-mcp",
-  "display_name": "Pionex Exchange",
+  "display_name": "Pionex",
   "version": "0.2.51",
   "description": "Pionex MCP Server — market data, account management, spot orders, and trading bots.",
   "long_description": "Gives Claude direct access to Pionex exchange: real-time market data (depth, tickers, klines), account balances, spot order management, and automated trading bots (Futures Grid, Spot Grid, Smart Copy). API credentials are stored securely and never written to config files.",
@@ -14,6 +14,7 @@
     "url": "https://github.com/pionex-official/pionex-ai-kit"
   },
   "license": "MIT",
+  "icon": "icon.png",
   "keywords": ["pionex", "trading", "exchange", "mcp", "crypto"],
   "privacy_policies": ["https://www.pionex.com/en/policy"],
   "compatibility": {
