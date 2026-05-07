@@ -90,18 +90,6 @@ pionex-trade-cli market book_tickers --type SPOT
 
 ---
 
-### Account Commands (Auth Required)
-
-#### account balance
-
-Get all spot account balances (JSON output).
-
-```bash
-pionex-trade-cli account balance
-```
-
----
-
 ### Order Commands (Auth Required)
 
 #### orders new

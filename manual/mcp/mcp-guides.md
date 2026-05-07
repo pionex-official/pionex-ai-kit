@@ -94,7 +94,8 @@ If you prefer not to use the `setup` command, add the server entry to your clien
 
 ### Tool Reference
 
-* [Trade Tools](mcp-guides-trade.md) — Market data, account balances, and spot order operations
+* [Trade Tools](mcp-guides-trade.md) — Market data and spot order operations
+* [Wallet Tools](mcp-guides-wallet.md) — Account balances and full account overview
 * [Bot Tools](mcp-guides-bot.md) — Futures grid bot creation, management, and cancellation
 * [Earn Dual Tools](mcp-guides-earn.md) — Dual Investment: query products, invest, revoke, and collect earnings
 

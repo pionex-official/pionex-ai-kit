@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { version } from "./helpers.js";
 import { initCompletion, generateFishCompletion } from "./completion.js";
 import { buildMarketCommand } from "./commands/market.js";
-import { buildAccountCommand } from "./commands/account.js";
+import { buildWalletCommand } from "./commands/wallet.js";
 import { buildOrdersCommand } from "./commands/orders.js";
 import { buildBotCommand } from "./commands/bot.js";
 import { buildEarnCommand } from "./commands/earn.js";
@@ -21,13 +21,13 @@ export function buildTradeProgram(): Command {
   // Global options inherited by all sub-commands via cmd.optsWithGlobals()
   program
     .option("--profile <name>", "Profile name in ~/.pionex/config.toml")
-    .option("--modules <list>", "Comma-separated modules to enable (market,account,orders,bot,earn or all)")
+    .option("--modules <list>", "Comma-separated modules to enable (market,wallet,orders,bot,earn or all)")
     .option("--base-url <url>", "Override API base URL")
     .option("--read-only", "Disable write operations (orders new/cancel, etc.)")
     .option("--dry-run", "Print resolved request body without executing (write commands only)");
 
   program.addCommand(buildMarketCommand());
-  program.addCommand(buildAccountCommand());
+  program.addCommand(buildWalletCommand());
   program.addCommand(buildOrdersCommand());
   program.addCommand(buildBotCommand());
   program.addCommand(buildEarnCommand());
