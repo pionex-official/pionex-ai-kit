@@ -274,3 +274,11 @@ pionex-trade-cli earn dual collect \
 ## Contributing
 
 Development, build, and publish instructions live in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+---
+
+## 💖 Thanks
+
+A special thanks to:
+
+* [@PavanKhatwani](https://github.com/PavanKhatwani) - For contributing the `.mcpb` (Claude Desktop one-click installer).

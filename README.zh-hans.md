@@ -236,3 +236,11 @@ pionex-trade-cli earn dual invest \
 ## 参与贡献
 
 开发、构建和发布说明见 [`CONTRIBUTING.zh-hans.md`](CONTRIBUTING.zh-hans.md)。
+
+---
+
+## 💖 鸣谢
+
+特别感谢：
+
+* [@PavanKhatwani](https://github.com/PavanKhatwani) - 贡献了 `.mcpb`（Claude Desktop 一键安装器）。
