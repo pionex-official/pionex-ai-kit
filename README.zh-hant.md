@@ -55,7 +55,7 @@ Pionex AI Kit 為你提供一整套連接 Pionex 的 AI Agent 基礎設施，包
 | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ---- |
 | [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | 公開行情資料：盤口、行情、交易對、K 線、成交 | 否   |
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | 帳戶餘額（現貨）                             | 是   |
-| pionex-wallet                                                                                                    | 完整帳戶概覽：現貨＋合約餘額、幣種價格、USDT/BTC 估值 | 是   |
+| [pionex-wallet](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-wallet/SKILL.md)       | 完整帳戶概覽：現貨＋合約餘額、幣種價格、USDT/BTC 估值 | 是   |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | 現貨訂單：下單、撤單、查詢掛單、成交記錄     | 是   |
 | [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | 合約網格：查詢、建立、調參、減倉、撤單       | 是   |
 | [pionex-earn-dual](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-earn-dual/SKILL.md)   | 雙幣理財：查產品、申購、撤單、收益提取       | 部分 |

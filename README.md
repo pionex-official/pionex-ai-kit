@@ -55,7 +55,7 @@ MCP servers for trading on Pionex.
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
 | [pionex-market](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-market/SKILL.md)       | Public market data: depth, tickers, symbols, klines, trades  | No   |
 | [pionex-portfolio](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-portfolio/SKILL.md) | Account balance (spot)                                       | Yes  |
-| pionex-wallet                                                                                                    | Full account overview: spot + futures, coin prices, USDT/BTC totals | Yes  |
+| [pionex-wallet](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-wallet/SKILL.md)       | Full account overview: spot + futures, coin prices, USDT/BTC totals | Yes  |
 | [pionex-trade](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-trade/SKILL.md)         | Spot orders: place, cancel, open orders, fills               | Yes  |
 | [pionex-bot](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-bot/SKILL.md)             | Futures Grid Bot: get, create, adjust params, reduce, cancel | Yes  |
 | [pionex-earn-dual](https://github.com/pionex-official/pionex-skills/blob/main/skills/pionex-earn-dual/SKILL.md)   | Dual Investment: query products, invest, revoke, collect     | Partial |
