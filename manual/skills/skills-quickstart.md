@@ -43,7 +43,7 @@ npx skills add pionex-official/pionex-skills
 pionex-trade-cli market tickers --symbol BTC_USDT
 
 # Test account query (API key required)
-pionex-trade-cli wallet balance
+pionex-trade-cli account balance
 ```
 
 ### Upgrade

@@ -90,6 +90,18 @@ pionex-trade-cli market book_tickers --type SPOT
 
 ---
 
+### 帳戶命令（需要認證）
+
+#### account balance
+
+取得所有現貨帳戶餘額（JSON 輸出）。
+
+```bash
+pionex-trade-cli account balance
+```
+
+---
+
 ### 訂單命令（需要認證）
 
 #### orders new

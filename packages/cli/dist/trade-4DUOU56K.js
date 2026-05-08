@@ -7,18 +7,19 @@ import {
   print,
   toToolErrorPayload,
   version
-} from "./chunk-GOOXVYAZ.js";
+} from "./chunk-I6Z3QX5T.js";
 
 // src/trade.ts
-import { Command as Command7 } from "commander";
+import { Command as Command8 } from "commander";
 
 // src/completion.ts
 import { createRequire } from "module";
 var _require = createRequire(import.meta.url);
 var COMPLETION_TREE = {
-  groups: ["market", "wallet", "orders", "bot", "earn", "capabilities"],
+  groups: ["market", "account", "wallet", "orders", "bot", "earn", "capabilities"],
   market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
-  wallet: ["balance", "balance_full"],
+  account: ["balance"],
+  wallet: ["balance_full"],
   orders: ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot: ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
@@ -46,6 +47,7 @@ function initCompletion() {
   const T = COMPLETION_TREE;
   completion2.on("group", ({ reply }) => reply(T.groups));
   completion2.on("market", ({ reply }) => reply(T.market));
+  completion2.on("account", ({ reply }) => reply(T.account));
   completion2.on("wallet", ({ reply }) => reply(T.wallet));
   completion2.on("orders", ({ reply }) => reply(T.orders));
   completion2.on("bot", ({ reply }) => reply(T.bot));
@@ -76,6 +78,9 @@ function generateFishCompletion() {
     "",
     "# market subcommands",
     ...T.market.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from market' -a '${s}'`),
+    "",
+    "# account subcommands",
+    ...T.account.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from account' -a '${s}'`),
     "",
     "# wallet subcommands",
     ...T.wallet.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from wallet' -a '${s}'`),
@@ -180,20 +185,27 @@ function buildMarketCommand() {
   return market;
 }
 
-// src/commands/wallet.ts
+// src/commands/account.ts
 import { Command as Command2 } from "commander";
-function buildWalletCommand() {
-  const wallet = new Command2("wallet").description("Wallet / balance data (requires auth)");
-  wallet.command("balance").description("Get spot account balance for all assets").action(async (_opts, cmd) => {
+function buildAccountCommand() {
+  const account = new Command2("account").description("Account data (requires auth)");
+  account.command("balance").description("Get account balance for all assets").action(async (_opts, cmd) => {
     try {
       const run = makeRunner(cmd);
-      const out = await run("pionex_wallet_get_balance", {});
+      const out = await run("pionex_account_get_balance", {});
       print(out.data);
     } catch (e) {
       process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
       process.exit(1);
     }
   });
+  return account;
+}
+
+// src/commands/wallet.ts
+import { Command as Command3 } from "commander";
+function buildWalletCommand() {
+  const wallet = new Command3("wallet").description("Wallet data (requires auth)");
   wallet.command("balance_full").description("Get full account balance overview (spot + futures, with coin prices and USDT/BTC totals)").option("--app-lang <lang>", "App language, e.g. en or zh (overrides sys-lang)").option("--sys-lang <lang>", "System language fallback").action(async (opts, cmd) => {
     try {
       const run = makeRunner(cmd);
@@ -211,9 +223,9 @@ function buildWalletCommand() {
 }
 
 // src/commands/orders.ts
-import { Command as Command3 } from "commander";
+import { Command as Command4 } from "commander";
 function buildOrdersCommand() {
-  const orders = new Command3("orders").description("Spot orders (requires auth)");
+  const orders = new Command4("orders").description("Spot orders (requires auth)");
   orders.command("new").description("Place a new spot order").requiredOption("--symbol <symbol>", "Trading pair (e.g. BTC_USDT)").requiredOption("--side <side>", "BUY or SELL").requiredOption("--type <type>", "Order type (MARKET, LIMIT, etc.)").option("--client-order-id <id>", "Client-assigned order ID").option("--size <size>", "Base asset quantity").option("--price <price>", "Limit price").option("--amount <amount>", "Quote asset amount (for market buy)").option("--IOC", "Immediate-or-cancel flag").action(async (opts, cmd) => {
     try {
       const payload = {
@@ -322,9 +334,9 @@ function buildOrdersCommand() {
 }
 
 // src/commands/bot.ts
-import { Command as Command4 } from "commander";
+import { Command as Command5 } from "commander";
 function buildFuturesGridCommand() {
-  const fg = new Command4("futures_grid").description("Futures Grid bot sub-commands (requires auth)");
+  const fg = new Command5("futures_grid").description("Futures Grid bot sub-commands (requires auth)");
   fg.command("get").description("Get a Futures Grid bot order by ID").requiredOption("--bu-order-id <id>", "Bot order ID").option("--lang <lang>", "Response language (e.g. en, zh)").action(async (opts, cmd) => {
     try {
       const run = makeRunner(cmd);
@@ -435,7 +447,7 @@ function buildFuturesGridCommand() {
   return fg;
 }
 function buildSpotGridCommand() {
-  const sg = new Command4("spot_grid").description("Spot Grid bot sub-commands (requires auth)");
+  const sg = new Command5("spot_grid").description("Spot Grid bot sub-commands (requires auth)");
   sg.command("get").description("Get a Spot Grid bot order by ID").requiredOption("--bu-order-id <id>", "Bot order ID").action(async (opts, cmd) => {
     try {
       const run = makeRunner(cmd);
@@ -566,7 +578,7 @@ function buildSpotGridCommand() {
   return sg;
 }
 function buildSmartCopyCommand() {
-  const sc = new Command4("smart_copy").description("Smart Copy bot sub-commands (requires auth)");
+  const sc = new Command5("smart_copy").description("Smart Copy bot sub-commands (requires auth)");
   sc.command("get").description("Get a Smart Copy bot order by ID").requiredOption("--bu-order-id <id>", "Bot order ID").action(async (opts, cmd) => {
     try {
       const run = makeRunner(cmd);
@@ -648,7 +660,7 @@ function buildSmartCopyCommand() {
   return sc;
 }
 function buildSignalCommand() {
-  const sig = new Command4("signal").description("Signal provider sub-commands (requires auth)");
+  const sig = new Command5("signal").description("Signal provider sub-commands (requires auth)");
   sig.command("listener").description(
     "Push a trading signal to the Pionex signal platform (signal provider use)\n  Example: pionex-trade-cli bot signal listener --signal-type <uuid> --signal-param '{}' \\\n    --base BTC --quote USDT --time 2024-01-01T12:00:00Z --price 85000 \\\n    --action buy --position-size 1 --contracts 1"
   ).requiredOption("--signal-type <uuid>", "Signal provider UUID").requiredOption("--signal-param <json>", "Signal parameters as a JSON string (e.g. '{}')").requiredOption("--base <base>", "Base currency (e.g. BTC)").requiredOption("--quote <quote>", "Quote currency (e.g. USDT)").requiredOption("--time <iso>", "Signal timestamp in RFC 3339 format (e.g. 2024-01-01T12:00:00Z)").requiredOption("--price <price>", "Current price at time of signal (e.g. 85000)").requiredOption("--action <action>", "'buy' to open a position, 'sell' to close").requiredOption("--position-size <size>", "Target position size as a fraction (e.g. '1' for 100%)").requiredOption("--contracts <n>", "Number of contracts").option("--direction <dir>", "Optional trade direction").action(async (opts, cmd) => {
@@ -682,7 +694,7 @@ function buildSignalCommand() {
   return sig;
 }
 function buildBotCommand() {
-  const bot = new Command4("bot").description("Bot management (requires auth)");
+  const bot = new Command5("bot").description("Bot management (requires auth)");
   bot.command("order_list").description("List bot orders across all bot types").option("--status <status>", "Filter by status: running | finished").option("--base <base>", "Filter by base asset (e.g. BTC)").option("--quote <quote>", "Filter by quote asset (e.g. USDT)").option("--page-token <token>", "Pagination token from previous response").option("--bu-order-types <list>", "Comma-separated types: futures_grid,spot_grid,smart_copy").action(async (opts, cmd) => {
     try {
       const buOrderTypes = opts.buOrderTypes ? opts.buOrderTypes.split(",").map((s) => s.trim()) : void 0;
@@ -708,9 +720,9 @@ function buildBotCommand() {
 }
 
 // src/commands/earn.ts
-import { Command as Command5 } from "commander";
+import { Command as Command6 } from "commander";
 function buildDualCommand() {
-  const dual = new Command5("dual").description("Dual Investment commands");
+  const dual = new Command6("dual").description("Dual Investment commands");
   dual.command("symbols").description("List supported Dual Investment trading pairs").option("--base <base>", "Filter by base asset (e.g. BTC)").action(async (opts, cmd) => {
     try {
       const run = makeRunner(cmd);
@@ -859,15 +871,15 @@ function buildDualCommand() {
   return dual;
 }
 function buildEarnCommand() {
-  const earn = new Command5("earn").description("Earn products (requires auth)");
+  const earn = new Command6("earn").description("Earn products (requires auth)");
   earn.addCommand(buildDualCommand());
   return earn;
 }
 
 // src/commands/capabilities.ts
-import { Command as Command6 } from "commander";
+import { Command as Command7 } from "commander";
 function buildCapabilitiesCommand() {
-  return new Command6("capabilities").description("Print all available commands as JSON (for AI agent self-discovery)").action(() => {
+  return new Command7("capabilities").description("Print all available commands as JSON (for AI agent self-discovery)").action(() => {
     const caps = {
       market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
       account: ["balance"],
@@ -900,9 +912,10 @@ function buildCapabilitiesCommand() {
 // src/trade.ts
 var completion = initCompletion();
 function buildTradeProgram() {
-  const program = new Command7("pionex-trade-cli").version(version, "-v, --version", "Print version number").description("Pionex trading CLI \u2014 direct access to market data, orders, bots, and earn products").addHelpCommand(true);
-  program.option("--profile <name>", "Profile name in ~/.pionex/config.toml").option("--modules <list>", "Comma-separated modules to enable (market,wallet,orders,bot,earn or all)").option("--base-url <url>", "Override API base URL").option("--read-only", "Disable write operations (orders new/cancel, etc.)").option("--dry-run", "Print resolved request body without executing (write commands only)");
+  const program = new Command8("pionex-trade-cli").version(version, "-v, --version", "Print version number").description("Pionex trading CLI \u2014 direct access to market data, orders, bots, and earn products").addHelpCommand(true);
+  program.option("--profile <name>", "Profile name in ~/.pionex/config.toml").option("--modules <list>", "Comma-separated modules to enable (market,account,wallet,orders,bot,earn or all)").option("--base-url <url>", "Override API base URL").option("--read-only", "Disable write operations (orders new/cancel, etc.)").option("--dry-run", "Print resolved request body without executing (write commands only)");
   program.addCommand(buildMarketCommand());
+  program.addCommand(buildAccountCommand());
   program.addCommand(buildWalletCommand());
   program.addCommand(buildOrdersCommand());
   program.addCommand(buildBotCommand());
@@ -924,4 +937,4 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
-//# sourceMappingURL=trade-ZT3FNJQD.js.map
+//# sourceMappingURL=trade-4DUOU56K.js.map

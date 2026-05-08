@@ -2,16 +2,6 @@
 
 ### 钱包命令（需要认证）
 
-#### wallet balance
-
-获取所有现货账户余额（JSON 输出）。
-
-```bash
-pionex-trade-cli wallet balance
-```
-
----
-
 #### wallet balance_full
 
 获取完整账户概览——现货（Bot Account）与合约（Trader Account）余额、各币种价格，以及 USDT/BTC 估值总额。

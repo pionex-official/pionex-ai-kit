@@ -42,14 +42,14 @@ Queries spot account balances. **Requires API credentials**.
 
 #### Command
 
-| Command                            | Description                         |
-| ---------------------------------- | ----------------------------------- |
-| `pionex-trade-cli wallet balance` | All spot balances, returned as JSON |
+| Command                             | Description                         |
+| ----------------------------------- | ----------------------------------- |
+| `pionex-trade-cli account balance` | All spot balances, returned as JSON |
 
 #### Usage Example
 
 * User: "How much USDT do I have?"
-* Agent runs `pionex-trade-cli wallet balance`, then extracts the USDT available balance from the JSON response
+* Agent runs `pionex-trade-cli account balance`, then extracts the USDT available balance from the JSON response
 
 ---
 
@@ -112,7 +112,7 @@ User: "Buy BTC with 1000 USDT"
 
 Agent execution flow:
 
-1. Check balance: `pionex-trade-cli wallet balance` -> verify available USDT
+1. Check balance: `pionex-trade-cli account balance` -> verify available USDT
 2. If insufficient (e.g. only 600 USDT available), inform the user and suggest adjusting
 3. After user confirms, dry-run preview: `pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type MARKET --amount 600 --dry-run`
 4. After user confirms again, execute the actual order (remove `--dry-run`)

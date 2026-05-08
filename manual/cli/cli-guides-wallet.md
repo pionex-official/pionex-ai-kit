@@ -2,16 +2,6 @@
 
 ### Wallet Commands (Auth Required)
 
-#### wallet balance
-
-Get all spot account balances (JSON output).
-
-```bash
-pionex-trade-cli wallet balance
-```
-
----
-
 #### wallet balance_full
 
 Get a full account overview — spot (Bot Account) and futures (Trader Account) balances, per-coin prices, and total USDT/BTC valuations in one call.
