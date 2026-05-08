@@ -1,0 +1,79 @@
+{
+  "manifest_version": "0.3",
+  "name": "pionex-mcp",
+  "display_name": "Pionex",
+  "version": "0.2.51",
+  "description": "Pionex MCP Server — market data, account management, spot orders, and trading bots.",
+  "long_description": "Gives Claude direct access to Pionex exchange: real-time market data (depth, tickers, klines), account balances, spot order management, and automated trading bots (Futures Grid, Spot Grid, Smart Copy). API credentials are stored securely and never written to config files.",
+  "author": {
+    "name": "Pionex",
+    "url": "https://www.pionex.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pionex-official/pionex-ai-kit"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "keywords": ["pionex", "trading", "exchange", "mcp", "crypto"],
+  "privacy_policies": ["https://www.pionex.com/en/policy"],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18"
+    }
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "PIONEX_API_KEY": "${user_config.api_key}",
+        "PIONEX_API_SECRET": "${user_config.api_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Your Pionex API key (create one at pionex.com → API Management).",
+      "required": true,
+      "sensitive": true
+    },
+    "api_secret": {
+      "type": "string",
+      "title": "API Secret",
+      "description": "Your Pionex API secret.",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "tools": [
+    { "name": "pionex_market_get_depth", "description": "Get order book depth for a trading pair" },
+    { "name": "pionex_market_get_trades", "description": "Get recent trades for a trading pair" },
+    { "name": "pionex_market_get_symbol_info", "description": "Get symbol/trading pair metadata" },
+    { "name": "pionex_market_get_tickers", "description": "Get price tickers for all or specific symbols" },
+    { "name": "pionex_market_get_book_tickers", "description": "Get best bid/ask for symbols" },
+    { "name": "pionex_market_get_klines", "description": "Get OHLCV candlestick data" },
+    { "name": "pionex_account_get_balance", "description": "Get spot account balances" },
+    { "name": "pionex_account_get_balance_full", "description": "Get full account balance overview including futures" },
+    { "name": "pionex_orders_new_order", "description": "Place a new spot order" },
+    { "name": "pionex_orders_get_order", "description": "Get order details by order ID" },
+    { "name": "pionex_orders_cancel_order", "description": "Cancel an open order" },
+    { "name": "pionex_orders_get_open_orders", "description": "List open orders" },
+    { "name": "pionex_orders_get_all_orders", "description": "List historical orders" },
+    { "name": "pionex_orders_get_fills", "description": "Get trade fill history" },
+    { "name": "pionex_bot_futures_grid_create", "description": "Create a Futures Grid bot" },
+    { "name": "pionex_bot_futures_grid_adjust_params", "description": "Adjust Futures Grid bot parameters" },
+    { "name": "pionex_bot_futures_grid_cancel", "description": "Cancel a Futures Grid bot" },
+    { "name": "pionex_bot_spot_grid_create", "description": "Create a Spot Grid bot" },
+    { "name": "pionex_bot_spot_grid_cancel", "description": "Cancel a Spot Grid bot" },
+    { "name": "pionex_bot_smart_copy_create", "description": "Start a Smart Copy trading bot" },
+    { "name": "pionex_bot_smart_copy_cancel", "description": "Stop a Smart Copy trading bot" },
+    { "name": "system_get_capabilities", "description": "Get server capabilities and module availability" }
+  ],
+  "tools_generated": false
+}

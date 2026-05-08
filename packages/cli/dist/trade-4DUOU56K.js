@@ -7,7 +7,11 @@ import {
   print,
   toToolErrorPayload,
   version
+<<<<<<<< HEAD:packages/cli/dist/trade-4DUOU56K.js
 } from "./chunk-I6Z3QX5T.js";
+========
+} from "./chunk-GOOXVYAZ.js";
+>>>>>>>> origin/main:packages/cli/dist/trade-ZT3FNJQD.js
 
 // src/trade.ts
 import { Command as Command8 } from "commander";
@@ -16,10 +20,16 @@ import { Command as Command8 } from "commander";
 import { createRequire } from "module";
 var _require = createRequire(import.meta.url);
 var COMPLETION_TREE = {
+<<<<<<<< HEAD:packages/cli/dist/trade-4DUOU56K.js
   groups: ["market", "account", "wallet", "orders", "bot", "earn", "capabilities"],
   market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
   account: ["balance"],
   wallet: ["balance_full"],
+========
+  groups: ["market", "wallet", "orders", "bot", "earn", "capabilities"],
+  market: ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
+  wallet: ["balance", "balance_full"],
+>>>>>>>> origin/main:packages/cli/dist/trade-ZT3FNJQD.js
   orders: ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot: ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
@@ -47,7 +57,10 @@ function initCompletion() {
   const T = COMPLETION_TREE;
   completion2.on("group", ({ reply }) => reply(T.groups));
   completion2.on("market", ({ reply }) => reply(T.market));
+<<<<<<<< HEAD:packages/cli/dist/trade-4DUOU56K.js
   completion2.on("account", ({ reply }) => reply(T.account));
+========
+>>>>>>>> origin/main:packages/cli/dist/trade-ZT3FNJQD.js
   completion2.on("wallet", ({ reply }) => reply(T.wallet));
   completion2.on("orders", ({ reply }) => reply(T.orders));
   completion2.on("bot", ({ reply }) => reply(T.bot));
@@ -79,8 +92,8 @@ function generateFishCompletion() {
     "# market subcommands",
     ...T.market.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from market' -a '${s}'`),
     "",
-    "# account subcommands",
-    ...T.account.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from account' -a '${s}'`),
+    "# wallet subcommands",
+    ...T.wallet.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from wallet' -a '${s}'`),
     "",
     "# wallet subcommands",
     ...T.wallet.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from wallet' -a '${s}'`),
@@ -185,21 +198,34 @@ function buildMarketCommand() {
   return market;
 }
 
-// src/commands/account.ts
+// src/commands/wallet.ts
 import { Command as Command2 } from "commander";
-function buildAccountCommand() {
-  const account = new Command2("account").description("Account data (requires auth)");
-  account.command("balance").description("Get account balance for all assets").action(async (_opts, cmd) => {
+function buildWalletCommand() {
+  const wallet = new Command2("wallet").description("Wallet / balance data (requires auth)");
+  wallet.command("balance").description("Get spot account balance for all assets").action(async (_opts, cmd) => {
     try {
       const run = makeRunner(cmd);
-      const out = await run("pionex_account_get_balance", {});
+      const out = await run("pionex_wallet_get_balance", {});
       print(out.data);
     } catch (e) {
       process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
       process.exit(1);
     }
   });
-  return account;
+  wallet.command("balance_full").description("Get full account balance overview (spot + futures, with coin prices and USDT/BTC totals)").option("--app-lang <lang>", "App language, e.g. en or zh (overrides sys-lang)").option("--sys-lang <lang>", "System language fallback").action(async (opts, cmd) => {
+    try {
+      const run = makeRunner(cmd);
+      const args = {};
+      if (opts.appLang) args["appLang"] = opts.appLang;
+      if (opts.sysLang) args["sysLang"] = opts.sysLang;
+      const out = await run("pionex_wallet_get_balance_full", args);
+      print(out.data);
+    } catch (e) {
+      process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
+      process.exit(1);
+    }
+  });
+  return wallet;
 }
 
 // src/commands/wallet.ts
@@ -912,10 +938,16 @@ function buildCapabilitiesCommand() {
 // src/trade.ts
 var completion = initCompletion();
 function buildTradeProgram() {
+<<<<<<<< HEAD:packages/cli/dist/trade-4DUOU56K.js
   const program = new Command8("pionex-trade-cli").version(version, "-v, --version", "Print version number").description("Pionex trading CLI \u2014 direct access to market data, orders, bots, and earn products").addHelpCommand(true);
   program.option("--profile <name>", "Profile name in ~/.pionex/config.toml").option("--modules <list>", "Comma-separated modules to enable (market,account,wallet,orders,bot,earn or all)").option("--base-url <url>", "Override API base URL").option("--read-only", "Disable write operations (orders new/cancel, etc.)").option("--dry-run", "Print resolved request body without executing (write commands only)");
   program.addCommand(buildMarketCommand());
   program.addCommand(buildAccountCommand());
+========
+  const program = new Command7("pionex-trade-cli").version(version, "-v, --version", "Print version number").description("Pionex trading CLI \u2014 direct access to market data, orders, bots, and earn products").addHelpCommand(true);
+  program.option("--profile <name>", "Profile name in ~/.pionex/config.toml").option("--modules <list>", "Comma-separated modules to enable (market,wallet,orders,bot,earn or all)").option("--base-url <url>", "Override API base URL").option("--read-only", "Disable write operations (orders new/cancel, etc.)").option("--dry-run", "Print resolved request body without executing (write commands only)");
+  program.addCommand(buildMarketCommand());
+>>>>>>>> origin/main:packages/cli/dist/trade-ZT3FNJQD.js
   program.addCommand(buildWalletCommand());
   program.addCommand(buildOrdersCommand());
   program.addCommand(buildBotCommand());
@@ -937,4 +969,8 @@ function buildTradeProgram() {
 export {
   buildTradeProgram
 };
+<<<<<<<< HEAD:packages/cli/dist/trade-4DUOU56K.js
 //# sourceMappingURL=trade-4DUOU56K.js.map
+========
+//# sourceMappingURL=trade-ZT3FNJQD.js.map
+>>>>>>>> origin/main:packages/cli/dist/trade-ZT3FNJQD.js

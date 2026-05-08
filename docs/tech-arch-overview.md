@@ -4,7 +4,7 @@ This document describes the high-level architecture design of Pionex AI Kit.
 
 ## Last Updated
 
-**Date:** 2026-03-26
+**Date:** 2026-05-06
 
 ## Architecture Diagram
 
@@ -47,6 +47,22 @@ This document describes the high-level architecture design of Pionex AI Kit.
 └────────────────────┬────────────────────────────────────┘
                      │
                      └──────→ Uses @pionex-ai/core
+
+         Distribution Path: .mcpb (Claude Desktop)
+
+┌─────────────────────────────────────────────────────────┐
+│         packages/mcpb (.mcpb build artifact)            │
+│  - Same MCP server logic as pionex-trade-mcp            │
+│  - Packaged as pionex-mcp.mcpb via @anthropic-ai/mcpb   │
+│  - user_config: API key/secret prompted by Claude Desktop│
+│  - Released via GitHub Actions on v* tags               │
+└────────────────────┬────────────────────────────────────┘
+                     │ double-click install
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              Claude Desktop App                         │
+│  - Injects PIONEX_API_KEY / PIONEX_API_SECRET as env    │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## Core Design Decisions
@@ -125,6 +141,7 @@ npm run build
   → build core (no dependencies)
   → build cli (depends on core)
   → build mcp (depends on core)
+  → build mcpb (depends on core, standalone .mcpb distribution)
 ```
 
 **Bundling Strategy:**
@@ -173,6 +190,12 @@ All devDependencies declared in root `package.json`:
 **Distribution:** npm (`@pionex/pionex-ai-kit`)
 **Installation:** `npm install -g @pionex/pionex-ai-kit`
 **Execution:** User directly invokes `pionex-ai-kit` or `pionex-trade-cli`
+
+### .mcpb (Claude Desktop one-click installer)
+**Distribution:** GitHub Releases (`pionex-mcp.mcpb`)
+**Build:** `packages/mcpb/` — `npx mcpb pack` produces the archive
+**CI:** `.github/workflows/release-mcpb.yml` — auto-builds and uploads on `v*` tag push
+**Credentials:** Claude Desktop prompts user for API key/secret; injects as env vars
 
 ## Extensibility Considerations
 

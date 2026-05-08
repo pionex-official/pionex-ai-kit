@@ -66,7 +66,20 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 
 ## 快速开始
 
-### **安装**
+### Claude Desktop — 一键安装（.mcpb）
+
+最简单的方式是使用 `.mcpb` 安装包，无需命令行：
+
+1. 从 [GitHub Releases 页面](https://github.com/pionex-official/pionex-ai-kit/releases/latest) 下载 `pionex-mcp.mcpb`
+2. 双击文件 — Claude Desktop 会弹出安装对话框
+3. 在提示框中填入你的 Pionex API Key 和 Secret（由 Claude Desktop 安全保存）
+4. 完成 — Pionex 工具已在 Claude Desktop 中可用
+
+> **什么是 `.mcpb`？** 这是 Claude Desktop 的原生 MCP 插件格式，无需安装 Node.js 或进行任何命令行配置。
+
+---
+
+### **通过 npm 安装（Cursor、Windsurf、VS Code、Claude Code、OpenClaw）**
 
 **前置要求：** Node.js ≥ 18
 
@@ -223,3 +236,11 @@ pionex-trade-cli earn dual invest \
 ## 参与贡献
 
 开发、构建和发布说明见 [`CONTRIBUTING.zh-hans.md`](CONTRIBUTING.zh-hans.md)。
+
+---
+
+## 💖 鸣谢
+
+特别感谢：
+
+* [@PavanKhatwani](https://github.com/PavanKhatwani) - 贡献了 `.mcpb`（Claude Desktop 一键安装器）。

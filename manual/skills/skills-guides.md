@@ -65,7 +65,7 @@ pionex-trade-cli market tickers --symbol BTC_USDT
 pionex-trade-cli market symbols --symbols BTC_USDT
 
 # 3. Check available balance (pionex-portfolio)
-pionex-trade-cli account balance
+pionex-trade-cli wallet balance
 
 # 4. Place the order (pionex-trade)
 pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type LIMIT --price 50000 --size 0.01
