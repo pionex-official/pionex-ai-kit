@@ -113,7 +113,7 @@ User: "Create a long BTC futures grid bot with 1000 USDT"
 
 Agent execution flow:
 
-1. Check balance: `pionex-trade-cli account balance` -> verify available USDT
+1. Check balance: `pionex-trade-cli wallet balance` -> verify available USDT
 2. Get symbol info: `pionex-trade-cli market symbols --symbols BTC_USDT --type PERP`
 3. Get current price: `pionex-trade-cli market tickers --symbol BTC_USDT --type PERP`
 4. Ask user for grid range, number of grids, and leverage (if not specified)
@@ -200,7 +200,7 @@ User: "Create a BTC spot grid bot with 100 USDT"
 
 Agent execution flow:
 
-1. Check balance: `pionex-trade-cli account balance` → verify available USDT
+1. Check balance: `pionex-trade-cli wallet balance` → verify available USDT
 2. Get AI strategy: `pionex-trade-cli bot spot_grid get_ai_strategy --base BTC --quote USDT`
 3. Get current price: `pionex-trade-cli market tickers --symbol BTC_USDT`
 4. Present AI-recommended parameters; ask user to confirm or adjust
@@ -257,7 +257,7 @@ Validates investment limits for a given leverage and signal type. Use `--quote-i
 
 ```bash
 # Check balance
-pionex-trade-cli account balance
+pionex-trade-cli wallet balance
 
 # Validate parameters (get allowed range)
 pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT \
@@ -295,7 +295,7 @@ User: "Copy trader X's BTC trades with 100 USDT at 2x leverage"
 
 Agent execution flow:
 
-1. Check balance: `pionex-trade-cli account balance` → verify available USDT ≥ 100
+1. Check balance: `pionex-trade-cli wallet balance` → verify available USDT ≥ 100
 2. Validate parameters: `pionex-trade-cli bot smart_copy check_params --base BTC --quote USDT --leverage 2 --quote-investment 0 --signal-type <uuid>` — show allowed range
 3. Dry-run preview: add `--dry-run` to the create command, show resolved body to user
 4. After user confirms, execute without `--dry-run`

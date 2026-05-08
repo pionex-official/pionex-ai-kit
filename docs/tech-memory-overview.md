@@ -4,7 +4,18 @@ This document records important decisions, lessons learned, and technical knowle
 
 ## Last Updated
 
-**Date:** 2026-04-02
+**Date:** 2026-05-06
+
+## Iteration 2026050611: .mcpb Claude Desktop One-Click Installer
+
+**Added:** `packages/mcpb/` — Claude Desktop native MCP plugin distribution
+**Key decisions:**
+- `.mcpb` is a ZIP produced by `@anthropic-ai/mcpb`. `mcpb pack . pionex-mcp.mcpb` must specify the output filename explicitly, otherwise it defaults to the directory name (`mcpb.mcpb`).
+- Source files in `packages/mcpb/src/` are copies of `packages/mcp/src/` (not re-exports). Relative imports across packages break tsup bundling.
+- `SERVER_NAME` changed to `"pionex-mcp"` in the mcpb copy (was `"pionex-trade-mcp"`).
+- `user_config` fields with `sensitive: true` are masked in Claude Desktop's UI and injected as `PIONEX_API_KEY`/`PIONEX_API_SECRET` env vars. No changes to `loadConfig()` needed.
+- `packages/mcpb` is `"private": true` — never published to npm; distributed only via GitHub Releases.
+- GitHub Actions workflow (`.github/workflows/release-mcpb.yml`) triggers on `v*` tags and uploads `pionex-mcp.mcpb` as a release asset.
 
 ## Iteration 2026040200: Bot Order List
 
@@ -309,19 +320,6 @@ signature = HMAC-SHA256(message, secret_key)
 - `signal` placed as peer of `smart_copy` under `bot` (not nested), because `/bot/signal/listener` is a separate API resource that may serve multiple bot types in future.
 - `closeSellModel` enum for cancel: `["NOT_SELL", "TO_QUOTE", "TO_USDT"]` — mirrors spot_grid cancel (not futures_grid which omits `NOT_SELL`).
 - Tab completion: `COMPLETION_TREE` extended with `smart_copy` and `signal` groups; fish script updated with new condition guards.
-
-## Iteration 2026042900: Balances Full
-
-**Added:** `pionex_account_get_balance_full` tool in `packages/core/src/tools/account.ts`
-**Endpoint:** `GET /api/v1/wallet/balancesFull`
-**CLI:** `pionex-trade-cli account balance_full [--app-lang <lang>] [--sys-lang <lang>]`
-
-**Key decisions:**
-- No new module — reuses existing `account` module (same auth tier as `GET /api/v1/account/balances`).
-- `appLang` / `sysLang` are optional query params passed through directly to the API via `signedGet`.
-- Args are typed `Record<string, string>` at call-site and filtered (undefined keys excluded by `buildQueryString`).
-- No schema file needed — response is pass-through JSON, not validated by the kit.
-- Fish/bash completion: `COMPLETION_TREE.account` extended from `["balance"]` to `["balance", "balance_full"]`.
 
 ## Open Issues
 

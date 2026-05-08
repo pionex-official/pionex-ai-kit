@@ -11,13 +11,6 @@
 | `pionex_market_get_book_tickers` | 最优买卖价行情                           |
 | `pionex_market_get_klines`      | OHLCV K 线数据                          |
 
-### 账户工具（需要 API Key）
-
-| 工具                         | 描述           |
-| ---------------------------- | --------------------- |
-| `pionex_account_get_balance`      | 现货账户余额                                       |
-| `pionex_account_get_balance_full` | 完整账户概览——现货＋合约余额、币种价格、USDT/BTC 估值总额 |
-
 ### 订单工具（需要 API Key）
 
 | 工具                                         | 描述                         |

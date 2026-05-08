@@ -90,33 +90,6 @@ pionex-trade-cli market book_tickers --type SPOT
 
 ---
 
-### Account Commands (Auth Required)
-
-#### account balance
-
-Get all spot account balances (JSON output).
-
-```bash
-pionex-trade-cli account balance
-```
-
----
-
-#### account balance_full
-
-Get a full account overview — spot (Bot Account) and futures (Trader Account) balances, per-coin prices, and total USDT/BTC valuations in one call.
-
-```bash
-pionex-trade-cli account balance_full [--app-lang <lang>] [--sys-lang <lang>]
-```
-
-| Option | Description |
-| --- | --- |
-| `--app-lang` | App language, e.g. `en` or `zh` (overrides `--sys-lang`) |
-| `--sys-lang` | System language fallback |
-
----
-
 ### Order Commands (Auth Required)
 
 #### orders new

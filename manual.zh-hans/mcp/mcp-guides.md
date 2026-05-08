@@ -94,7 +94,8 @@ pionex-ai-kit setup --mcp=pionex-trade-mcp --client <client-name>
 
 ### 工具参考
 
-* [交易工具](mcp-guides-trade.md) — 市场数据、账户余额和现货订单操作
+* [交易工具](mcp-guides-trade.md) — 市场数据及现货订单操作
+* [钱包工具](mcp-guides-wallet.md) — 账户余额与完整账户概览
 * [机器人工具](mcp-guides-bot.md) — 合约网格机器人创建、管理和取消
 * [双币理财工具](mcp-guides-earn.md) — 双币理财：查询产品、申购、撤单、收益提取
 

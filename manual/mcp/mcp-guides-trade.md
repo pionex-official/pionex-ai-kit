@@ -11,13 +11,6 @@
 | `pionex_market_get_book_tickers` | Best bid/ask ticker(s)                         |
 | `pionex_market_get_klines`      | OHLCV candlestick data                          |
 
-### Account Tools (API Key Required)
-
-| Tool                         | Description           |
-| ---------------------------- | --------------------- |
-| `pionex_account_get_balance`      | Spot account balances                                          |
-| `pionex_account_get_balance_full` | Full account overview — spot + futures, coin prices, USDT/BTC totals |
-
 ### Order Tools (API Key Required)
 
 | Tool                                         | Description                         |

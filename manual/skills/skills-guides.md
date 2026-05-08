@@ -47,7 +47,7 @@ The agent automatically selects the appropriate skill based on user intent:
 
 ### Skills
 
-* [Trade Skills](skills-guides-trade.md) — Market data, account balances, and spot order operations
+* [Trade Skills](skills-guides-trade.md) — Market data and spot order operations
 * [Bot Skills](skills-guides-bot.md) — Futures grid bot creation, management, and cancellation
 * [Earn Dual Skills](skills-guides-earn.md) — Dual Investment: query products, invest, revoke, collect earnings
 
@@ -65,7 +65,7 @@ pionex-trade-cli market tickers --symbol BTC_USDT
 pionex-trade-cli market symbols --symbols BTC_USDT
 
 # 3. Check available balance (pionex-portfolio)
-pionex-trade-cli account balance
+pionex-trade-cli wallet balance
 
 # 4. Place the order (pionex-trade)
 pionex-trade-cli orders new --symbol BTC_USDT --side BUY --type LIMIT --price 50000 --size 0.01

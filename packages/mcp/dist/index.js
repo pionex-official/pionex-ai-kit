@@ -720,8 +720,8 @@ var CLIENT_NAMES = {
 };
 var SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES);
 var PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-var MODULES = ["market", "account", "orders", "bot", "earn_dual"];
-var DEFAULT_MODULES = ["market", "account", "orders", "bot", "earn_dual"];
+var MODULES = ["market", "wallet", "orders", "bot", "earn_dual"];
+var DEFAULT_MODULES = ["market", "wallet", "orders", "bot", "earn_dual"];
 var ConfigError = class extends Error {
   suggestion;
   constructor(message, suggestion) {
@@ -1047,11 +1047,11 @@ function registerMarketTools() {
     }
   ];
 }
-function registerAccountTools() {
+function registerWalletTools() {
   return [
     {
-      name: "pionex_account_get_balance",
-      module: "account",
+      name: "pionex_wallet_get_balance",
+      module: "wallet",
       isWrite: false,
       description: "Query spot account balances for all currencies. Requires API key and secret in ~/.pionex/config.toml or env.",
       inputSchema: { type: "object", additionalProperties: false, properties: {} },
@@ -1060,8 +1060,8 @@ function registerAccountTools() {
       }
     },
     {
-      name: "pionex_account_get_balance_full",
-      module: "account",
+      name: "pionex_wallet_get_balance_full",
+      module: "wallet",
       isWrite: false,
       description: "Query full account balance overview including spot (Bot Account) and futures (Trader Account), with per-coin price info and total USDT/BTC valuations. Requires authentication.",
       inputSchema: {
@@ -2754,7 +2754,7 @@ function registerEarnDualTools() {
   ];
 }
 function allToolSpecs() {
-  return [...registerMarketTools(), ...registerAccountTools(), ...registerOrdersTools(), ...registerBotTools(), ...registerEarnDualTools()];
+  return [...registerMarketTools(), ...registerWalletTools(), ...registerOrdersTools(), ...registerBotTools(), ...registerEarnDualTools()];
 }
 function buildTools(config) {
   const enabled = new Set(config.modules);
