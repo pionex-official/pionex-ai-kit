@@ -14,4 +14,3 @@ export function registerAccountTools(): ToolSpec[] {
     },
   ];
 }
-

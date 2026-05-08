@@ -3,21 +3,7 @@ import { toToolErrorPayload } from "@pionex-ai/core";
 import { print, makeRunner } from "../helpers.js";
 
 export function buildWalletCommand(): Command {
-  const wallet = new Command("wallet").description("Wallet / balance data (requires auth)");
-
-  wallet
-    .command("balance")
-    .description("Get spot account balance for all assets")
-    .action(async (_opts: Record<string, unknown>, cmd: Command) => {
-      try {
-        const run = makeRunner(cmd);
-        const out = await run("pionex_wallet_get_balance", {});
-        print(out.data);
-      } catch (e) {
-        process.stderr.write(JSON.stringify(toToolErrorPayload(e), null, 2) + "\n");
-        process.exit(1);
-      }
-    });
+  const wallet = new Command("wallet").description("Wallet data (requires auth)");
 
   wallet
     .command("balance_full")

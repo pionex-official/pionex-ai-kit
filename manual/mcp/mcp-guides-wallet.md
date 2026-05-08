@@ -4,19 +4,7 @@
 
 | Tool                              | Description                                                          |
 | --------------------------------- | -------------------------------------------------------------------- |
-| `pionex_wallet_get_balance`       | Spot account balances for all currencies                             |
 | `pionex_wallet_get_balance_full`  | Full account overview — spot + futures, coin prices, USDT/BTC totals |
-
----
-
-### `pionex_wallet_get_balance`
-
-Returns spot (Bot Account) balances for all currencies.
-
-**Input:** none
-
-**Example prompt:**
-> "Use the Pionex tools to show my spot balances."
 
 ---
 

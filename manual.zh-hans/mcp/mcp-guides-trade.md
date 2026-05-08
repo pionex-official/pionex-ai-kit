@@ -11,6 +11,12 @@
 | `pionex_market_get_book_tickers` | 最优买卖价行情                           |
 | `pionex_market_get_klines`      | OHLCV K 线数据                          |
 
+### 账户工具（需要 API Key）
+
+| 工具                         | 描述                   |
+| ---------------------------- | ---------------------- |
+| `pionex_account_get_balance` | 所有币种的现货账户余额 |
+
 ### 订单工具（需要 API Key）
 
 | 工具                                         | 描述                         |

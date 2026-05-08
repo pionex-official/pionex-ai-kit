@@ -9,9 +9,10 @@ const _require = createRequire(import.meta.url);
 //    同时检查 src/commands/ 下对应文件中的 .command() 声明保持一致。
 // ─────────────────────────────────────────────────────────────────────────────
 export const COMPLETION_TREE = {
-  groups:       ["market", "wallet", "orders", "bot", "earn", "capabilities"],
+  groups:       ["market", "account", "wallet", "orders", "bot", "earn", "capabilities"],
   market:       ["depth", "trades", "symbols", "tickers", "book_tickers", "klines"],
-  wallet:       ["balance", "balance_full"],
+  account:      ["balance"],
+  wallet:       ["balance_full"],
   orders:       ["new", "get", "open", "all", "fills", "fills_by_order_id", "cancel", "cancel_all"],
   bot:          ["order_list", "futures_grid", "spot_grid", "smart_copy", "signal"],
   futures_grid: ["get", "create", "adjust_params", "reduce", "cancel", "check_params"],
@@ -43,6 +44,7 @@ export function initCompletion(): OmeletteInstance {
   const T = COMPLETION_TREE;
   completion.on("group",        ({ reply }) => reply(T.groups));
   completion.on("market",       ({ reply }) => reply(T.market));
+  completion.on("account",      ({ reply }) => reply(T.account));
   completion.on("wallet",       ({ reply }) => reply(T.wallet));
   completion.on("orders",       ({ reply }) => reply(T.orders));
   completion.on("bot",          ({ reply }) => reply(T.bot));
@@ -80,6 +82,9 @@ export function generateFishCompletion(): string {
     "",
     "# market subcommands",
     ...T.market.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from market' -a '${s}'`),
+    "",
+    "# account subcommands",
+    ...T.account.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from account' -a '${s}'`),
     "",
     "# wallet subcommands",
     ...T.wallet.map((s) => `complete -c ${cmd} -n '__fish_seen_subcommand_from wallet' -a '${s}'`),

@@ -25,7 +25,7 @@ declare function runSetup(options: SetupOptions): void;
 declare function printSetupUsage(): void;
 
 declare const PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-declare const MODULES: readonly ["market", "wallet", "orders", "bot", "earn_dual"];
+declare const MODULES: readonly ["market", "account", "wallet", "orders", "bot", "earn_dual"];
 type ModuleId = (typeof MODULES)[number];
 declare const DEFAULT_MODULES: ModuleId[];
 
