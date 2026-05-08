@@ -5,11 +5,7 @@ import {
   runSetup,
   version,
   writeFullConfig
-<<<<<<<< HEAD:packages/cli/dist/kit-DBQGQY64.js
 } from "./chunk-I6Z3QX5T.js";
-========
-} from "./chunk-GOOXVYAZ.js";
->>>>>>>> origin/main:packages/cli/dist/kit-53AEPH6G.js
 
 // src/kit.ts
 import { createInterface } from "readline";
@@ -102,8 +98,4 @@ function buildKitProgram() {
 export {
   buildKitProgram
 };
-<<<<<<<< HEAD:packages/cli/dist/kit-DBQGQY64.js
 //# sourceMappingURL=kit-DBQGQY64.js.map
-========
-//# sourceMappingURL=kit-53AEPH6G.js.map
->>>>>>>> origin/main:packages/cli/dist/kit-53AEPH6G.js

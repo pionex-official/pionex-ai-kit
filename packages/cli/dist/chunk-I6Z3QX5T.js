@@ -981,13 +981,8 @@ function runSetup(options) {
   );
 }
 var PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";
-<<<<<<<< HEAD:packages/cli/dist/chunk-I6Z3QX5T.js
 var MODULES = ["market", "account", "wallet", "orders", "bot", "earn_dual"];
 var DEFAULT_MODULES = ["market", "account", "wallet", "orders", "bot", "earn_dual"];
-========
-var MODULES = ["market", "wallet", "orders", "bot", "earn_dual"];
-var DEFAULT_MODULES = ["market", "wallet", "orders", "bot", "earn_dual"];
->>>>>>>> origin/main:packages/cli/dist/chunk-GOOXVYAZ.js
 var ConfigError = class extends Error {
   suggestion;
   constructor(message, suggestion) {
@@ -1313,33 +1308,16 @@ function registerMarketTools() {
     }
   ];
 }
-function registerWalletTools() {
+function registerAccountTools() {
   return [
     {
-      name: "pionex_wallet_get_balance",
-      module: "wallet",
+      name: "pionex_account_get_balance",
+      module: "account",
       isWrite: false,
       description: "Query spot account balances for all currencies. Requires API key and secret in ~/.pionex/config.toml or env.",
       inputSchema: { type: "object", additionalProperties: false, properties: {} },
       async handler(_args, { client }) {
         return (await client.signedGet("/api/v1/account/balances")).data;
-      }
-    },
-    {
-      name: "pionex_wallet_get_balance_full",
-      module: "wallet",
-      isWrite: false,
-      description: "Query full account balance overview including spot (Bot Account) and futures (Trader Account), with per-coin price info and total USDT/BTC valuations. Requires authentication.",
-      inputSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          appLang: { type: "string", description: "App language, e.g. 'en' or 'zh' (takes priority over sysLang)" },
-          sysLang: { type: "string", description: "System language fallback when appLang is not set" }
-        }
-      },
-      async handler(args, { client }) {
-        return (await client.signedGet("/api/v1/wallet/balancesFull", args)).data;
       }
     }
   ];
@@ -3041,11 +3019,7 @@ function registerEarnDualTools() {
   ];
 }
 function allToolSpecs() {
-<<<<<<<< HEAD:packages/cli/dist/chunk-I6Z3QX5T.js
   return [...registerMarketTools(), ...registerAccountTools(), ...registerWalletTools(), ...registerOrdersTools(), ...registerBotTools(), ...registerEarnDualTools()];
-========
-  return [...registerMarketTools(), ...registerWalletTools(), ...registerOrdersTools(), ...registerBotTools(), ...registerEarnDualTools()];
->>>>>>>> origin/main:packages/cli/dist/chunk-GOOXVYAZ.js
 }
 function createToolRunner(client, config) {
   const fullConfig = { ...config, modules: [...MODULES] };
@@ -3152,8 +3126,4 @@ smol-toml/dist/index.js:
    * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    *)
 */
-<<<<<<<< HEAD:packages/cli/dist/chunk-I6Z3QX5T.js
 //# sourceMappingURL=chunk-I6Z3QX5T.js.map
-========
-//# sourceMappingURL=chunk-GOOXVYAZ.js.map
->>>>>>>> origin/main:packages/cli/dist/chunk-GOOXVYAZ.js
