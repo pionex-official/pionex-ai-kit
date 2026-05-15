@@ -21,7 +21,7 @@ Pionex AI Kit —— AI 驱动的交易工具集，包含两个独立包：
 
 ## 这是什么？
 
-Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包括 MCP、Skills 和 CLI。支持 Cursor、Claude、OpenClaw、Windsurf、VSCode 等主流 AI Agent。
+Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包括 MCP、Skills 和 CLI。支持 Cursor、Claude、OpenClaw、Windsurf、VSCode、Codex 等主流 AI Agent。
 
 你只需在对话中描述想做什么，AI 会调用本地 MCP 服务器上的工具，在 Pionex 上执行相应的 API 调用，无需在 AI 和交易所界面之间来回切换。
 
@@ -81,7 +81,7 @@ Pionex AI Kit 为你提供一整套连接 Pionex 的 AI Agent 基础设施，包
 
 ---
 
-### **通过 npm 安装（Cursor、Windsurf、VS Code、Claude Code、OpenClaw）**
+### **通过 npm 安装（Cursor、Windsurf、VS Code、Claude Code、OpenClaw、Codex）**
 
 **前置要求：** Node.js ≥ 18
 
@@ -102,6 +102,7 @@ pionex-ai-kit setup --mcp=pionex-trade-mcp --client claude-code
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client windsurf
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client vscode
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client openclaw
+pionex-ai-kit setup --mcp=pionex-trade-mcp --client codex
 
 # 4. 安装 Skills
 npx skills add pionex-official/pionex-skills

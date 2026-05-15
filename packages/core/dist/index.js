@@ -37,7 +37,8 @@ var CLIENT_NAMES = {
   windsurf: "Windsurf",
   vscode: "VS Code",
   "claude-code": "Claude Code CLI",
-  openclaw: "OpenClaw (mcporter)"
+  openclaw: "OpenClaw (mcporter)",
+  codex: "OpenAI Codex CLI"
 };
 var SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES);
 function appData() {
@@ -89,12 +90,17 @@ function getConfigPath(client) {
       return null;
     case "openclaw":
       return path.join(home, ".openclaw", "workspace", "config", "mcporter.json");
+    case "codex":
+      return path.join(home, ".codex", "config.yaml");
   }
 }
 var NPX_PACKAGE = "@pionex/pionex-trade-mcp";
 function buildEntry(client) {
   if (client === "vscode") {
     return { type: "stdio", command: "npx", args: ["-y", NPX_PACKAGE] };
+  }
+  if (client === "codex") {
+    return { command: "npx", args: ["-y", NPX_PACKAGE] };
   }
   return { command: "npx", args: ["-y", NPX_PACKAGE] };
 }
@@ -115,6 +121,42 @@ function mergeJsonConfig(configPath, serverName, entry) {
   }
   data.mcpServers[serverName] = entry;
   fs.writeFileSync(configPath, JSON.stringify(data, null, 2) + "\n", "utf-8");
+}
+function mergeCodexYaml(configPath, serverName, entry) {
+  const dir = path.dirname(configPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const args = entry.args;
+  const argsYaml = args.map((a) => `        - "${a}"`).join("\n");
+  const serverBlock = `    ${serverName}:
+      command: "${entry.command}"
+      args:
+` + argsYaml;
+  if (!fs.existsSync(configPath)) {
+    const content = `mcpServers:
+${serverBlock}
+`;
+    fs.writeFileSync(configPath, content, "utf-8");
+    return;
+  }
+  const raw = fs.readFileSync(configPath, "utf-8");
+  const serverEntryRegex = new RegExp(
+    `(    ${serverName}:\\n(?:      [^\\n]*\\n|        [^\\n]*\\n)*)`,
+    "g"
+  );
+  if (serverEntryRegex.test(raw)) {
+    fs.writeFileSync(configPath, raw.replace(serverEntryRegex, serverBlock + "\n"), "utf-8");
+    return;
+  }
+  if (raw.includes("mcpServers:")) {
+    const updated = raw.replace("mcpServers:", `mcpServers:
+${serverBlock}`);
+    fs.writeFileSync(configPath, updated, "utf-8");
+    return;
+  }
+  fs.writeFileSync(configPath, raw.trimEnd() + `
+mcpServers:
+${serverBlock}
+`, "utf-8");
 }
 function runSetup(options) {
   const { client } = options;
@@ -146,7 +188,11 @@ function runSetup(options) {
     throw new Error(`${name} is not supported on this platform`);
   }
   const entry = buildEntry(client);
-  mergeJsonConfig(configPath, serverName, entry);
+  if (client === "codex") {
+    mergeCodexYaml(configPath, serverName, entry);
+  } else {
+    mergeJsonConfig(configPath, serverName, entry);
+  }
   process.stdout.write(
     `\u2713 Configured ${name}
   ${configPath}

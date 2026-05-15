@@ -15,7 +15,7 @@ declare function readFullConfig(): PionexTomlConfig;
 declare function readTomlProfile(profileName?: string): PionexProfile;
 declare function writeFullConfig(config: PionexTomlConfig): void;
 
-type ClientId = "claude-desktop" | "cursor" | "windsurf" | "vscode" | "claude-code" | "openclaw";
+type ClientId = "claude-desktop" | "cursor" | "windsurf" | "vscode" | "claude-code" | "openclaw" | "codex";
 declare const SUPPORTED_CLIENTS: ClientId[];
 declare function getConfigPath(client: ClientId): string | null;
 interface SetupOptions {

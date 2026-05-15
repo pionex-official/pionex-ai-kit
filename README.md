@@ -21,7 +21,7 @@ Pionex AI Kit — an AI-powered trading toolkit with two standalone packages:
 
 ## What is this?
 
-Pionex AI Kit provides you with a complete set of AI Agent infrastructure for connecting to Pionex, including MCP, Skills, and CLI. It supports mainstream AI Agents such as Cursor, Claude, OpenClaw, Windsurf, and VSCode.
+Pionex AI Kit provides you with a complete set of AI Agent infrastructure for connecting to Pionex, including MCP, Skills, and CLI. It supports mainstream AI Agents such as Cursor, Claude, OpenClaw, Windsurf, VSCode, and Codex.
 
 Instead of jumping between your AI and the exchange UI, you describe what you want — the AI calls tools on the local MCP server and executes the right API calls on Pionex.
 
@@ -81,7 +81,7 @@ The easiest way to use Pionex MCP with Claude Desktop is the `.mcpb` installer:
 
 ---
 
-### **Install via npm (Cursor, Windsurf, VS Code, Claude Code, OpenClaw)**
+### **Install via npm (Cursor, Windsurf, VS Code, Claude Code, OpenClaw, Codex)**
 
 **Prerequisites:** Node.js ≥ 18
 
@@ -102,6 +102,7 @@ pionex-ai-kit setup --mcp=pionex-trade-mcp --client claude-code
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client windsurf
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client vscode
 pionex-ai-kit setup --mcp=pionex-trade-mcp --client openclaw
+pionex-ai-kit setup --mcp=pionex-trade-mcp --client codex
 
 # 4. Install skills
 npx skills add pionex-official/pionex-skills

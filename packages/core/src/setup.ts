@@ -4,7 +4,7 @@ import * as os from "node:os";
 import { execFileSync } from "node:child_process";
 import { configFilePath } from "./config/toml.js";
 
-export type ClientId = "claude-desktop" | "cursor" | "windsurf" | "vscode" | "claude-code" | "openclaw";
+export type ClientId = "claude-desktop" | "cursor" | "windsurf" | "vscode" | "claude-code" | "openclaw" | "codex";
 
 const CLIENT_NAMES: Record<ClientId, string> = {
   "claude-desktop": "Claude Desktop",
@@ -13,6 +13,7 @@ const CLIENT_NAMES: Record<ClientId, string> = {
   vscode: "VS Code",
   "claude-code": "Claude Code CLI",
   openclaw: "OpenClaw (mcporter)",
+  codex: "OpenAI Codex CLI",
 };
 
 export const SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES) as ClientId[];
@@ -70,6 +71,8 @@ export function getConfigPath(client: ClientId): string | null {
       return null;
     case "openclaw":
       return path.join(home, ".openclaw", "workspace", "config", "mcporter.json");
+    case "codex":
+      return path.join(home, ".codex", "config.yaml");
   }
 }
 
@@ -79,6 +82,9 @@ function buildEntry(client: ClientId): Record<string, unknown> {
   if (client === "vscode") {
     // VS Code MCP expects an explicit stdio transport field.
     return { type: "stdio", command: "npx", args: ["-y", NPX_PACKAGE] };
+  }
+  if (client === "codex") {
+    return { command: "npx", args: ["-y", NPX_PACKAGE] };
   }
   // Other clients (Cursor, Claude Desktop, Windsurf, OpenClaw, etc.) use npx
   // with the scoped package name so that users do not need to manage PATH.
@@ -109,6 +115,48 @@ function mergeJsonConfig(
   (data.mcpServers as Record<string, unknown>)[serverName] = entry;
 
   fs.writeFileSync(configPath, JSON.stringify(data, null, 2) + "\n", "utf-8");
+}
+
+function mergeCodexYaml(configPath: string, serverName: string, entry: Record<string, unknown>): void {
+  const dir = path.dirname(configPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  // Simple line-based YAML merge for the mcpServers block.
+  // Codex config.yaml uses the same mcpServers schema as other MCP clients.
+  const args = entry.args as string[];
+  const argsYaml = args.map((a) => `        - "${a}"`).join("\n");
+  const serverBlock =
+    `    ${serverName}:\n` +
+    `      command: "${entry.command}"\n` +
+    `      args:\n` +
+    argsYaml;
+
+  if (!fs.existsSync(configPath)) {
+    const content = `mcpServers:\n${serverBlock}\n`;
+    fs.writeFileSync(configPath, content, "utf-8");
+    return;
+  }
+
+  const raw = fs.readFileSync(configPath, "utf-8");
+  // If an entry with this server name already exists, replace it.
+  const serverEntryRegex = new RegExp(
+    `(    ${serverName}:\\n(?:      [^\\n]*\\n|        [^\\n]*\\n)*)`,
+    "g"
+  );
+  if (serverEntryRegex.test(raw)) {
+    fs.writeFileSync(configPath, raw.replace(serverEntryRegex, serverBlock + "\n"), "utf-8");
+    return;
+  }
+
+  // Append under existing mcpServers block.
+  if (raw.includes("mcpServers:")) {
+    const updated = raw.replace("mcpServers:", `mcpServers:\n${serverBlock}`);
+    fs.writeFileSync(configPath, updated, "utf-8");
+    return;
+  }
+
+  // No mcpServers key at all — append it.
+  fs.writeFileSync(configPath, raw.trimEnd() + `\nmcpServers:\n${serverBlock}\n`, "utf-8");
 }
 
 export interface SetupOptions {
@@ -146,7 +194,11 @@ export function runSetup(options: SetupOptions): void {
   }
 
   const entry = buildEntry(client);
-  mergeJsonConfig(configPath, serverName, entry);
+  if (client === "codex") {
+    mergeCodexYaml(configPath, serverName, entry);
+  } else {
+    mergeJsonConfig(configPath, serverName, entry);
+  }
   process.stdout.write(
     `✓ Configured ${name}\n  ${configPath}\n  Restart ${name} to apply changes.\n`
   );

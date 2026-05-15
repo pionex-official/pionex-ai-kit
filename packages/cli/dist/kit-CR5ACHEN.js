@@ -5,7 +5,7 @@ import {
   runSetup,
   version,
   writeFullConfig
-} from "./chunk-I6Z3QX5T.js";
+} from "./chunk-P3F7NIBO.js";
 
 // src/kit.ts
 import { createInterface } from "readline";
@@ -64,7 +64,7 @@ async function cmdOnboard() {
   process.stdout.write("  Default profile: " + profileName + "\n");
   process.stdout.write("  Usage: pionex-ai-kit onboard\n");
   process.stdout.write(
-    "  Next: run 'pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor' or 'pionex-trade-mcp setup --client cursor' to register the MCP server.\n  You can replace 'cursor' with 'claude-desktop', 'windsurf', 'vscode', 'claude-code', 'claude' or 'openclaw' depending on which agent you want to configure.\n\n"
+    "  Next: run 'pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor' or 'pionex-trade-mcp setup --client cursor' to register the MCP server.\n  You can replace 'cursor' with 'claude-desktop', 'windsurf', 'vscode', 'claude-code', 'claude', 'openclaw' or 'codex' depending on which agent you want to configure.\n\n"
   );
 }
 function buildKitProgram() {
@@ -98,4 +98,4 @@ function buildKitProgram() {
 export {
   buildKitProgram
 };
-//# sourceMappingURL=kit-DBQGQY64.js.map
+//# sourceMappingURL=kit-CR5ACHEN.js.map
