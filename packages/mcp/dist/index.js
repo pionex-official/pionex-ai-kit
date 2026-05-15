@@ -716,7 +716,8 @@ var CLIENT_NAMES = {
   windsurf: "Windsurf",
   vscode: "VS Code",
   "claude-code": "Claude Code CLI",
-  openclaw: "OpenClaw (mcporter)"
+  openclaw: "OpenClaw (mcporter)",
+  codex: "OpenAI Codex CLI"
 };
 var SUPPORTED_CLIENTS = Object.keys(CLIENT_NAMES);
 var PIONEX_API_DEFAULT_BASE_URL = "https://api.pionex.com";

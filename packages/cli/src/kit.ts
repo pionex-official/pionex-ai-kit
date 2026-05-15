@@ -77,7 +77,7 @@ async function cmdOnboard(): Promise<void> {
   process.stdout.write(
     "  Next: run 'pionex-ai-kit setup --mcp=pionex-trade-mcp --client cursor' or " +
       "'pionex-trade-mcp setup --client cursor' to register the MCP server.\n" +
-      "  You can replace 'cursor' with 'claude-desktop', 'windsurf', 'vscode', 'claude-code', 'claude' or 'openclaw' depending on which agent you want to configure.\n\n",
+      "  You can replace 'cursor' with 'claude-desktop', 'windsurf', 'vscode', 'claude-code', 'claude', 'openclaw' or 'codex' depending on which agent you want to configure.\n\n",
   );
 }
 
