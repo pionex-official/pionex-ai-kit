@@ -22,7 +22,7 @@ Run the built artifacts:
 
 - **CLI** (`@pionex/pionex-ai-kit`):  
   `node packages/cli/dist/index.js help`  
-  `node packages/cli/dist/index.js onboard`
+  `node packages/cli/dist/init.js onboard`
 
 - **MCP server** (`@pionex/pionex-trade-mcp`):  
   `node packages/mcp/dist/index.js --help`
